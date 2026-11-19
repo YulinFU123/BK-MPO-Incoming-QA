@@ -1,0 +1,5 @@
+Error: Desktop startup failed [48340:1025/144530.317:ERROR:net\socket\tcp_socket_win.cc:590] bind() returned an error: 以一种访问权限不允许的方式做了一个访问套接字的尝试。 (0x271D)
+[48340:1025/144530.317:ERROR:content\browser\devtools\devtools_http_handler.cc:322] Cannot start http server for devtools.
+
+    at connect (D:\项目\BK_MPO来料异常跟进\验证\基线审计_4.2.0\测试\qa_desktop.js:10:229)
+    at async D:\项目\BK_MPO来料异常跟进\验证\基线审计_4.2.0\测试\qa_desktop.js:25:1

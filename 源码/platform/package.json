@@ -1,0 +1,16 @@
+{
+  "name": "exception-analysis-platform-core",
+  "version": "0.8.0-dev.1",
+  "private": true,
+  "description": "异常分析平台开发候选：完整异常记录与BI V10.2同窗接入；原存储分区保留，离线运行",
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check-boundaries.js",
+    "demo": "node cli/demo.js"
+  }
+}

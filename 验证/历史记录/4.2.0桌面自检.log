@@ -1,0 +1,94 @@
+PASS first launch offers password setup
+PASS short password rejected
+PASS narrow desktop layout fits viewport
+PASS offline setup and date
+PASS scanner Enter never saves incomplete record
+PASS missing anomaly blocks save
+PASS rapid entry and exact code categories
+PASS filled field opens all preset options
+PASS search and keyboard select without submitting
+PASS history preserves exact silk codes
+PASS new values stay editable
+PASS navigation dismisses dropdown
+PASS SN lookup fills blank base fields only
+PASS duplicate SN can cancel save
+PASS plain Enter never saves complete record
+PASS duplicate SN hard blocked even when confirm accepts
+PASS consecutive scans ignored and focus stays on SN
+PASS per-field repeat rules available with SN default
+PASS SN unique checkbox reflects existing rule
+PASS unchecking unique disables scope
+PASS numeric ascending sort
+PASS sequence stays consecutive after reverse sort
+PASS closing anomaly requires owner and result
+PASS workflow close saved
+PASS workflow history retained
+PASS daily backup encrypted
+PASS saved vault contains ciphertext only
+PASS no records in renderer local storage
+PASS cell viewer works in desktop
+PASS latest trend bar visible
+PASS offline XLSX and encrypted backup downloads
+PASS backup is encrypted
+PASS lock removes record DOM
+PASS wrong password cannot reveal workspace
+PASS unlock preserves unsaved draft and records
+PASS password change rejects old password and keeps data
+PASS old backup imports under current password
+PASS desktop template prompt and separate records
+PASS idle auto lock fires
+PASS auto lock retains draft
+PASS historical CSV import preserves leading zeros
+PASS legacy JSON migration keeps all records
+PASS no renderer exceptions
+PASS normal close saves draft and reopening asks password
+PASS failed locked restore preserves current data
+PASS locked restore unlocks with backup password
+PASS batch opens after common values validated
+PASS batch ignores repeated scans without saving records
+PASS batch survives close and reopen
+PASS batch saves all with permanent references
+PASS status and custom field filters combine
+PASS invalid date range rejected without changing results
+PASS clear combined filters restores records
+PASS conditional rule fills blank target
+PASS conditional rule preserves manually entered value
+PASS XLSX sheet and header mapping validates duplicate and missing rows
+PASS XLSX import preserves formatted leading zeros
+PASS followup excludes closed records
+PASS past due open record appears overdue
+PASS followup owner filter works
+PASS closed overdue record leaves board
+PASS failed save keeps draft and record count
+PASS retry save creates only one record
+PASS failed deletion retains record
+PASS successful deletion removes one record
+PASS failed recovery does not report restored record
+PASS recovery retry restores exactly once
+PASS input policy editor opens
+PASS invalid character blocks save with inline reason
+PASS overlong input retained without truncation
+PASS valid constrained input saves
+PASS field constraints persist after configuration save
+PASS native select supports unified popup rendering
+PASS settings pane hides unrelated sections
+PASS settings tabs support keyboard navigation
+PASS restricted dropdown empty state does not suggest invalid free input
+PASS dropdown shows current selection checkmark
+PASS arrow up selects last option without saving
+PASS secondary entry actions are grouped in a working popover
+PASS escape dismisses action popover
+PASS focused last field clears sticky save bar
+PASS field uses one focus ring
+PASS window title is concise
+PASS duplicate content title takes no layout space
+PASS chart colors are consistent
+PASS KPI corners have no gray backing
+PASS glass material is active on navigation
+PASS glass can be disabled
+PASS dropdown uses shared glass surface
+PASS last table header matches other headers
+PASS sticky action cells match row striping
+PASS no final renderer errors
+QA_DOWNLOADS D:\项目\BK_MPO来料异常跟进\验证\desktop-qa-1792909445737\downloads
+QA_PROFILE D:\项目\BK_MPO来料异常跟进\验证\desktop-qa-1792909445737

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>平台夹具标签制作与排版检查</title>
+    <link rel="stylesheet" href="choices-check.css" />
+    <link rel="stylesheet" href="navigation-check.css" />
+    <script src="label-check.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>平台夹具标签制作与排版实际界面检查</h1>
+      <p>仅使用明确构造的示例编号，不读取正式工作区或本机原表。</p>
+      <button id="runLabelChecks">运行界面检查</button><span id="labelCheckSummary">尚未执行</span
+      ><iframe id="testWorkspace" src="../app/index.html" title="实际平台示例工作区"></iframe>
+      <table>
+        <tbody id="labelCheckRows"></tbody>
+      </table>
+      <pre id="labelCheckJSON"></pre>
+    </main>
+  </body>
+</html>

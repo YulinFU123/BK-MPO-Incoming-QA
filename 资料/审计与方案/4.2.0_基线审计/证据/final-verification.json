@@ -1,0 +1,11 @@
+{
+  "report_date": "2026-10-26",
+  "original_zip_sha256": "76424238d746a201911f824992801bcb8b097f463c0fe47e259b528e5e2f1ec2",
+  "original_zip_unchanged": true,
+  "extracted_baseline_files_checked": 100,
+  "extracted_baseline_mismatches": [],
+  "existing_regression_pass": 92,
+  "supplemental_pass": 3,
+  "supplemental_fail": 3,
+  "scope": "audit documents only; no application source edits or new release"
+}

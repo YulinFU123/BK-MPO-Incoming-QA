@@ -1,0 +1,72 @@
+{
+  "layoutVersion": 2,
+  "project": "BK_MPO 智能异常管理工作台",
+  "updated": "2026-11-19",
+  "current": {
+    "version": "0.21.3-dev.29",
+    "status": "模板分表与工作区纠错候选",
+    "program": "成果/当前版本/程序/异常分析平台.exe",
+    "package": "成果/当前版本/BK_MPO_0.21.3-dev.29_完整离线包.zip",
+    "sha256": "354ca67e2b144b88c54e6692a19687e9a99c3d847b660ea4445163af405a6a38",
+    "report": "成果/当前版本/测试报告.md",
+    "manifest": "成果/当前版本/文件校验.json",
+    "formalReleaseApproved": false,
+    "storageIssueResolved": false,
+    "verifiedProgramFiles": 3459,
+    "independentTests": 542,
+    "newFeatureTests": 160,
+    "pythonIntegrationTests": 90,
+    "featureGuide": "成果/当前版本/使用说明.md",
+    "staleLockRecoveryImplemented": true,
+    "workflowIsolationImplemented": true
+  },
+  "previous": {
+    "version": "0.21.3-dev.28",
+    "status": "更新前实际安装程序的完整回退快照",
+    "program": "成果/上一版本/程序/异常分析平台.exe",
+    "package": "成果/上一版本/BK_MPO_0.21.3-dev.28_完整离线包.zip",
+    "sha256": "8d8b73d9079963c9ada9d7d72ce401a7b88ce65d1e633c41069f0886379c30f9",
+    "report": "成果/上一版本/测试报告.md",
+    "manifest": "成果/上一版本/文件校验.json",
+    "formalReleaseApproved": false,
+    "storageIssueResolved": false,
+    "verifiedProgramFiles": 3457,
+    "independentTests": 534,
+    "newFeatureTests": 134,
+    "pythonIntegrationTests": 77,
+    "featureGuide": "成果/上一版本/使用说明.md",
+    "staleLockRecoveryImplemented": true,
+    "workflowIsolationImplemented": true
+  },
+  "source": "源码/workbench/platform",
+  "sourceVersion": "0.21.3-dev.29",
+  "baseline": {
+    "version": "4.2.0",
+    "package": "资料\\原始基线\\异常记录台_4.2.0_最新版.zip",
+    "sha256": "76424238d746a201911f824992801bcb8b097f463c0fe47e259b528e5e2f1ec2"
+  },
+  "compatibilityBaseline": {
+    "version": "4.5.0-rc.1",
+    "package": "资料\\原始基线\\异常记录台_4.5.0-rc.1_桌面兼容恢复基线.zip",
+    "sha256": "c6d3414b3dc11f26f8049be1a8767d99d454e40feb281f77eada4effa541e17b"
+  },
+  "extension": {
+    "path": "成果/当前版本/配套扩展/BI联动扩展_1.5.0_开发候选.zip",
+    "sha256": "59d5062e2ca95d28e19fc9abf1b3107c4d38c7ddb0e2115738258fc428af5bab"
+  },
+  "knownIssues": [
+    "QA-WINDOWS-SAVE-001"
+  ],
+  "plan": "资料/审计与方案/智能工作台升级/后续优化计划.md",
+  "audit": "资料/审计与方案",
+  "build": "构建/当前作业",
+  "history": "构建/历史作业",
+  "cleanupReport": "资料/目录整理/版本与入口整理报告.md",
+  "historicalContentArchive": {
+    "path": "资料\\历史归档\\旧版本差异资料.zip",
+    "sha256": "4ce38121a44b24e00052a68cec68159d22aaa17ad3f4181c13d35466ba439db7",
+    "selfContained": true,
+    "purpose": "已删除旧程序和旧包内容的去重恢复资料；非日常启动入口",
+    "lastExpanded": "2026-11-03"
+  }
+}

@@ -1,0 +1,148 @@
+/* One owner for theme colors. Semantic layers, not per-page palettes. */
+:root {
+  color-scheme: light;
+  --canvas: #e8eef6;
+  --surface: #f8fafd;
+  --surface-subtle: #eef3f9;
+  --surface-raised: #fff;
+  --control: #fff;
+  --ink: #172b46;
+  --muted: #526781;
+  --line: #bbcbdd;
+  --input-line: #9aafc8;
+  --accent: #1468c0;
+  --accent-hover: #0b529b;
+  --accent-ink: #fff;
+  --selected: #dceafd;
+  --selected-ink: #0c4f99;
+  --danger: #ac2935;
+  --error-bg: #fff0f1;
+  --success: #216443;
+  --success-bg: #e8f4ed;
+  --header-bg: #20466e;
+  --header-ink: #f4f8ff;
+  --stripe: #edf3fa;
+  --focus-ring: #1468c0;
+  --comparison: #75579a;
+  --rail: #142d4a;
+  --rail-line: #34516f;
+  --rail-ink: #f0f6ff;
+  --rail-muted: #a8bed7;
+  --rail-active: #285482;
+  --rail-hover: #203f60;
+  --rail-filter: none;
+  --metric-bg: #20466e;
+  --metric-ink: #f4f8ff;
+  --metric-muted: #c3d8ef;
+  --glass-surface: var(--surface);
+  --glass-line: var(--line);
+  --glass-filter: none;
+  --glass-shadow: none;
+  --popup-surface: var(--surface-raised);
+  --popup-filter: none;
+  --frame-shadow: 0 22px 64px #142d4a1c;
+  --chart-color: var(--accent);
+  --chart-track: var(--selected);
+  --teal: var(--accent);
+  --teal-soft: var(--selected);
+  --paper: var(--canvas);
+}
+:root[data-theme=glass] {
+  --canvas: #dfeaf5;
+  --surface: #f4f8fc;
+  --surface-subtle: #e8f0f9;
+  --accent: #0864b8;
+  --accent-hover: #064f95;
+  --rail: rgba(20,45,74,.93);
+  --rail-filter: var(--glass-filter);
+  --glass-surface: rgba(242,248,255,.92);
+  --glass-line: #b1c8e2;
+  --glass-filter: blur(22px) saturate(1.15);
+  --glass-shadow: inset 0 1px 0 #ffffff99;
+  --popup-surface: rgba(248,252,255,.97);
+  --popup-filter: var(--glass-filter);
+}
+:root[data-theme=graphite] {
+  color-scheme: dark;
+  --canvas: #0d1928;
+  --surface: #17283d;
+  --surface-subtle: #1c3048;
+  --surface-raised: #203650;
+  --control: #1c3048;
+  --ink: #e9f2ff;
+  --muted: #b1c4dd;
+  --line: #49617d;
+  --input-line: #718aa8;
+  --accent: #83c0ff;
+  --accent-hover: #a1d0ff;
+  --accent-ink: #11243a;
+  --selected: #2a4b70;
+  --selected-ink: #d8ebff;
+  --danger: #ffb0b8;
+  --error-bg: #462e40;
+  --success: #a1ddbe;
+  --success-bg: #203e37;
+  --header-bg: #294867;
+  --header-ink: #eff6ff;
+  --stripe: #1b3049;
+  --focus-ring: #a4d1ff;
+  --comparison: #c8b1ed;
+  --rail: #0c1d31;
+  --rail-line: #304c6c;
+  --rail-active: #284c76;
+  --rail-hover: #183650;
+  --metric-bg: #294867;
+  --metric-ink: #eff6ff;
+  --metric-muted: #c4d8ee;
+  --frame-shadow: 0 24px 72px #00000040;
+}
+:root[data-theme=contrast] {
+  --canvas: #e7e7e7;
+  --surface: #fff;
+  --surface-subtle: #f1f1f1;
+  --surface-raised: #fff;
+  --control: #fff;
+  --ink: #000;
+  --muted: #303030;
+  --line: #333;
+  --input-line: #111;
+  --accent: #00478a;
+  --accent-hover: #002e5c;
+  --selected: #d4e6ff;
+  --selected-ink: #00284e;
+  --danger: #930019;
+  --error-bg: #fff0f2;
+  --header-bg: #111;
+  --header-ink: #fff;
+  --stripe: #ececec;
+  --focus-ring: #000;
+  --comparison: #5d196e;
+  --rail: #111;
+  --rail-line: #999;
+  --rail-ink: #fff;
+  --rail-muted: #ddd;
+  --rail-active: #264d7a;
+  --rail-hover: #333;
+  --metric-bg: #111;
+  --metric-ink: #fff;
+  --metric-muted: #eee;
+  --frame-shadow: none;
+}
+@media (forced-colors: active) {
+  :root[data-theme] {
+    --control: Canvas;
+    --rail: Canvas;
+    --rail-ink: CanvasText;
+    --rail-muted: CanvasText;
+    --rail-line: CanvasText;
+    --rail-active: Highlight;
+    --rail-hover: Canvas;
+    --header-ink: CanvasText;
+    --accent-ink: HighlightText;
+    --metric-bg: Canvas;
+    --metric-ink: CanvasText;
+    --metric-muted: CanvasText;
+    --popup-surface: Canvas;
+    --frame-shadow: none;
+  }
+}

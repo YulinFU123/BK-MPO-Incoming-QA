@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>标签设计器实际检查</title>
+    <link rel="stylesheet" href="choices-check.css" />
+    <link rel="stylesheet" href="navigation-check.css" />
+    <script src="designer-check.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>标签设计与批量套用</h1>
+      <p>实际平台界面，仅使用明确构造编号和文字，不打开正式库。</p>
+      <button id="runDesignerChecks">运行设计器检查</button
+      ><span id="designerSummary">尚未执行</span
+      ><iframe id="testWorkspace" src="../app/index.html" title="实际标签设计示例工作区"></iframe>
+      <table>
+        <tbody id="designerRows"></tbody>
+      </table>
+      <pre id="designerResultJSON"></pre>
+    </main>
+  </body>
+</html>

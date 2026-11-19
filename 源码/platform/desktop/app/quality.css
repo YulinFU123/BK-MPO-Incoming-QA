@@ -1,0 +1,230 @@
+.quality-page {
+  padding: 20px 0;
+  max-width: 1280px;
+}
+.quality-result-summary {
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.quality-passed > summary {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+}
+.quality-passed .quality-check {
+  background: var(--surface-2);
+}
+.quality-passed {
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+.quality-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.quality-page-header > div {
+  flex: 1;
+  min-width: 0;
+}
+.quality-page-header > .button {
+  flex: none;
+  align-self: flex-start;
+}
+.quality-scope-disclosure {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.quality-scope-disclosure > summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.quality-scope-disclosure > summary strong {
+  margin-right: 14px;
+}
+.quality-scope-disclosure > summary span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.quality-scope-disclosure .scope-bar {
+  margin: 0 14px;
+}
+.quality-scope-disclosure .dimension-filters {
+  margin: 0 14px 10px;
+}
+.quality-page-header h2 {
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+.quality-page-header p {
+  color: var(--muted);
+  margin: 0;
+}
+.quality-group {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  margin: 16px 0;
+}
+.quality-group > h3 {
+  font-size: 14px;
+  padding: 12px 16px;
+  margin: 0;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  border-radius: 8px 8px 0 0;
+}
+.quality-check {
+  display: flex;
+  gap: 16px;
+  padding: 14px 16px;
+  align-items: start;
+}
+.quality-check + .quality-check {
+  border-top: 1px solid var(--line-soft);
+}
+.quality-check-copy {
+  flex: 1;
+  min-width: 0;
+}
+.quality-check-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.quality-check-heading strong {
+  font-size: 13px;
+}
+.quality-count {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.quality-count.warning {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.quality-count.notice {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+.quality-count.ok {
+  color: var(--positive);
+  background: var(--positive-soft);
+}
+.quality-check-copy > p,
+.quality-limits p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+.quality-locations {
+  font-size: 12px;
+  margin-top: 8px;
+  color: var(--text);
+}
+.quality-locations summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 4px 0;
+}
+.quality-locations ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.quality-locations li {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  border-top: 1px solid var(--line-soft);
+  padding: 8px 0;
+  overflow-wrap: anywhere;
+}
+.quality-locations li > span {
+  flex: 1;
+  min-width: 0;
+}
+.quality-check > .button,
+.quality-locations .button {
+  flex: none;
+}
+.quality-message {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface-2);
+  font-size: 13px;
+}
+.quality-message.error {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+.quality-bi-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.quality-bi-toolbar h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.quality-sample-scope {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--accent-soft);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.quality-sample-scope {
+  flex-wrap: wrap;
+}
+:root[data-font='large'] .quality-page,
+:root[data-font='large'] .quality-page p,
+:root[data-font='large'] .quality-check strong {
+  font-size: 15px;
+}
+@media (max-width: 640px) {
+  .quality-check {
+    padding: 12px;
+    gap: 10px;
+  }
+  .quality-check > .button {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  .quality-locations li {
+    flex-wrap: wrap;
+  }
+  .quality-page-header {
+    align-items: start;
+  }
+}

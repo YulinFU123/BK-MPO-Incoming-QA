@@ -1,0 +1,245 @@
+:root {
+  --cs-ink: #142333;
+  --cs-muted: #506176;
+  --cs-grid: #9baaba;
+  --cs-surface: #fbfcfd;
+  --cs-line-0: #0969c8;
+  --cs-line-1: #9b5219;
+  --cs-line-2: #236a54;
+  --cs-line-3: #7548aa;
+}
+:root[data-theme='graphite'],
+:root[data-fusion-theme='graphite'] {
+  --cs-ink: #edf2f8;
+  --cs-muted: #b8c5d4;
+  --cs-grid: #697c91;
+  --cs-surface: #242e3b;
+  --cs-line-0: #91c2ff;
+  --cs-line-1: #f2be85;
+  --cs-line-2: #8ed5bb;
+  --cs-line-3: #d3b5ff;
+}
+:root[data-theme='contrast'],
+:root[data-fusion-theme='contrast'] {
+  --cs-grid: #66788a;
+  --cs-ink: #101820;
+  --cs-muted: #344555;
+  --cs-surface: #fff;
+  --cs-line-0: #00478a;
+  --cs-line-1: #863900;
+}
+:root .chart-surface {
+  margin: 0;
+  color: var(--cs-ink);
+  font:
+    13px/1.5 'Segoe UI',
+    'Microsoft YaHei UI',
+    sans-serif;
+}
+:root .cs-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px 22px;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.cs-legend small {
+  color: var(--cs-muted);
+  margin-inline-start: auto;
+}
+.cs-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.cs-key i {
+  width: 22px;
+  border-top: 3px solid var(--series-color);
+}
+.cs-key:nth-child(even) i {
+  border-top-style: dashed;
+}
+.chart-surface [data-series='0'] {
+  --series-color: var(--cs-line-0);
+}
+.chart-surface [data-series='1'] {
+  --series-color: var(--cs-line-1);
+}
+.chart-surface [data-series='2'] {
+  --series-color: var(--cs-line-2);
+}
+.chart-surface [data-series='3'] {
+  --series-color: var(--cs-line-3);
+}
+:root .cs-scroll {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: auto;
+  border-bottom: 1px solid var(--cs-grid);
+  padding-bottom: 4px;
+}
+:root .cs-scroll:focus-visible {
+  outline: 2px solid var(--cs-line-0);
+  outline-offset: 3px;
+}
+:root .chart-surface-svg {
+  display: block;
+  max-width: none !important;
+  width: auto !important;
+  height: var(--cs-height, 320px) !important;
+  overflow: visible;
+}
+:root .cs-canvas-row {
+  display: flex;
+  width: max-content;
+  position: relative;
+}
+:root .cs-fixed-axis {
+  position: sticky;
+  left: 0;
+  flex: none;
+  z-index: 2;
+  overflow: visible;
+}
+:root .cs-fixed-axis .cs-axis-background {
+  fill: var(--cs-surface);
+}
+:root .cs-fixed-axis :is(.cs-axis, .cs-unit) {
+  fill: var(--cs-muted);
+  font-size: 13px;
+}
+:root .chart-surface .cs-grid {
+  stroke: var(--cs-grid);
+  stroke-width: 1;
+  stroke-dasharray: 0;
+}
+:root .chart-surface .cs-axis,
+:root .chart-surface .cs-unit {
+  font-size: 12px;
+  fill: var(--cs-muted);
+}
+:root .chart-surface .cs-line {
+  fill: none;
+  stroke: var(--series-color);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+:root .chart-surface .cs-line[data-series='1'],
+:root .chart-surface .cs-line[data-series='3'] {
+  stroke-dasharray: 7 4;
+}
+:root .chart-surface .cs-point {
+  fill: var(--cs-surface);
+  stroke: var(--series-color);
+  stroke-width: 2.5;
+  cursor: pointer;
+}
+:root .chart-surface .cs-point:focus-visible {
+  outline: 2px solid var(--series-color);
+  outline-offset: 3px;
+}
+:root .chart-surface .cs-value {
+  fill: var(--cs-ink);
+  font:
+    650 13px 'Segoe UI',
+    'Microsoft YaHei UI',
+    sans-serif;
+  paint-order: stroke;
+  stroke: var(--cs-surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+:root .chart-surface .cs-leader {
+  stroke: var(--series-color);
+  stroke-width: 1;
+}
+:root .chart-surface .cs-missing {
+  fill: var(--cs-muted);
+  font-size: 11px;
+}
+:root .cs-caption {
+  margin-top: 10px;
+  color: var(--cs-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+:root .cs-series-pane {
+  padding-top: 12px;
+  border-top: 1px solid var(--cs-grid);
+  width: max-content;
+  min-width: 100%;
+}
+:root .cs-series-pane > strong {
+  position: sticky;
+  left: 0;
+  display: block;
+  padding-left: 8px;
+  font-size: 13px;
+}
+:root .cs-data {
+  margin-top: 12px;
+  overflow: auto;
+}
+:root .cs-data summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--cs-muted);
+  padding-block: 6px;
+}
+:root .cs-data table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 420px;
+}
+:root .cs-data :is(th, td) {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--cs-grid);
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+:root .cs-data tr > :first-child {
+  text-align: left;
+}
+:root .cs-data th {
+  background: var(--cs-surface);
+  color: var(--cs-ink);
+}
+:root #trendChart {
+  height: auto;
+  min-height: 320px;
+  overflow: visible;
+}
+:root #chartKey {
+  display: none;
+}
+:root .trend-scroll:has(.chart-surface) {
+  overflow: visible;
+}
+:root .pareto-svg {
+  min-width: 960px;
+  width: 100%;
+  height: auto;
+  --axis-scale: 1 !important;
+}
+:root #paretoPlot {
+  overflow-x: auto;
+}
+:root .pareto-svg .chart-grid {
+  stroke: var(--cs-grid);
+  stroke-width: 1;
+}
+:root .pareto-svg .chart-axis {
+  fill: var(--cs-muted);
+  font-size: 12px;
+}
+:root .pareto-svg .pareto-value {
+  fill: var(--cs-ink);
+  font-size: 13px;
+  font-weight: 650;
+  paint-order: stroke;
+  stroke: var(--cs-surface);
+  stroke-width: 4px;
+}

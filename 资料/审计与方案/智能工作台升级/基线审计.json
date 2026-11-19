@@ -1,0 +1,102 @@
+{
+  "auditVersion": 1,
+  "date": "2026-10-29",
+  "baseline": "0.8.0-dev.1",
+  "originalCompatibilityBaseline": "4.2.0",
+  "packages": [
+    {
+      "kind": "original",
+      "version": "4.2.0",
+      "path": "D:\\项目\\BK_MPO来料异常跟进\\资料\\原始基线\\异常记录台_4.2.0_最新版.zip",
+      "sha256": "76424238d746a201911f824992801bcb8b097f463c0fe47e259b528e5e2f1ec2",
+      "crc": "passed",
+      "files": 100
+    },
+    {
+      "kind": "currentDesktop",
+      "version": "4.5.0-rc.1",
+      "path": "D:\\项目\\BK_MPO来料异常跟进\\成果\\当前版本\\异常记录台_4.5.0-rc.1_候选版.zip",
+      "sha256": "c6d3414b3dc11f26f8049be1a8767d99d454e40feb281f77eada4effa541e17b",
+      "crc": "passed",
+      "files": 279
+    },
+    {
+      "kind": "platform",
+      "version": "0.8.0-dev.1",
+      "path": "D:\\项目\\BK_MPO来料异常跟进\\成果\\当前版本\\架构开发\\异常分析平台_0.8.0-dev.1_自由组合与纸张排版候选.zip",
+      "sha256": "3c8e2b6fdb8bb21fe785a102518304c1e84ec2e7eaac24e344345af492552bc6",
+      "crc": "passed",
+      "files": 3164
+    },
+    {
+      "kind": "bi",
+      "version": "V10.2",
+      "path": "D:\\项目\\BK_MPO来料异常跟进\\资料\\原始基线\\质量工作台_V10.2_自检修复与EXE构建包.zip",
+      "sha256": "a8e2928b31279dfe981f4d2d129d8bad271af5d53aaa0e4b2dda01b4b46f2f97",
+      "crc": "passed",
+      "files": 73
+    }
+  ],
+  "sourceCounts": {
+    "legacy": 41,
+    "bi": 73,
+    "platform": 174
+  },
+  "publishedSourceMatches": true,
+  "runtime": {
+    "versions": {
+      "node": "24.22.0",
+      "acorn": "8.18.0",
+      "ada": "4.0.0",
+      "amaro": "1.1.11",
+      "ares": "1.34.8",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "merve": "1.2.2",
+      "modules": "150",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.70.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "0.0.0",
+      "simdjson": "4.6.11",
+      "simdutf": "7.7.0",
+      "sqlite": "3.53.4",
+      "tz": "2026e",
+      "undici": "7.29.1",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "15.6.75.19-electron.0",
+      "zlib": "1.3.2.1-motley",
+      "zstd": "1.6.0",
+      "electron": "45.0.0",
+      "chrome": "156.0.8078.48"
+    },
+    "sqlite": "3.53.4"
+  },
+  "businessMetadata": [
+    {
+      "path": "C:\\Users\\yulinf\\AppData\\Roaming\\QualityDeskOffline\\vault.json",
+      "exists": true,
+      "isDirectory": false,
+      "size": 4142,
+      "contentsRead": false
+    },
+    {
+      "path": "C:\\Users\\yulinf\\AppData\\Roaming\\ExceptionAnalysisPlatformPreview",
+      "exists": true,
+      "isDirectory": true,
+      "size": null,
+      "contentsRead": false
+    }
+  ],
+  "formalDataOpened": false,
+  "knownIssue": "QA-WINDOWS-SAVE-001 remains open",
+  "newSource": "源码/workbench (independent upgrade branch)",
+  "preservedSource": "源码/platform (published 0.8 baseline, read-only in this iteration)"
+}

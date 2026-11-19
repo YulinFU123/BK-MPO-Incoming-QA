@@ -1,0 +1,337 @@
+/* One choice surface for the shell, preserved record UI and preserved BI UI. */
+:root {
+  --choice-field: #fbfcfd;
+  --choice-layer: #f7f9fcf5;
+  --choice-ink: #142333;
+  --choice-muted: #536576;
+  --choice-line: #bfcbd8;
+  --choice-accent: #0969c8;
+  --choice-accent-ink: #fff;
+  --choice-soft: #e4edf7;
+  --choice-shadow: 0 10px 28px #10243a24, 0 2px 5px #10243a0d;
+  --choice-radius: 10px;
+  --choice-menu-size: 13px;
+  --choice-row-height: 32px;
+  --choice-font:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Microsoft YaHei UI', 'Segoe UI',
+    sans-serif;
+}
+:root[data-font='large'] {
+  --choice-menu-size: 15px;
+  --choice-row-height: 36px;
+}
+:root[data-theme='graphite'],
+:root[data-fusion-theme='graphite'] {
+  --choice-field: #242e3b;
+  --choice-layer: #2c3644f7;
+  --choice-ink: #edf2f8;
+  --choice-muted: #b8c5d4;
+  --choice-line: #546477;
+  --choice-accent: #82b8ff;
+  --choice-accent-ink: #122339;
+  --choice-soft: #354b64;
+  --choice-shadow: 0 12px 32px #0005, 0 2px 6px #0003;
+}
+:root[data-theme='glass'],
+:root[data-fusion-theme='glass'] {
+  --choice-field: #f9fbfe;
+  --choice-layer: #f6faffeb;
+  --choice-line: #b5c9df;
+  --choice-soft: #dfecfa;
+}
+:root[data-theme='contrast'],
+:root[data-fusion-theme='contrast'] {
+  --choice-field: #fff;
+  --choice-layer: #fff;
+  --choice-ink: #101820;
+  --choice-muted: #344555;
+  --choice-line: #344555;
+  --choice-accent: #00478a;
+  --choice-accent-ink: #fff;
+  --choice-soft: #d4e6ff;
+  --choice-shadow: 0 3px 0 #10182026;
+}
+
+/* Native value, form validation and change handlers remain native. */
+@supports (appearance: base-select) {
+  select:not([multiple]):not([size]),
+  select:not([multiple])[size='1'],
+  select::picker(select) {
+    appearance: base-select;
+  }
+  select:not([multiple]):not([size]),
+  select:not([multiple])[size='1'] {
+    align-items: center;
+    gap: 12px;
+    background: var(--choice-field);
+    color: var(--choice-ink);
+    border: 1px solid var(--choice-line);
+    border-radius: 7px;
+    padding: 6px 11px;
+    min-height: 34px;
+    font-family: var(--choice-font);
+    font-size: inherit;
+    line-height: 1.4;
+    cursor: default;
+  }
+  select::picker-icon {
+    content: '';
+    align-self: center;
+    flex: 0 0 6px;
+    width: 6px;
+    height: 6px;
+    margin: -3px 2px 0 auto;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    color: var(--choice-muted);
+    transform: rotate(45deg);
+  }
+  select:open::picker-icon {
+    transform: translateY(3px) rotate(225deg);
+  }
+  select::picker(select) {
+    box-sizing: border-box;
+    color: var(--choice-ink);
+    background: var(--choice-layer);
+    border: 1px solid var(--choice-line);
+    border-radius: var(--choice-radius);
+    box-shadow: var(--choice-shadow);
+    padding: 5px;
+    max-block-size: min(320px, calc(100dvh - 24px));
+    max-inline-size: calc(100dvw - 24px);
+    min-inline-size: anchor-size(width);
+    overflow: auto;
+    scrollbar-width: thin;
+    backdrop-filter: blur(22px) saturate(1.15);
+    font: var(--choice-menu-size) / 1.45 var(--choice-font);
+  }
+  :root select:not([multiple]) option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: var(--choice-row-height);
+    margin: 1px 0;
+    padding: 6px 9px;
+    background: transparent;
+    color: var(--choice-ink);
+    border: 0;
+    border-radius: 5px;
+    font: inherit;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  :root select:not([multiple]) option::checkmark {
+    color: var(--choice-accent);
+    font-size: 12px;
+  }
+  :root select:not([multiple]) option:checked {
+    background: var(--choice-soft);
+    color: var(--choice-ink);
+    font-weight: 550;
+  }
+  :root select:not([multiple]) option:is(:hover, :focus-visible):not(:disabled) {
+    background: var(--choice-accent);
+    color: var(--choice-accent-ink);
+    outline: none;
+  }
+  :root select:not([multiple]) option:is(:hover, :focus-visible)::checkmark {
+    color: inherit;
+  }
+  :root select:not([multiple]) option:disabled {
+    color: var(--choice-muted);
+    opacity: 0.6;
+  }
+  :root select:not([multiple]) optgroup {
+    color: var(--choice-muted);
+    font-size: 12px;
+  }
+  :root select:not([multiple]) optgroup > option {
+    margin-inline-start: 0;
+  }
+}
+
+/* Existing editable record choices use the same top-layer menu. */
+:root .combo-menu,
+:root .choice-menu {
+  box-sizing: border-box;
+  position: fixed;
+  inset: auto;
+  z-index: 10000;
+  margin: 0;
+  padding: 5px;
+  color: var(--choice-ink);
+  background: var(--choice-layer);
+  border: 1px solid var(--choice-line);
+  border-radius: var(--choice-radius);
+  box-shadow: var(--choice-shadow);
+  font: var(--choice-menu-size) / 1.45 var(--choice-font);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  backdrop-filter: blur(22px) saturate(1.15);
+}
+.combo-menu::backdrop,
+.choice-menu::backdrop {
+  background: transparent;
+  pointer-events: none;
+}
+:root .combo-menu .combo-caption,
+:root .choice-menu .choice-caption {
+  padding: 7px 9px;
+  color: var(--choice-muted);
+  border: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+:root .combo-menu .combo-option,
+:root .choice-menu .choice-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--choice-row-height);
+  margin: 1px 0;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--choice-ink);
+  text-align: left;
+  font: inherit;
+  cursor: default;
+}
+:root .combo-menu .option-label,
+:root .choice-menu .choice-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+:root .combo-menu .option-meta {
+  margin-left: auto;
+  color: var(--choice-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+:root .combo-menu .combo-option[aria-selected='true'],
+:root .choice-menu .choice-option[aria-selected='true'] {
+  background: var(--choice-soft);
+  color: var(--choice-ink);
+}
+:root .combo-menu .combo-option:is(:hover, .selected),
+:root .choice-menu .choice-option:is(:hover, .selected) {
+  background: var(--choice-accent);
+  color: var(--choice-accent-ink);
+}
+:root .combo-menu .combo-option:is(:hover, .selected) .option-meta {
+  color: inherit;
+  opacity: 0.85;
+}
+:root .combo-menu .option-check,
+:root .choice-menu .choice-check {
+  position: relative;
+  flex: 0 0 13px;
+  width: 13px;
+  height: 16px;
+  font-size: 0;
+  color: inherit;
+}
+:root .combo-menu .option-check::after,
+:root .choice-menu .choice-check::after {
+  content: none;
+}
+:root .combo-menu .option-check:not(:empty)::after,
+:root .choice-menu [aria-selected='true'] .choice-check::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 4px;
+  height: 7px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+}
+:root .combo-menu .combo-empty,
+:root .choice-menu .choice-empty {
+  padding: 12px 9px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--choice-muted);
+}
+.has-suggestions > .combo-toggle {
+  width: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  border: 0;
+  border-radius: 5px;
+  color: var(--choice-muted);
+  background: transparent;
+}
+.has-suggestions > .combo-toggle::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+.has-suggestions > .combo-toggle > * {
+  display: none !important;
+}
+.has-suggestions > .combo-toggle[aria-expanded='true'] {
+  background: var(--choice-soft);
+}
+.has-suggestions > .combo-toggle[aria-expanded='true']::after {
+  transform: translateY(3px) rotate(225deg);
+}
+.has-suggestions > .combo-toggle:focus-visible,
+select:focus-visible,
+[data-choice-input]:focus-visible {
+  outline: 2px solid var(--choice-accent);
+  outline-offset: 2px;
+}
+:root:is([data-theme='contrast'], [data-fusion-theme='contrast']) .combo-menu,
+:root:is([data-theme='contrast'], [data-fusion-theme='contrast']) .choice-menu,
+:root:is([data-theme='contrast'], [data-fusion-theme='contrast']) select::picker(select) {
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root .combo-menu,
+  :root .choice-menu,
+  select::picker(select) {
+    backdrop-filter: none;
+    background: var(--choice-field);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .combo-menu,
+  .choice-menu,
+  select,
+  select::picker-icon {
+    animation: none;
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  :root .combo-menu,
+  :root .choice-menu,
+  select::picker(select) {
+    background: Canvas;
+    color: CanvasText;
+    border-color: CanvasText;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  :root .combo-menu .combo-option:is(:hover, .selected),
+  :root .choice-menu .choice-option:is(:hover, .selected) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

@@ -1,0 +1,46 @@
+:root {
+  color-scheme: light;
+}
+body {
+  background: #eef2f6;
+  color: #142333;
+}
+main {
+  max-width: 1220px;
+}
+.field-fixture {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+  margin-block: 20px;
+}
+.field-fixture > div {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+}
+.field-fixture > div > label {
+  font-size: 12px;
+}
+.field-fixture input,
+.field-fixture textarea {
+  width: 100%;
+}
+#chartFixture {
+  padding: 18px;
+  background: var(--cs-surface);
+  border: 1px solid #7c8da0;
+  margin-block: 20px;
+  border-radius: 8px;
+}
+#chartFixture .chart-surface {
+  margin-bottom: 24px;
+}
+:root[data-theme='graphite'] body {
+  color: #edf2f8;
+  background: #171e27;
+}
+#surfaceSummary {
+  margin-left: 16px;
+}

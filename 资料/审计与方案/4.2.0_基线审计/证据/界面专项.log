@@ -1,0 +1,344 @@
+{
+  "mode": "isolated QA EXE; synthetic data only",
+  "cases": [
+    {
+      "name": "Enter activates focused Save button",
+      "status": "FAIL",
+      "actual": {
+        "count": "0",
+        "focus": "field_sn",
+        "status": "扫码 / 回车仅切换字段；核对后点击保存或按 Ctrl + Enter。"
+      }
+    },
+    {
+      "name": "Enter activates focused dropdown button",
+      "status": "FAIL",
+      "actual": {
+        "focus": "field_sn",
+        "expanded": "false"
+      }
+    },
+    {
+      "name": "Primary button normal text contrast >=4.5",
+      "status": "FAIL",
+      "actual": {
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(0, 122, 255)",
+        "fontSize": "13px",
+        "fontWeight": "500",
+        "contrast": 4.016975780478911
+      }
+    },
+    {
+      "name": "No search results provides visible empty state",
+      "status": "PASS",
+      "actual": "当前没有符合条件的记录开始录入，或切换到“全部”查看历史记录。"
+    },
+    {
+      "name": "Special characters and long Chinese text survive save and reload",
+      "status": "PASS",
+      "actual": 592
+    },
+    {
+      "name": "Actual process close and restart restores 1000 audit records",
+      "status": "PASS",
+      "actual": {
+        "count": "1000",
+        "newPid": 18040
+      }
+    }
+  ],
+  "runtime": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/156.0.8078.48",
+    "revision": "@40f996fb555e345f3f6909e10406c14da3394e84",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QualityDeskOffline/4.2.0 Chrome/156.0.8078.48 Electron/45.0.0 Safari/537.36",
+    "jsVersion": "15.6.75.19",
+    "viewport": {
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "screenWidth": 1440,
+      "screenHeight": 960
+    }
+  },
+  "performance": {
+    "restoreAndRender1000ms": 52,
+    "save1000": {
+      "ms": 6.800000011920929,
+      "ok": true
+    },
+    "unlockAndRender1000ms": 277,
+    "grid": {
+      "rows": 1000,
+      "cells": 12000,
+      "focusStops": 16011,
+      "totalNodes": 27923
+    },
+    "search": [
+      {
+        "query": "AUDIT-9",
+        "ms": 14.900000005960464,
+        "rows": 111
+      },
+      {
+        "query": "AUDIT-99",
+        "ms": 2.2999999821186066,
+        "rows": 11
+      },
+      {
+        "query": "",
+        "ms": 25.30000001192093,
+        "rows": 1000
+      }
+    ],
+    "sort": {
+      "ms": 40.70000001788139,
+      "rows": 1000
+    }
+  },
+  "layouts": [
+    {
+      "view": "entry",
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "viewport": 1440,
+      "page": 1440,
+      "body": 1440,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "records",
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "viewport": 1440,
+      "page": 1440,
+      "body": 1440,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "analysis",
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "viewport": 1440,
+      "page": 1440,
+      "body": 1440,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "followup",
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "viewport": 1440,
+      "page": 1440,
+      "body": 1440,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "settings",
+      "width": 1440,
+      "height": 960,
+      "dpr": 1,
+      "left": 180,
+      "right": 1260,
+      "top": 55,
+      "bottom": 905,
+      "scrollWidth": 1063,
+      "clientWidth": 1063,
+      "rootFits": true,
+      "bodyFits": true
+    },
+    {
+      "view": "entry",
+      "width": 1024,
+      "height": 720,
+      "dpr": 1,
+      "viewport": 1024,
+      "page": 1009,
+      "body": 1009,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "records",
+      "width": 1024,
+      "height": 720,
+      "dpr": 1,
+      "viewport": 1024,
+      "page": 1024,
+      "body": 1024,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "analysis",
+      "width": 1024,
+      "height": 720,
+      "dpr": 1,
+      "viewport": 1024,
+      "page": 1009,
+      "body": 1009,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "followup",
+      "width": 1024,
+      "height": 720,
+      "dpr": 1,
+      "viewport": 1024,
+      "page": 1024,
+      "body": 1024,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "settings",
+      "width": 1024,
+      "height": 720,
+      "dpr": 1,
+      "left": 30.71875,
+      "right": 993.265625,
+      "top": 28.796875,
+      "bottom": 691.1875,
+      "scrollWidth": 946,
+      "clientWidth": 946,
+      "rootFits": true,
+      "bodyFits": true
+    },
+    {
+      "view": "entry",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1.5,
+      "viewport": 1280,
+      "page": 1265,
+      "body": 1265,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "records",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1.5,
+      "viewport": 1280,
+      "page": 1280,
+      "body": 1280,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "analysis",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1.5,
+      "viewport": 1280,
+      "page": 1265,
+      "body": 1265,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "followup",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1.5,
+      "viewport": 1280,
+      "page": 1280,
+      "body": 1280,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "settings",
+      "width": 1280,
+      "height": 720,
+      "dpr": 1.5,
+      "left": 100,
+      "right": 1180,
+      "top": 28.796875,
+      "bottom": 691.1875,
+      "scrollWidth": 1063,
+      "clientWidth": 1063,
+      "rootFits": true,
+      "bodyFits": true
+    },
+    {
+      "view": "entry",
+      "width": 960,
+      "height": 540,
+      "dpr": 2,
+      "viewport": 960,
+      "page": 945,
+      "body": 945,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "records",
+      "width": 960,
+      "height": 540,
+      "dpr": 2,
+      "viewport": 960,
+      "page": 960,
+      "body": 960,
+      "active": "field_sn",
+      "rootFits": true
+    },
+    {
+      "view": "analysis",
+      "width": 960,
+      "height": 540,
+      "dpr": 2,
+      "viewport": 960,
+      "page": 945,
+      "body": 945,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "followup",
+      "width": 960,
+      "height": 540,
+      "dpr": 2,
+      "viewport": 960,
+      "page": 945,
+      "body": 945,
+      "active": "",
+      "rootFits": true
+    },
+    {
+      "view": "settings",
+      "width": 960,
+      "height": 540,
+      "dpr": 2,
+      "left": 21.296875,
+      "right": 923.6875,
+      "top": 21.59375,
+      "bottom": 518.390625,
+      "scrollWidth": 885,
+      "clientWidth": 885,
+      "rootFits": true,
+      "bodyFits": true
+    }
+  ],
+  "darkMode": {
+    "requested": true,
+    "panel": "rgb(255, 255, 255)",
+    "scheme": "light"
+  },
+  "forcedColors": {
+    "requested": true,
+    "glass": "none"
+  },
+  "rendererErrors": []
+}

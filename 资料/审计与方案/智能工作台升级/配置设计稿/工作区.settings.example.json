@@ -1,0 +1,345 @@
+{
+  "format": "bkmpo.workspace.settings",
+  "schemaVersion": 1,
+  "revision": 1,
+  "workspace": {
+    "displayName": "未命名工作区",
+    "description": "",
+    "process": "",
+    "color": "#1677FF",
+    "defaultTemplateId": "",
+    "quickActions": [
+      "new-record",
+      "add-bi-data",
+      "open-labels"
+    ],
+    "newWorkspaceMode": "quick"
+  },
+  "home": {
+    "primarySource": "auto",
+    "selectedBiSourceId": "",
+    "cardLayout": [
+      "summary",
+      "trend",
+      "recent",
+      "pending"
+    ]
+  },
+  "records": {
+    "templates": [],
+    "entry": {
+      "scanFieldId": "",
+      "enterAction": "next-incomplete",
+      "continuous": true,
+      "retainFieldIds": [],
+      "fillRules": []
+    },
+    "query": {
+      "filters": [],
+      "sort": [
+        {
+          "field": "createdAt",
+          "direction": "desc"
+        }
+      ],
+      "columns": [],
+      "pageSize": 50
+    },
+    "followup": {
+      "statuses": [
+        "pending",
+        "processing",
+        "verified",
+        "closed"
+      ],
+      "defaultDueDays": null
+    },
+    "import": {
+      "mappingProfiles": []
+    },
+    "export": {
+      "profile": {
+        "format": "xlsx",
+        "headerStyle": "contrast"
+      }
+    }
+  },
+  "bi": {
+    "sources": [],
+    "activeSourceId": "",
+    "analysis": {
+      "visibleFilters": [
+        "process",
+        "defect",
+        "employee",
+        "shift",
+        "reporter"
+      ],
+      "autoApply": true,
+      "profiles": [],
+      "crossWorkspaceSelection": [],
+      "activeProcessViewId": "all",
+      "processViews": [
+        {
+          "id": "all",
+          "kind": "all",
+          "name": "综合不良",
+          "processIds": [],
+          "period": "day",
+          "views": {
+            "day": {
+              "range": {
+                "mode": "recent7",
+                "anchor": "latestData"
+              },
+              "filters": [],
+              "dimension": "auto",
+              "metric": "quantity",
+              "comparison": "previous-equivalent",
+              "chart": {
+                "type": "bar",
+                "topN": 10,
+                "sort": "value-desc",
+                "labels": {
+                  "mode": "all",
+                  "percent": true
+                },
+                "axes": {
+                  "ticks": true,
+                  "grid": true,
+                  "unit": true
+                },
+                "referenceLine": null,
+                "colors": {},
+                "missingData": "gap"
+              },
+              "table": {
+                "columns": [],
+                "sort": [
+                  {
+                    "field": "date",
+                    "direction": "desc"
+                  }
+                ],
+                "pageSize": 50
+              },
+              "layout": [
+                "trend",
+                "ranking",
+                "composition",
+                "details"
+              ]
+            },
+            "week": {
+              "range": {
+                "mode": "recent8weeks",
+                "anchor": "latestData"
+              },
+              "filters": [],
+              "dimension": "auto",
+              "metric": "quantity",
+              "comparison": "previous-equivalent",
+              "chart": {
+                "type": "bar",
+                "topN": 10,
+                "sort": "value-desc",
+                "labels": {
+                  "mode": "all",
+                  "percent": true
+                },
+                "axes": {
+                  "ticks": true,
+                  "grid": true,
+                  "unit": true
+                },
+                "referenceLine": null,
+                "colors": {},
+                "missingData": "gap"
+              },
+              "table": {
+                "columns": [],
+                "sort": [
+                  {
+                    "field": "date",
+                    "direction": "desc"
+                  }
+                ],
+                "pageSize": 50
+              },
+              "layout": [
+                "trend",
+                "ranking",
+                "composition",
+                "details"
+              ]
+            },
+            "month": {
+              "range": {
+                "mode": "recent6months",
+                "anchor": "latestData"
+              },
+              "filters": [],
+              "dimension": "auto",
+              "metric": "quantity",
+              "comparison": "previous-equivalent",
+              "chart": {
+                "type": "bar",
+                "topN": 10,
+                "sort": "value-desc",
+                "labels": {
+                  "mode": "all",
+                  "percent": true
+                },
+                "axes": {
+                  "ticks": true,
+                  "grid": true,
+                  "unit": true
+                },
+                "referenceLine": null,
+                "colors": {},
+                "missingData": "gap"
+              },
+              "table": {
+                "columns": [],
+                "sort": [
+                  {
+                    "field": "date",
+                    "direction": "desc"
+                  }
+                ],
+                "pageSize": 50
+              },
+              "layout": [
+                "trend",
+                "ranking",
+                "composition",
+                "details"
+              ]
+            }
+          },
+          "reportOverride": {}
+        }
+      ]
+    },
+    "production": {
+      "sourceId": "",
+      "matchKeys": [
+        "date",
+        "process",
+        "shift"
+      ],
+      "duplicatePolicy": "reject-conflicts",
+      "measure": "production"
+    },
+    "statistics": {
+      "rateRule": "distinct-defective-units/eligible-units",
+      "rollup": "sum-numerator/sum-denominator",
+      "ratePrecision": 2,
+      "unknownEmployee": "include-unknown",
+      "sourceComposition": "separate",
+      "aggregateRateMode": "quantity-only"
+    },
+    "time": {
+      "timezone": "Asia/Shanghai",
+      "dayCutoff": "00:00",
+      "weekStartsOn": "monday",
+      "shifts": []
+    },
+    "dictionaries": {
+      "people": [],
+      "processGroups": [],
+      "defects": [],
+      "products": [],
+      "processes": []
+    },
+    "rules": {
+      "globalExclusions": []
+    },
+    "alerts": {
+      "enabled": false,
+      "rules": []
+    },
+    "improvements": {
+      "projects": []
+    },
+    "legacy": {
+      "options": {}
+    },
+    "report": {
+      "contentMode": "current",
+      "selectedDefects": "follow-filter",
+      "titleTemplate": "{日期}{工序}{不良项}失效人员",
+      "paper": {
+        "size": "A4",
+        "orientation": "landscape"
+      },
+      "margins": {
+        "top": 8,
+        "right": 8,
+        "bottom": 8,
+        "left": 8
+      },
+      "gap": 4,
+      "layout": "auto",
+      "fitPolicy": "readability-first",
+      "font": {
+        "titlePt": 24,
+        "bodyPt": 10,
+        "minPt": 9
+      },
+      "include": {
+        "filterSummary": true,
+        "totals": true,
+        "details": false,
+        "source": true
+      },
+      "chartOverrides": []
+    },
+    "export": {
+      "format": "xlsx",
+      "directory": "",
+      "filenameTemplate": "{日期}_{工序}_{不良项}_分析",
+      "collision": "suffix",
+      "legacyReportSections": {}
+    }
+  },
+  "labels": {
+    "activeTemplateId": "",
+    "templates": [],
+    "batch": {
+      "order": "input",
+      "direction": "row-first",
+      "allowDuplicates": false,
+      "rememberValues": false
+    },
+    "designer": {
+      "snap": {
+        "enabled": true,
+        "stepMm": 1
+      },
+      "selection": {
+        "multiSelect": true
+      },
+      "duplicateGesture": "ctrl-drag",
+      "lockElements": false,
+      "formatPainter": "disabled"
+    },
+    "export": {
+      "profile": {
+        "format": "pdf",
+        "scale": 100
+      }
+    },
+    "print": {
+      "slots": null
+    }
+  },
+  "backup": {
+    "schedule": {
+      "enabled": true,
+      "frequency": "daily",
+      "keepDays": 30
+    },
+    "directory": ""
+  }
+}

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'">
+<title>夹具二维码排版</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf1f5;color:#1b2c43;font:14px/1.5 'Microsoft YaHei','Segoe UI',sans-serif}header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:#142c47;color:white}h1{font-size:20px;margin:0}header p{margin:4px 0 0;font-size:12px;color:#c1d0e1}main{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;padding:20px;max-width:1600px;margin:auto}aside,.preview{background:white;border:1px solid #d6dee8;border-radius:10px;min-width:0}aside{padding:20px;align-self:start}h2{font-size:15px;margin:0 0 14px}.types{display:flex;gap:8px;margin-bottom:18px}.types button{flex:1;padding:9px 5px}.types button[aria-pressed=true]{background:#eaf2ff;border-color:#2e66a8;color:#114778}label{display:block;margin:12px 0 5px;font-weight:600}input,textarea,button{font:inherit;color:inherit}input,textarea{width:100%;padding:9px 10px;border:1px solid #a4b3c5;border-radius:6px;background:white}textarea{height:160px;resize:vertical;font:12px/1.6 Consolas,monospace}input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #88b5ec;outline-offset:2px}button{border:1px solid #b6c4d4;background:white;border-radius:6px;cursor:pointer;padding:9px 13px;font-weight:600}button:hover{background:#edf3fa}button.primary{background:#1b5d9f;border-color:#1b5d9f;color:white}button:disabled{opacity:.48;cursor:default}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hint{font-size:12px;color:#576c84;margin:6px 0}.small{font-size:12px}details{border-top:1px solid #dde3eb;margin-top:18px;padding-top:12px}summary{cursor:pointer;font-weight:600}.check{display:flex;align-items:center;gap:7px;margin:12px 0;font-weight:400}.check input{width:16px;height:16px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.actions .primary{width:100%}#message{padding:10px;border-radius:5px;margin:14px 0 0;font-size:12px;min-height:35px;background:#f2f5f9}#message.error{background:#fff0ef;color:#ad2a25}.preview-head{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #dbe2eb;gap:10px}.preview-head h2{margin:0}.preview-head p{font-size:12px;margin:3px 0 0;color:#576c84}.paper-list{padding:16px;overflow-x:auto;min-height:350px;background:#e5ebf2;border-radius:0 0 10px 10px}.page-frame{position:relative;margin:0 auto 16px}.paper{position:absolute;top:0;left:0;width:277mm;height:190mm;background:white;padding:0;transform-origin:top left;display:grid;justify-content:center;align-content:start;gap:5mm;grid-template-columns:repeat(var(--columns),var(--w));grid-auto-rows:var(--h);box-shadow:0 1px 5px #182d4722}.label{width:var(--w);height:var(--h);overflow:hidden;border:.25mm solid #7f8996;color:#111;background:white;break-inside:avoid}.label canvas{display:block;image-rendering:pixelated;flex:none}.label .code{font-family:Arial,sans-serif;font-weight:700;white-space:nowrap}.fixture{display:flex;flex-direction:column;align-items:center}.fixture canvas{width:22.2mm;height:22.2mm;margin:.8mm auto .8mm}.fixture .code{font-size:10pt;height:6.35mm;display:flex;align-items:center}.fixture .name{font-size:9.5pt;width:100%;height:5.55mm;background:#f1f3f6;display:flex;align-items:center;justify-content:center}.sign{display:flex;width:100%;border-top:.2mm solid #c5ccd5;font-size:9pt;height:4.76mm;align-items:center}.sign span:first-child{width:19mm;padding-left:.7mm}.stripper{display:flex;align-items:center;gap:2mm;padding:1mm}.stripper canvas{width:16.9mm;height:16.9mm}.stripper .code{font-size:9.25pt}.stripper .name{font-size:9pt;margin-top:1mm;color:#36485f}.page-caption{font-size:12px;margin:0 0 6px;color:#52667d}.empty{padding:30px;color:#576c84}#exactZoom{font-size:12px;white-space:nowrap}@media(max-width:900px){main{grid-template-columns:1fr;padding:12px}.types button{max-width:180px}.preview-head{align-items:flex-start}header{padding:16px}aside{padding:16px}}
+@page{size:A4 landscape;margin:10mm}@media print{body{background:white}header,aside,.preview-head,.page-caption{display:none!important}main{display:block;padding:0;margin:0;max-width:none}.preview,.paper-list{padding:0;border:0;background:white;overflow:visible}.page-frame{width:277mm!important;height:190mm!important;margin:0!important;break-after:page;page-break-after:always}.page-frame:last-child{break-after:auto;page-break-after:auto}.paper{transform:none!important;box-shadow:none}.label{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+<header><div><h1>夹具二维码排版</h1><p>批量编号、固定尺寸、对齐打印。所有处理均在本机。</p></div><span class="small">离线版 1.0.0</span></header>
+<main>
+<aside>
+<h2>编号与标签</h2>
+<div class="types"><button id="fixtureType" aria-pressed="true">纵切夹具</button><button id="stripperType" aria-pressed="false">热剥线钳</button></div>
+<label for="codes">完整编号</label><textarea id="codes" spellcheck="false" aria-describedby="codesHint"></textarea><p class="hint" id="codesHint">每行一个，可粘贴 Excel 的编号。保留前导零和大小写，重复编号会提示。</p>
+<label for="labelName">标签名称</label><input id="labelName" maxlength="40">
+<div class="two"><div><label for="widthMm">宽度（mm）</label><input id="widthMm" type="number" min="35" max="100" step=".1" value="50"></div><div><label for="heightMm">高度（mm）</label><input id="heightMm" type="number" min="18" max="70" step=".1" value="50"></div></div>
+<div class="two"><div><label for="columns">每排张数</label><input id="columns" type="number" min="1" max="6" step="1" value="4"></div><div id="creatorGroup"><label for="creator">新编号制作人</label><input id="creator" maxlength="20" placeholder="可留空"></div></div>
+<p class="hint" id="creatorHint">原表制作人按编号保留；原空白仍为空白。</p>
+<label class="check"><input type="checkbox" id="sortCodes" checked>按完整编号自然排序</label>
+<details><summary>按连续编号生成</summary><label for="prefix">编号前缀</label><input id="prefix" value="CMPO-5F-ZB-K-" maxlength="56"><div class="two"><div><label for="startNo">起始数字</label><input id="startNo" type="number" min="0" max="999999" value="21"></div><div><label for="endNo">结束数字</label><input id="endNo" type="number" min="0" max="999999" value="39"></div></div><label for="digits">数字位数（补零）</label><input id="digits" type="number" min="1" max="6" value="3"><button id="rangeGenerate" style="margin-top:10px">填入连续编号</button><p class="hint">会替换上方编号列表，不自动补齐原表缺号。</p></details>
+<div class="actions"><button class="primary" id="generate">生成并对齐</button><button id="downloadPng">下载 PNG 整包</button><button id="print">打印标签</button></div>
+<p id="message" role="status" aria-live="polite"></p>
+<p class="hint">A4 横向，打印选 100% / 实际大小，关闭页眉页脚。先试打一页核对实际尺寸。</p>
+</aside>
+<section class="preview"><div class="preview-head"><div><h2>打印预览</h2><p id="summary">准备生成</p></div><button id="exactZoom" aria-pressed="false">查看实际比例</button></div><div id="papers" class="paper-list"></div></section>
+</main>
+<script>/* VENDOR_QR */</script>
+<script>
+/* PRESETS */
+const el=id=>document.getElementById(id);
+let kind='fixture',current=null,exactZoom=false;
+const saved={};
+const knownCreators=new Map(PRESETS.fixture.records.map(r=>[r.code,r.creator]));
+const natural=new Intl.Collator('en',{numeric:true,sensitivity:'variant'});
+function status(text,error=false){el('message').textContent=text;el('message').className=error?'error':'';}
+function dirty(){current=null;el('downloadPng').disabled=true;el('print').disabled=true;status('内容已更改，请点“生成并对齐”更新预览。');}
+function snapshot(){return Object.fromEntries(['codes','labelName','widthMm','heightMm','columns','creator','prefix','startNo','endNo','digits'].map(id=>[id,el(id).value]));}
+function loadKind(next){
+  if(el('codes').value)saved[kind]=snapshot();kind=next;
+  const preset=PRESETS[kind];
+  const values=saved[kind]||{codes:preset.records.map(r=>r.code).join('\n'),labelName:preset.name,widthMm:preset.widthMm,heightMm:preset.heightMm,columns:4,creator:'',prefix:kind==='fixture'?'CMPO-5F-ZB-K-':'BXQ-SF06-BK-5F-',startNo:kind==='fixture'?21:94,endNo:kind==='fixture'?39:103,digits:3};
+  for(const [id,value]of Object.entries(values))el(id).value=value;
+  el('fixtureType').setAttribute('aria-pressed',String(kind==='fixture'));el('stripperType').setAttribute('aria-pressed',String(kind==='stripper'));
+  el('creatorGroup').hidden=el('creatorHint').hidden=kind!=='fixture';generate();
+}
+function parseCodes(text){
+  const list=text.split(/[\r\n\t,，]+/).map(v=>v.trim()).filter(Boolean);
+  if(!list.length)throw Error('请先填写完整编号。');if(list.length>500)throw Error('每批最多生成500张。');
+  const seen=new Set();for(const [i,code]of list.entries()){
+    if(!/^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,63}$/.test(code))throw Error(`第${i+1}项格式不符合：请使用64字符内的英文、数字和 . _ : / -。`);
+    if(seen.has(code))throw Error(`编号重复：${code}。请确认后保留所需的一项。`);seen.add(code);
+  }return el('sortCodes').checked?list.sort((a,b)=>natural.compare(a,b)||a.localeCompare(b)):list;
+}
+function makeCanvas(code){
+  const qr=qrcode(0,'M');qr.addData(code,'Byte');qr.make();const n=qr.getModuleCount(),size=(n+8)*12;
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=size;canvas.dataset.code=code;canvas.setAttribute('aria-label',`二维码：${code}`);
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);ctx.fillStyle='#000';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(qr.isDark(y,x))ctx.fillRect((x+4)*12,(y+4)*12,12,12);
+  return {canvas,modules:n};
+}
+function node(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(className)n.className=className;return n;}
+function generate(){
+  try{
+    const codes=parseCodes(el('codes').value),w=Number(el('widthMm').value),h=Number(el('heightMm').value),cols=Number(el('columns').value),name=el('labelName').value.trim();
+    if(!name)throw Error('请填写标签名称。');if(!Number.isFinite(w)||!Number.isFinite(h)||w<35||w>100||h<18||h>70)throw Error('宽度需35–100mm，高度需18–70mm。');
+    if(!Number.isInteger(cols)||cols<1||cols>6||cols*w+(cols-1)*5>277)throw Error('当前宽度与每排张数超过A4横向可打印宽度，请减少每排张数。');
+    if(kind==='fixture'&&h<50)throw Error('带审核栏的夹具标签高度至少50mm。');
+    if(kind==='stripper'&&w<58)throw Error('横式热剥钳标签宽度至少58mm，避免完整编号被压缩。');
+    const measure=document.createElement('canvas').getContext('2d');measure.font=`bold ${kind==='fixture'?13.333:12.333}px Arial`;
+    for(const code of codes){if(measure.measureText(code).width>(w-(kind==='fixture'?3:22))*96/25.4)throw Error(`编号 ${code} 无法在当前宽度完整显示，请加宽标签。`);}
+    measure.font="12px 'Microsoft YaHei'";if(measure.measureText(name).width>(w-(kind==='fixture'?3:22))*96/25.4)throw Error('标签名称过长，请缩短名称或加宽标签。');
+    const rows=Math.floor((190+5)/(h+5)),perPage=rows*cols;
+    if(rows<1)throw Error('标签高度超过纸张可打印范围。');
+    const fragment=document.createDocumentFragment(),canvases=[];
+    for(let offset=0;offset<codes.length;offset+=perPage){
+      fragment.append(node('p',`第 ${Math.floor(offset/perPage)+1} 页`,'page-caption'));
+      const frame=node('div',undefined,'page-frame'),paper=node('div',undefined,'paper');paper.style.setProperty('--w',`${w}mm`);paper.style.setProperty('--h',`${h}mm`);paper.style.setProperty('--columns',cols);
+      for(const code of codes.slice(offset,offset+perPage)){
+        const {canvas,modules}=makeCanvas(code),qrMm=kind==='fixture'?22.2:16.9;
+        if(qrMm/(modules+8)<.28)throw Error(`编号 ${code} 对当前二维码尺寸过长，请缩短编号。`);
+        const label=node('div',undefined,`label ${kind}`);label.dataset.code=code;label.append(canvas);canvases.push({code,canvas});
+        if(kind==='fixture'){
+          label.append(node('div',code,'code'),node('div',name,'name'));
+          const maker=knownCreators.has(code)?knownCreators.get(code):el('creator').value.trim();
+          for(const [title,value]of [['制作人：',maker||''],['审核人：',''],['QA审核：','']]){const sign=node('div',undefined,'sign');sign.append(node('span',title),node('span',value));label.append(sign);}
+        }else{const text=node('div');text.append(node('div',code,'code'),node('div',name,'name'));label.append(text);}
+        paper.append(label);
+      }frame.append(paper);fragment.append(frame);
+    }
+    el('papers').replaceChildren(fragment);current={codes,w,h,cols,pages:Math.ceil(codes.length/perPage),canvases};
+    el('summary').textContent=`${codes.length} 张 · ${current.pages} 页 · ${w} × ${h} mm · 每排${cols}张`;
+    el('downloadPng').disabled=el('print').disabled=false;status('已生成。二维码内容为完整编号，与可见编号一致。');fitPreview();
+  }catch(error){current=null;el('papers').replaceChildren(node('p','请修正左侧内容后重新生成。','empty'));el('summary').textContent='尚未生成';el('downloadPng').disabled=el('print').disabled=true;status(error.message,true);}
+}
+function fitPreview(){const scale=exactZoom?1:Math.min(1,(el('papers').clientWidth-32)/(277*96/25.4));for(const frame of document.querySelectorAll('.page-frame')){frame.style.width=`${277*96/25.4*scale}px`;frame.style.height=`${190*96/25.4*scale}px`;frame.firstChild.style.transform=`scale(${scale})`;}}
+function continuous(){
+  try{const start=Number(el('startNo').value),end=Number(el('endNo').value),digits=Number(el('digits').value),prefix=el('prefix').value;
+    if(!Number.isInteger(start)||!Number.isInteger(end)||start<0||end<start||end>999999||end-start>=500||!Number.isInteger(digits)||digits<1||digits>6)throw Error('请填写递增的整数范围，每批最多500个，数字位数1–6。');
+    const list=Array.from({length:end-start+1},(_,i)=>prefix+String(start+i).padStart(digits,'0'));parseCodes(list.join('\n'));el('codes').value=list.join('\n');dirty();
+  }catch(error){status(error.message,true);}
+}
+const crcTable=Uint32Array.from({length:256},(_,n)=>{for(let k=0;k<8;k++)n=n&1?0xedb88320^(n>>>1):n>>>1;return n>>>0;});
+function crc32(bytes){let c=0xffffffff;for(const b of bytes)c=crcTable[(c^b)&255]^(c>>>8);return(c^0xffffffff)>>>0;}
+function zip(entries){
+  const locals=[],central=[];let offset=0,centralSize=0;const enc=new TextEncoder();const now=new Date(),dosDate=((Math.max(1980,Math.min(2107,now.getFullYear()))-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate(),dosTime=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+  for(const entry of entries){const name=enc.encode(entry.name),data=entry.data,crc=crc32(data),head=new Uint8Array(30+name.length),v=new DataView(head.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,name.length,true);v.setUint16(10,dosTime,true);v.setUint16(12,dosDate,true);head.set(name,30);locals.push(head,data);
+    const dir=new Uint8Array(46+name.length),d=new DataView(dir.buffer);d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(8,0x800,true);d.setUint32(16,crc,true);d.setUint32(20,data.length,true);d.setUint32(24,data.length,true);d.setUint16(28,name.length,true);d.setUint32(42,offset,true);d.setUint16(12,dosTime,true);d.setUint16(14,dosDate,true);dir.set(name,46);central.push(dir);centralSize+=dir.length;offset+=head.length+data.length;
+  }const end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,entries.length,true);e.setUint16(10,entries.length,true);e.setUint32(12,centralSize,true);e.setUint32(16,offset,true);return new Blob([...locals,...central,end],{type:'application/zip'});
+}
+function downloadPng(){if(!current)return;const entries=current.canvases.map(({code,canvas},i)=>({name:`${String(i+1).padStart(3,'0')}_${code.replace(/[^A-Za-z0-9_.-]/g,'_')}.png`,data:Uint8Array.from(atob(canvas.toDataURL('image/png').split(',')[1]),c=>c.charCodeAt(0))}));const url=URL.createObjectURL(zip(entries)),a=node('a');a.href=url;a.download='二维码PNG_按编号排序.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);status(`已导出${entries.length}个PNG，文件名带排列序号。`);}
+for(const id of ['codes','labelName','widthMm','heightMm','columns','creator','sortCodes'])el(id).addEventListener('input',dirty);
+el('fixtureType').onclick=()=>loadKind('fixture');el('stripperType').onclick=()=>loadKind('stripper');el('generate').onclick=generate;el('rangeGenerate').onclick=continuous;el('downloadPng').onclick=downloadPng;el('print').onclick=()=>{if(current)window.print();};el('exactZoom').onclick=()=>{exactZoom=!exactZoom;el('exactZoom').setAttribute('aria-pressed',String(exactZoom));el('exactZoom').textContent=exactZoom?'适应预览宽度':'查看实际比例';fitPreview();};window.addEventListener('resize',fitPreview);loadKind('fixture');
+</script>
+</html>

@@ -1,0 +1,2 @@
+PASS legacy dates, unique scopes, case preservation, 10000 rows, conflicting rules, atomic once-daily backup
+PASS lengths, charset, prefix, controls, exact codes, numeric bounds, integer, invalid dates, options, config bounds and shared import validation

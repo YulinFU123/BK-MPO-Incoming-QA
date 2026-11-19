@@ -1,0 +1,39 @@
+{
+  "format": "bkmpo.application.settings",
+  "schemaVersion": 1,
+  "revision": 1,
+  "shell": {
+    "theme": "silver",
+    "enhancements": [],
+    "density": "comfortable",
+    "textScale": 100,
+    "sidebarCollapsed": false,
+    "sidebarWidth": 224,
+    "navigationOrder": [
+      "home",
+      "records",
+      "bi",
+      "labels",
+      "settings"
+    ],
+    "favorites": [],
+    "window": {
+      "restore": true
+    },
+    "shortcuts": {}
+  },
+  "guides": {
+    "enabled": true
+  },
+  "config": {
+    "bindings": {},
+    "autoSave": true,
+    "reloadExternal": true,
+    "backups": {
+      "keep": 10
+    }
+  },
+  "diagnostics": {
+    "level": "warning"
+  }
+}

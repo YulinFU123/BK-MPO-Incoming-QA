@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>合成PowerBI切片器测试</title><style>body{font:14px sans-serif;margin:10px}.slicerBody{padding:8px;border:1px solid #ccc;min-height:30px}.slicerItemContainer{display:block;height:22px;min-width:80px}.scroll-content{height:120px;overflow:auto;min-width:220px}input,button{margin:4px}#popup{min-width:280px}</style><body>
+<input class="date-slicer-datepicker" aria-label="开始日期。可用输入范围" value="2026/10/1"><input class="date-slicer-datepicker" aria-label="结束日期。可用输入范围" value="2026/10/2">
+<div role="slider" aria-label="Work Date" data-handle="0" aria-valuetext="2026/10/1" style="height:10px;width:100px"></div><div role="slider" aria-label="Work Date" data-handle="1" aria-valuetext="2026/10/2" style="height:10px;width:100px"></div>
+<button role="combobox" data-testid="slicer-dropdown" aria-label="Product Type" aria-expanded="false">Product Type</button>
+<div class="slicerBody" id="shift"></div><div class="slicerBody" role="tree" aria-label="Site、Resource Category" id="tree"></div><div id="outlet"></div>
+
+<div class="visual-container"><table><tr><th>Serial Number</th><th>Failure Code</th></tr></table><button id="test-more" aria-label="更多选项">更多选项</button></div><div id="export-outlet"></div>
+<script src="bi-slicer-fixture.js"></script></body></html>

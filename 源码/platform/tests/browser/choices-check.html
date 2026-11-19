@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="graphite">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';script-src 'self';style-src 'self';connect-src 'none';object-src 'none';base-uri 'none'"
+    />
+    <title>选择控件 · 浏览器回归</title>
+    <link rel="stylesheet" href="choices-check.css" />
+    <link rel="stylesheet" href="../desktop/shared-controls.css" />
+    <link rel="stylesheet" href="../desktop/field-controls.css" />
+    <script src="../desktop/selection-controls.js" defer></script>
+    <script src="../desktop/field-controls.js" defer></script>
+    <script src="choices-check.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>选择控件回归</h1>
+      <p>
+        使用实际公共组件与明确构造数据，自动派发测试事件。此页不读取业务文件，不代表EXE或实物输入法验收。
+      </p>
+      <div class="actions">
+        <button id="runChecks">运行控件回归</button><span id="summary" role="status">尚未执行</span>
+      </div>
+      <div id="fixture"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>验证内容</th>
+            <th>结果</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+    </main>
+    <dialog id="modal">
+      <label>弹窗候选<input id="modalInput" list="modalOptions" /></label
+      ><datalist id="modalOptions">
+        <option value="0012"></option>
+        <option value="中文长异常说明"></option>
+      </datalist>
+    </dialog>
+  </body>
+</html>

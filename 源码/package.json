@@ -1,0 +1,11 @@
+{
+  "name": "quality-desk-offline",
+  "productName": "异常记录台",
+  "version": "4.5.0-rc.1",
+  "description": "离线异常记录、批量扫码、Excel导入导出与处理追踪",
+  "main": "main.js",
+  "private": true,
+  "engines": {
+    "electron": "45.0.0"
+  }
+}

@@ -1,0 +1,183 @@
+/* Shared text entry surface. Native values, constraints and business validation stay intact. */
+:root {
+  --field-bg: #fbfcfd;
+  --field-ink: #142333;
+  --field-muted: #536576;
+  --field-line: #7c8da0;
+  --field-hover: #586d83;
+  --field-focus: #0969c8;
+  --field-readonly: #edf2f6;
+  --field-disabled: #e7edf3;
+  --field-error: #a52d34;
+  --field-error-bg: #fff5f5;
+  --field-size: 13px;
+  --field-height: 36px;
+}
+:root[data-font='large'] {
+  --field-size: 15px;
+  --field-height: 40px;
+}
+:root[data-theme='graphite'],
+:root[data-fusion-theme='graphite'] {
+  --field-bg: #242e3b;
+  --field-ink: #edf2f8;
+  --field-muted: #b8c5d4;
+  --field-line: #8091a5;
+  --field-hover: #b8c5d4;
+  --field-focus: #91c2ff;
+  --field-readonly: #1d2733;
+  --field-disabled: #202b37;
+  --field-error: #ffb0b5;
+  --field-error-bg: #3d2831;
+}
+:root[data-theme='glass'],
+:root[data-fusion-theme='glass'] {
+  --field-bg: #f9fbfe;
+  --field-readonly: #e9f1fa;
+  --field-disabled: #e3ebf5;
+}
+:root[data-theme='contrast'],
+:root[data-fusion-theme='contrast'] {
+  --field-bg: #fff;
+  --field-ink: #101820;
+  --field-muted: #344555;
+  --field-line: #344555;
+  --field-hover: #101820;
+  --field-focus: #00478a;
+  --field-readonly: #f0f2f4;
+  --field-disabled: #e6eaee;
+  --field-error: #96021d;
+  --field-error-bg: #fff3f5;
+}
+:root
+  :is(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='color'],
+      [type='hidden'],
+      [type='button'],
+      [type='submit'],
+      [type='reset'],
+      [type='image']
+    ),
+    textarea
+  ) {
+  box-sizing: border-box;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  min-block-size: var(--field-height);
+  border: 1px solid var(--field-line) !important;
+  border-radius: 7px !important;
+  background-color: var(--field-bg) !important;
+  color: var(--field-ink) !important;
+  font: var(--field-size) / 1.5 var(--choice-font, 'Segoe UI', 'Microsoft YaHei UI', sans-serif) !important;
+  padding-block: 7px;
+  padding-inline-start: 10px;
+  caret-color: var(--field-focus);
+  outline-offset: 2px;
+  opacity: 1;
+  scroll-margin-block: 64px;
+}
+:root :is(input, textarea)::placeholder {
+  color: var(--field-muted) !important;
+  opacity: 1 !important;
+}
+:root
+  :is(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='color'],
+      [type='hidden']
+    ),
+    textarea
+  ):hover:not(:disabled, :read-only) {
+  border-color: var(--field-hover) !important;
+}
+:root
+  :is(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='color'],
+      [type='hidden']
+    ),
+    textarea
+  ):focus-visible {
+  border-color: var(--field-focus) !important;
+  outline: 2px solid var(--field-focus) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+:root
+  :is(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='color'],
+      [type='hidden']
+    ),
+    textarea
+  )[readonly] {
+  background-color: var(--field-readonly) !important;
+  border-style: dashed !important;
+  cursor: text;
+}
+:root
+  :is(
+    input:not(
+      [type='checkbox'],
+      [type='radio'],
+      [type='range'],
+      [type='file'],
+      [type='color'],
+      [type='hidden']
+    ),
+    textarea
+  ):disabled {
+  background-color: var(--field-disabled) !important;
+  color: var(--field-muted) !important;
+  border-color: var(--field-line) !important;
+  cursor: not-allowed;
+  opacity: 1 !important;
+}
+:root :is(input, textarea):is([aria-invalid='true'], .invalid, :user-invalid) {
+  border-color: var(--field-error) !important;
+  background-color: var(--field-error-bg) !important;
+}
+:root textarea {
+  block-size: auto;
+  padding: 9px 10px;
+  resize: vertical;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+:root textarea:not([rows]) {
+  min-block-size: 108px;
+}
+:root .has-suggestions input {
+  padding-inline-end: 38px;
+}
+:root .password-field input {
+  padding-inline-end: 56px;
+}
+:root
+  :is(input[type='number'], input[type='date'], input[type='datetime-local'], input[type='time']) {
+  font-variant-numeric: tabular-nums;
+}
+/* Chip inputs belong to the surrounding group, rather than a second nested field. */
+:root :is(.tagbox, .tag-input) input:not([type='checkbox'], [type='radio']) {
+  border: 0 !important;
+  border-radius: 3px !important;
+  background-color: transparent !important;
+  min-block-size: 30px;
+}

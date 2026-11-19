@@ -1,0 +1,4 @@
+.field label {"fonts":[{"familyName":"Segoe UI Semibold","postScriptName":"SegoeUI-Semibold","isCustomFont":false,"glyphCount":3}]}
+#field_sn {"fonts":[{"familyName":"Microsoft YaHei UI","postScriptName":"MicrosoftYaHeiUI","isCustomFont":false,"glyphCount":2},{"familyName":"Segoe UI","postScriptName":"SegoeUI","isCustomFont":false,"glyphCount":2}]}
+.nav-item span {"fonts":[{"familyName":"Microsoft YaHei UI","postScriptName":"MicrosoftYaHeiUI","isCustomFont":false,"glyphCount":4}]}
+ICONS { all: 31, save: true, brand: '' }

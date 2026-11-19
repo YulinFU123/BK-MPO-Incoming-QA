@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="silver">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';script-src 'self';style-src 'self' 'unsafe-inline';connect-src 'none';object-src 'none';base-uri 'none'"
+    />
+    <title>文本与图表界面检查</title>
+    <link rel="stylesheet" href="choices-check.css" />
+    <link rel="stylesheet" href="../desktop/shared-controls.css" />
+    <link rel="stylesheet" href="../desktop/field-controls.css" />
+    <link rel="stylesheet" href="../desktop/chart-surface.css" />
+    <link rel="stylesheet" href="surface-check.css" />
+    <script src="../desktop/field-controls.js" defer></script>
+    <script src="../desktop/chart-surface.js" defer></script>
+    <script src="surface-check.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>文本框与图表检查</h1>
+      <p>使用实际公共组件和构造数据；不读取业务值或密码，不替代Windows实机验收。</p>
+      <button id="runSurface">运行检查</button
+      ><span id="surfaceSummary" role="status">尚未执行</span>
+      <section class="field-fixture" id="fieldFixture">
+        <div>
+          <label class="f">普通文本</label
+          ><input id="plain" value="0012 Aa 中文" placeholder="输入具体编号" maxlength="128" />
+        </div>
+        <div>
+          <label class="f">搜索</label><input id="find" type="search" placeholder="搜索异常" />
+        </div>
+        <div>
+          <label class="f">数值</label
+          ><input id="quantity" type="number" value="12" min="0" max="99" step="1" />
+        </div>
+        <div><label class="f">日期</label><input id="date" type="date" value="2026-10-28" /></div>
+        <div>
+          <label class="f">密码显示测试（不参与认证）</label
+          ><input id="masked" type="password" autocomplete="off" />
+        </div>
+        <div><label class="f">只读文本</label><input id="readonly" value="0012" readonly /></div>
+        <div><label class="f">禁用文本</label><input id="disabled" value="保留值" disabled /></div>
+        <div>
+          <label class="f">错误状态</label
+          ><input id="invalid" value="构造错误" aria-invalid="true" aria-describedby="errorHint" />
+          <p id="errorHint">构造测试提示，需修正</p>
+        </div>
+        <div>
+          <label class="f">多行备注</label
+          ><textarea id="multiline" rows="3" maxlength="4000">
+中文第一行
+英文 second line 0012</textarea
+          >
+          <div class="hint" id="remarkHint">支持中文、多行和编号原文</div>
+        </div>
+        <label>复选框保持原语义<input id="checkbox" type="checkbox" /></label>
+      </section>
+      <section id="chartFixture" aria-label="构造图表"></section>
+      <table>
+        <thead>
+          <tr>
+            <th>检查内容</th>
+            <th>结果</th>
+          </tr>
+        </thead>
+        <tbody id="surfaceResults"></tbody>
+      </table>
+    </main>
+  </body>
+</html>

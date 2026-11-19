@@ -1,0 +1,37 @@
+.action-menu { inset: auto; height: fit-content; max-width: calc(100vw - 24px); overflow-y: auto; overscroll-behavior: contain; }
+.action-menu button { min-height: 36px; white-space: normal; }
+.action-menu button:focus-visible { background: var(--selected); color: var(--selected-ink); outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+.action-menu button:disabled { opacity: .5; }
+/* Configured hints and errors share one feedback lane, keeping actions stable. */
+.field:has(.input-hint:not([hidden])) :is(.input-hint, .input-error) { min-height: 20px; }
+.field:has(.input-hint:not([hidden])):has(.input-error:not(:empty)) .input-hint { display: none; }
+.history-fill-dialog { width: min(920px, 94vw); max-height: 90vh; padding: 0; overflow: hidden; background: var(--surface); }
+.history-fill-dialog[open] { display: flex; flex-direction: column; }
+.history-fill-body { min-height: 0; padding: 18px 24px; overflow-y: auto; }
+.history-search-label { display: grid; gap: 7px; font-size: 13px; font-weight: 600; }
+.history-search-label input { width: 100%; }
+.history-fill-body > .config-help { margin: 12px 0; line-height: 1.8; }
+.history-fill-count { color: var(--muted); font-size: 12px; margin: 14px 0 10px; }
+.history-fill-layout { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 1.15fr); gap: 20px; min-height: 220px; }
+.history-fill-list { list-style: none; padding: 0; margin: 0; max-height: 350px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-subtle); }
+.history-option { width: 100%; padding: 13px 14px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; }
+.history-option strong { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 600; }
+.history-option small { display: block; margin-top: 6px; font-size: 11px; color: var(--muted); }
+.history-option[aria-pressed=true] { background: var(--selected); box-shadow: inset 3px 0 var(--accent); }
+.history-option:hover { background: var(--selected); }
+.history-fill-empty { padding: 22px 16px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.history-fill-detail { min-width: 0; }
+.history-fill-detail h3 { margin: 0 0 8px; font-size: 14px; }
+.history-preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.history-preview-table th, .history-preview-table td { vertical-align: top; padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.history-preview-table th { width: 90px; font-weight: 500; color: var(--muted); }
+.history-preview-value, .history-preview-table small { overflow-wrap: anywhere; }
+.history-preview-table small { display: block; font-size: 11px; margin-top: 5px; }
+.history-ready { color: var(--selected-ink); }
+.history-preserved { color: var(--muted); }
+.history-invalid { color: var(--danger); }
+#historyFillStatus { font-size: 12px; color: var(--muted); line-height: 1.7; margin: 14px 0 0; }
+.history-fill-dialog .config-foot { display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+:root[data-font=large] .history-fill-dialog :is(.history-option strong, .history-preview-table, .history-search-label) { font-size: 15px; }
+:root[data-font=large] .history-fill-dialog :is(.history-option small, .history-preview-table small, #historyFillStatus) { font-size: 13px; }
+@media (max-width: 740px) { .history-fill-layout { grid-template-columns: 1fr; } .history-fill-list { max-height: 210px; } }

@@ -1,0 +1,27 @@
+{
+  "zip": "D:\\项目\\BK_MPO来料异常跟进\\成果\\异常记录台_4.2.0_最新版.zip",
+  "bytes": 158334551,
+  "sha256_before": "76424238d746a201911f824992801bcb8b097f463c0fe47e259b528e5e2f1ec2",
+  "sha256_after": "76424238d746a201911f824992801bcb8b097f463c0fe47e259b528e5e2f1ec2",
+  "crc": "PASS",
+  "file_count": 100,
+  "uncompressed_bytes": 374340101,
+  "source_manifest_files": 24,
+  "source_manifest_mismatches": [],
+  "package": {
+    "name": "quality-desk-offline",
+    "productName": "异常记录台",
+    "version": "4.2.0",
+    "description": "离线异常记录、批量扫码、Excel导入导出与处理追踪",
+    "main": "main.js",
+    "private": true,
+    "engines": {
+      "electron": "45.0.0"
+    }
+  },
+  "runtime_version_file": "45.0.0",
+  "same_content_groups": [],
+  "sensitive_name_candidates": [
+    "异常记录台_4.2.0_Windows_x64/resources/app/daily-backup.js"
+  ]
+}

@@ -1,0 +1,12 @@
+/* Tokens and auth layout have one owner; compatibility rules stay isolated. */
+@layer foundation, components, workspace, tokens, experience, insights, layout;
+@import url('foundation.css') layer(foundation);
+@import url('controls.css') layer(components);
+@import url('workspace.css') layer(workspace);
+@import url('theme-tokens.css') layer(tokens);
+@import url('experience.css') layer(experience);
+@import url('insights.css') layer(insights);
+@import url('auth.css') layer(layout);
+@import url('desktop.css') layer(layout);
+@import url('window.css') layer(layout);
+@import url('fill-history.css') layer(layout);

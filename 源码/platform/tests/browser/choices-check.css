@@ -1,0 +1,90 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #171e27;
+  color: #edf2f8;
+  font:
+    14px/1.6 'Segoe UI',
+    'Microsoft YaHei UI',
+    sans-serif;
+}
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+h1 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+p {
+  color: #b8c5d4;
+  margin: 0 0 20px;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+}
+button,
+input,
+select {
+  font: inherit;
+  border: 1px solid #546477;
+  border-radius: 7px;
+  background: #242e3b;
+  color: #edf2f8;
+  padding: 8px 12px;
+}
+#runChecks {
+  background: #82b8ff;
+  color: #122339;
+  font-weight: 600;
+}
+#fixture {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+#fixture label {
+  display: grid;
+  gap: 4px;
+  min-width: 200px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th,
+td {
+  border-bottom: 1px solid #46566a;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  color: #b8c5d4;
+}
+td.pass {
+  color: #8ed5bb;
+}
+td.fail {
+  color: #ff9ea2;
+}
+dialog {
+  color: inherit;
+  background: #242e3b;
+  border: 1px solid #546477;
+  border-radius: 12px;
+  padding: 24px;
+  width: min(400px, 90vw);
+}
+dialog input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}

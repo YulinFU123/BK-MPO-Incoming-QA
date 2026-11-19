@@ -1,0 +1,331 @@
+/* Last presentation layer: all live work surfaces share the theme contract. */
+:root[data-ui-theme] :is(.workbench-home, .workspace-manager) {
+  --hs-bg: var(--canvas);
+  --hs-surface: var(--surface);
+  --hs-text: var(--text);
+  --hs-muted: var(--muted);
+  --hs-line: var(--line);
+  --hs-blue: var(--accent);
+  --wm-line: var(--line);
+  --wm-muted: var(--muted);
+}
+:root[data-ui-theme] .workspace-management,
+:root[data-ui-theme] .workspace-manager {
+  background: var(--canvas);
+  color: var(--text);
+}
+:root[data-ui-theme] .workbench-shell .sidebar {
+  background: var(--nav);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme]
+  .workbench-shell
+  :is(.sidebar-identity, .hs-nav-group summary, .hs-nav .hs-button) {
+  color: var(--text);
+}
+:root[data-ui-theme]
+  .workbench-shell
+  :is(
+    .identity-copy small,
+    .workspace-state,
+    .sidebar-foot,
+    .theme-label,
+    .function-search-trigger small
+  ) {
+  color: var(--muted);
+}
+:root[data-ui-theme] .workbench-shell :is(.sidebar-bottom, .hs-nav-group) {
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workbench-shell .function-search-trigger {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workbench-shell .sidebar-bottom select {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workbench-shell .hs-nav .hs-button:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+:root[data-ui-theme] .workbench-shell .hs-nav .hs-button[aria-current='page'] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+:root[data-ui-theme] .workbench-home .toolbar,
+:root[data-ui-theme] .hs-tabs {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+:root[data-ui-theme] .hs-global-search {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--muted);
+}
+:root[data-ui-theme] .hs-global-search input,
+:root[data-ui-theme] .hs-tab-wrap {
+  color: var(--text);
+}
+:root[data-ui-theme] .hs-tab-wrap.selected,
+:root[data-ui-theme] .hs-button.selected {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--accent);
+}
+:root[data-ui-theme] .hs-button:hover,
+:root[data-ui-theme] .hs-table tbody tr:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+:root[data-ui-theme] .hs-button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+:root[data-ui-theme] .hs-table th,
+:root[data-ui-theme] .hs-stat-note {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .hs-table td {
+  border-color: var(--line);
+}
+:root[data-ui-theme] .hs-table-link {
+  color: var(--accent) !important;
+}
+:root[data-ui-theme] .hs-error {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+:root[data-ui-theme] .workbench-home #demoNotice {
+  background: var(--warning-soft);
+  color: var(--warning);
+  border-color: var(--line);
+}
+:root[data-ui-theme]
+  :is(.hs-metric-icon, .hs-metric.orange .hs-metric-icon, .hs-metric.amber .hs-metric-icon) {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+}
+:root[data-ui-theme] .hs-metric.green .hs-metric-icon {
+  background: var(--positive-soft);
+  color: var(--positive);
+  box-shadow: none;
+}
+:root[data-ui-theme] .hs-metric.purple .hs-metric-icon {
+  background: var(--surface-2);
+  color: var(--comparison);
+  box-shadow: none;
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(
+    .wm-card,
+    .wm-create-card,
+    .wm-detail,
+    .wm-chart,
+    .wm-metric,
+    .wm-tools,
+    .wm-recent,
+    .wm-dialog
+  ) {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(.wm-card-name, .wm-chart h3, .wm-recent h3, .wm-metric strong, .wm-card-metrics strong) {
+  color: var(--text);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(
+    .wm-card-meta,
+    .wm-card-period,
+    .wm-metric small,
+    .wm-metric span,
+    .wm-card-metrics small,
+    .wm-note,
+    .wm-period
+  ) {
+  color: var(--muted);
+}
+:root[data-ui-theme] .workspace-manager :is(input, select, .wm-button) {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workspace-manager .wm-button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+:root[data-ui-theme] .workspace-manager .wm-button.primary,
+:root[data-ui-theme] .workspace-manager .wm-button.chosen {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: none;
+}
+:root[data-ui-theme] .workspace-manager .wm-card.selected {
+  border-color: var(--accent);
+}
+:root[data-ui-theme] .workspace-manager :is(th, .wm-tabs, .wm-detail-head) {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workspace-manager .wm-card-metrics {
+  border-color: var(--line);
+}
+:root[data-ui-theme] .wm-message[data-kind='success'] {
+  background: var(--positive-soft);
+  color: var(--positive);
+  border-color: var(--positive);
+}
+:root[data-ui-theme] :is(.hs-status, .wm-status).pending,
+:root[data-ui-theme] :is(.hs-status, .wm-status).verify {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+:root[data-ui-theme] :is(.hs-status, .wm-status).working {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+:root[data-ui-theme] :is(.hs-status, .wm-status).closed {
+  background: var(--positive-soft);
+  color: var(--positive);
+}
+:root[data-ui-theme][data-theme-surface='bi']
+  :is(.card, .tile, .list, .item, .multi-select, .tagbox, .method-note, .trend-empty, .pick, .kpi) {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme][data-theme-surface='bi'] :is(.saved-view, .rank-track, .kbd, .alertbar, .seg) {
+  background: var(--surface-2);
+  color: var(--muted);
+  border-color: var(--line);
+}
+:root[data-ui-theme][data-theme-surface='bi'] :is(.rank-row, .check, .multi-option) {
+  color: var(--text);
+}
+:root[data-ui-theme][data-theme-surface='bi'] :is(.rank-row:hover, .item:hover) {
+  background: var(--accent-soft);
+}
+:root[data-ui-theme][data-theme-surface='bi']
+  :is(
+    .rank-no,
+    .rank-row small,
+    .chart-legend,
+    .trend-foot,
+    .method-note summary,
+    .more-filters summary
+  ) {
+  color: var(--muted);
+}
+:root[data-ui-theme][data-theme-surface='bi'] table th {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme][data-theme-surface='bi'] :is(button.btn.pri, button.btn.go) {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+:root[data-ui-theme][data-theme-surface='bi'] .seg .on {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+:root[data-ui-theme][data-theme-surface='bi'] svg[data-ui-paper] {
+  color-scheme: light;
+  background: #fff;
+}
+:root[data-ui-theme][data-theme-surface='legacy']
+  :is(.panel, .modal, .dialog, .entry-actions, .entry-scan) {
+  border-color: var(--line);
+}
+:root[data-ui-theme] :is(button, input, select, textarea, [tabindex]):focus-visible {
+  outline-color: var(--accent);
+}
+
+:root[data-ui-theme] .workbench-shell .hs-nav .hs-nav-home:not([aria-current='page']) {
+  background: transparent;
+  color: var(--text);
+}
+
+/* Common controls and text follow the same palette as their owning surface. */
+:root[data-ui-theme] :is(.button.primary, .btn-primary, .btn-primary:hover, .brand-symbol) {
+  color: var(--accent-ink);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(.wm-header h1, .wm-detail-head h2, .wm-field, .wm-tabs button, .home-legend-item) {
+  color: var(--text);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(.wm-dialog p, .wm-dates, .wm-empty, .wm-detail-empty, .wm-no-records, .home-chart-empty) {
+  color: var(--muted);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(.wm-big-plus, .wm-card-actions .open, .wm-card-actions .open:hover, .wm-field-list span) {
+  background: var(--accent-soft);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .workspace-manager .wm-tabs button.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+:root[data-ui-theme] .workspace-manager :is(.wm-card-metrics .red strong, .wm-card-warning) {
+  color: var(--danger);
+}
+:root[data-ui-theme] .workspace-manager .wm-card-metrics .green strong {
+  color: var(--positive);
+}
+:root[data-ui-theme] .wm-message {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+:root[data-ui-theme]
+  .workspace-manager
+  :is(.wm-chart .home-rank-track, .wm-library-footer .wm-button) {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+:root[data-ui-theme] .workspace-manager :is(.wm-recent th .wm-button, .wm-dialog th .wm-button) {
+  color: var(--text);
+  background: transparent;
+}
+:root[data-ui-theme] :is(.hs-table th, .hs-stat-note, .hs-chart-note, .home-rank-track) {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+:root[data-ui-theme] .hs-setting-tabs .selected {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+:root[data-ui-theme] .hs-panel-check input {
+  accent-color: var(--accent);
+}
+:root[data-ui-theme][data-theme-surface='bi'] .chip.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+:root[data-ui-theme][data-theme-surface='bi'] .bi-filter-fields [aria-pressed='true'] {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  border-color: var(--accent) !important;
+}

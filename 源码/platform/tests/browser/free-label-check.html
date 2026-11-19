@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><title>自由设计与纸张验证</title
+  ><style>
+    body {
+      font:
+        14px/1.6 'Microsoft YaHei',
+        sans-serif;
+      margin: 20px;
+      background: #f2f5f8;
+      color: #172c43;
+    }
+    button {
+      padding: 8px 16px;
+    }
+    iframe {
+      width: 1280px;
+      height: 850px;
+      border: 1px solid #bbc7d3;
+    }
+    td {
+      padding: 4px 12px;
+      border-bottom: 1px solid #ccd4de;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
+  <h1>居中、组合与自定义纸张</h1>
+  <p>使用实际平台界面和明确构造编号，不读取正式工作区。</p>
+  <button id="runFreeLabelChecks">运行自由排版检查</button>
+  <p id="freeLabelSummary">尚未执行</p>
+  <iframe id="testWorkspace" title="自由标签示例工作区" src="../app/index.html"></iframe>
+  <table>
+    <tbody id="freeLabelRows"></tbody>
+  </table>
+  <pre id="freeLabelResult"></pre>
+  <script src="free-label-check.js"></script>
+</html>

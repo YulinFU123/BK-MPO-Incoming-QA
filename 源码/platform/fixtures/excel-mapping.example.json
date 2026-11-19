@@ -1,0 +1,16 @@
+{
+  "dataset": {
+    "id": "demoQuality",
+    "label": "合成检验数据",
+    "version": "1",
+    "grainFields": ["process"],
+    "unit": "piece"
+  },
+  "mapping": {
+    "dateColumn": "业务日",
+    "dateFormat": "iso",
+    "dimensions": {"process": "工序"},
+    "measures": {"inspectedUnits": "检验数", "defectiveUnits": "不良件数", "productionUnits": "产量"}
+  },
+  "source": {"sheetName": "检验明细", "headerRow": 2}
+}

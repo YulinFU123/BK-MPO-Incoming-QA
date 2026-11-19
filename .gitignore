@@ -1,0 +1,31 @@
+# 构建产物与大文件：本仓库只保存源码与文档
+*.zip
+*.7z
+*.exe
+*.dll
+*.whl
+*.pak
+*.db
+*.db-wal
+*.db-journal
+*.bdic
+*.lnk
+
+# 业务数据文件
+*.xlsx
+*.xls
+vault.json
+legacy.json
+legacy.csv
+daily-backups/
+*-qa-*/
+
+# 依赖与缓存
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# 本地同步脚本（不上传）
+sync-snapshot.py

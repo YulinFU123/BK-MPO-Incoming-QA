@@ -1,0 +1,133 @@
+'use strict';
+// Pure DOM-model tests of the new presentation branches, not pixel/UI acceptance.
+const test = require('node:test'),
+  assert = require('node:assert/strict');
+const fs = require('node:fs'),
+  path = require('node:path'),
+  vm = require('node:vm');
+const source = fs.readFileSync(path.join(__dirname, '../desktop/app/home-studio.js'), 'utf8');
+const element = (tag, cls, text) => ({
+  tag,
+  cls,
+  text,
+  children: [],
+  append(...nodes) {
+    this.children.push(...nodes);
+  },
+  replaceChildren(...nodes) {
+    this.children = nodes;
+  },
+});
+function render(available = true, dataSourceMode = 'auto', grouping = null) {
+  const panels = ['trend', 'comparison', 'issues', 'process', 'owners', 'time', 'records'];
+  const elements = Object.fromEntries(
+    ['hsMetrics', ...panels.map((x) => 'hsPanel-' + x)].map((x) => [x, element('div')]),
+  );
+  const clicks = [],
+    charts = [],
+    tables = [];
+  const bi = {
+    grouping,
+    quantity: 100,
+    previousQuantity: null,
+    rowCount: 2,
+    total: 2,
+    page: 1,
+    pageSize: 10,
+    range: { start: '2026-10-01', end: '2026-10-30' },
+    issues: [{ value: '装管反', count: 100 }],
+    processes: [],
+    employees: [],
+    shifts: [],
+    rows: [],
+    trend: [
+      {
+        key: '2026-10-29',
+        start: '2026-10-29',
+        end: '2026-10-29',
+        quantity: 100,
+        previous: null,
+        covered: 1,
+        days: 1,
+      },
+    ],
+  };
+  vm.runInNewContext(
+    source.slice(source.indexOf('  function chartHeight('), source.indexOf('  function drillBI(')) +
+      '\nrenderBIData();',
+    {
+      report: { primary: { available }, biSource: bi, recordCount: 5, pending: 2, overdue: 1 },
+      getContext: () => ({ dataSourceMode }),
+      $: (id) => elements[id],
+      node: element,
+      button: (text, action, cls) => ({ ...element('button', cls, text), action }),
+      model: { panels },
+      G: {
+        fmt: (n) => (n == null ? '—' : String(n)),
+        donut: () => element('donut'),
+        ranking: () => element('rank'),
+        empty: (text) => element('empty', '', text),
+      },
+      window: {
+        BIFieldLabels: require('../desktop/app/bi-field-labels'),
+        ChartSurface: {
+          create: (opts) => {
+            charts.push(opts);
+            return element('chart');
+          },
+        },
+      },
+      renderRows: (...args) => tables.push(args),
+      drill: (x) => clicks.push(['manual', x]),
+      drillBI: (x) => clicks.push(['bi', x]),
+      transient: () => ({}),
+      refresh() {},
+      shift: (date, offset) =>
+        new Date(Date.parse(date) + offset * 86400000).toISOString().slice(0, 10),
+    },
+  );
+  return { elements, charts, clicks, tables };
+}
+test('BI homepage keeps 100 pcs and 5 manual records on distinct labelled cards and actions', () => {
+  const r = render(),
+    cards = r.elements.hsMetrics.children;
+  const text = (node) => [node.text ?? '', ...(node.children || []).map(text)].join(' ');
+  assert.match(text(cards[0]), /BI不良数量.*100.*pcs/);
+  assert.match(text(cards[2]), /人工异常记录.*5.*条/);
+  assert.ok(!text(r.elements.hsMetrics).includes('105'));
+  cards[0].action();
+  cards[2].action();
+  assert.deepEqual(
+    r.clicks.map((x) => x[0]),
+    ['bi', 'manual'],
+  );
+  assert.equal(r.charts[0].unit, 'pcs');
+  assert.equal(r.charts[1].series[1].values[0], null);
+  assert.ok(r.tables[0][4].columns.some((x) => x[0] === 'employee'));
+  assert.equal(r.tables[0][4].columns.find((x) => x[0] === 'quantity')[1], '不良数量');
+});
+test('unavailable explicit BI renders missing values and does not draw misleading manual charts', () => {
+  const r = render(false);
+  assert.equal(r.charts.length, 0);
+  assert.equal(r.tables.length, 0);
+  assert.equal(r.elements.hsMetrics.children[0].children[0].children[1].children[0].text, '—');
+  assert.equal(r.elements['hsPanel-trend'].children[0].tag, 'empty');
+});
+test('explicit BI workspace shows BI metrics only; legacy auto retains separate manual cards', () => {
+  const r = render(true, 'bi');
+  assert.equal(r.elements.hsMetrics.children.length, 2);
+  assert.equal(render().elements.hsMetrics.children.length, 5);
+});
+test('homepage BI table follows the product type name used by its dropdown and CSV', () => {
+  const r = render(true, 'bi', { kind: 'productType' });
+  assert.equal(r.tables[0][4].columns.find((x) => x[0] === 'process')[1], '产品类型');
+});
+
+test('clicking comparison series requests the matching previous date and a bounded chart', () => {
+  const { charts, clicks } = render();
+  charts[1].onPoint(1, 0);
+  assert.deepEqual(JSON.parse(JSON.stringify(clicks[0])), ['bi', {
+    start: '2026-09-29', end: '2026-09-29', previous: true,
+  }]);
+  assert.ok(charts[1].height >= 200 && charts[1].height <= 360);
+});

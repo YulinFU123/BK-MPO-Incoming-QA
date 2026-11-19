@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>BI NC Exporter 设置</title>
+    <style>
+      body {
+        font:
+          13px/1.6 'Microsoft YaHei',
+          'Segoe UI',
+          sans-serif;
+        background: #f3f6f8;
+        color: #222;
+        margin: 0;
+      }
+      header {
+        background: linear-gradient(135deg, #0f7b6c, #1aa38f);
+        color: #fff;
+        padding: 14px 24px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      header small {
+        font-weight: normal;
+        opacity: 0.85;
+        margin-left: 8px;
+        font-size: 12px;
+      }
+      main {
+        max-width: 860px;
+        margin: 16px auto;
+        padding: 0 16px;
+      }
+      section {
+        background: #fff;
+        border-radius: 10px;
+        padding: 12px 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      }
+      h2 {
+        font-size: 15px;
+        margin: 2px 0 8px;
+        color: #0f7b6c;
+      }
+      .f {
+        display: flex;
+        gap: 10px;
+        margin: 8px 0;
+        align-items: flex-start;
+      }
+      .f > label {
+        width: 150px;
+        flex: none;
+        padding-top: 4px;
+        color: #444;
+      }
+      .f > div {
+        flex: 1;
+      }
+      input[type='text'],
+      input[type='number'],
+      textarea,
+      select {
+        font: inherit;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 4px 6px;
+        border: 1px solid #bbb;
+        border-radius: 5px;
+      }
+      textarea {
+        height: 70px;
+        font-family: Consolas, monospace;
+      }
+      .hint {
+        color: #777;
+        font-size: 12px;
+      }
+      .btn {
+        font: inherit;
+        border: 1px solid #0f7b6c;
+        background: #fff;
+        color: #0f7b6c;
+        border-radius: 5px;
+        padding: 4px 12px;
+        cursor: pointer;
+      }
+      .btn.main {
+        background: #0f7b6c;
+        color: #fff;
+      }
+      .bar {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        padding: 10px 18px;
+        border-radius: 10px;
+        box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      #msg {
+        flex: 1;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+      }
+      td {
+        border: 1px solid #ddd;
+        padding: 3px 6px;
+      }
+      .k {
+        color: #1d6b38;
+      }
+      .x {
+        color: #b3261e;
+      }
+      .inline {
+        display: flex;
+        gap: 6px;
+      }
+      .inline input {
+        flex: 1;
+      }
+      .ok {
+        color: #2e7d32;
+      }
+      .err {
+        color: #c62828;
+      }
+      .mon {
+        color: #3949ab;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header>BI NC Exporter 设置<small id="ver"></small></header>
+    <main>
+      <section>
+        <h2>1. 报表与切片器</h2>
+        <div class="f">
+          <label>NC Details 页面地址</label>
+          <div>
+            <input type="text" id="reportUrl" />
+            <div class="hint">不在这个页面时会自动跳转过来</div>
+          </div>
+        </div>
+        <div class="f">
+          <label>明细表识别列名</label>
+          <div><input type="text" id="tableKey" /></div>
+        </div>
+        <div class="f">
+          <label>切片器标题</label>
+          <div>
+            Work Date：<input type="text" id="slicerDate" style="width: 150px" /> Site：<input
+              type="text"
+              id="slicerSite"
+              style="width: 110px"
+            />
+            Connector：<input type="text" id="slicerConnector" style="width: 150px" />
+            <div class="hint">按标题"包含"匹配，一般不用改</div>
+          </div>
+        </div>
+        <div class="f">
+          <label>保持"所有"的切片器</label>
+          <div>
+            <label><input type="checkbox" id="clearOthers" /> 导出前清除这些切片器的选择</label
+            ><textarea id="keepAllSlicers"></textarea>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>2. Work Date</h2>
+        <div class="f">
+          <label>每日模式</label>
+          <div class="hint">默认前一个工作日；周日、节假日继续往前推</div>
+        </div>
+        <div class="f">
+          <label>月度模式</label>
+          <div class="hint">
+            默认上一个月（1 日到月底），面板上可以改月份；不受下面的节假日设置影响
+          </div>
+        </div>
+        <div class="f">
+          <label>周六</label>
+          <div>
+            <label><input type="checkbox" id="saturdayWorkday" /> 周六算工作日</label>
+          </div>
+        </div>
+        <div class="f">
+          <label>节假日</label>
+          <div>
+            <textarea
+              id="holidays"
+              placeholder="每行一个日期或区间，例如：&#10;2027-01-01&#10;2027-02-05~2027-02-13"
+            ></textarea>
+          </div>
+        </div>
+        <div class="f">
+          <label>调休上班日</label>
+          <div><textarea id="makeupDays" placeholder="例如：2027-02-14"></textarea></div>
+        </div>
+        <div class="f">
+          <label>每日预览</label>
+          <div id="datePreview"></div>
+        </div>
+      </section>
+      <section>
+        <h2>3. Site / Resource Category</h2>
+        <div class="f">
+          <label>默认选择</label>
+          <div>
+            <textarea id="sitePaths" style="height: 50px"></textarea>
+            <div class="hint">每行一个，层级用 &gt; 分隔，例如 BK&gt;BK_5F</div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>4. Connector Type 排除规则</h2>
+        <div class="f">
+          <label>排除关键词</label>
+          <div><textarea id="excludeKeywords" style="height: 50px"></textarea></div>
+        </div>
+        <div class="f">
+          <label>例外词</label>
+          <div>
+            <textarea id="exceptionWords" style="height: 50px"></textarea>
+            <div class="hint">关键词出现在例外词里面时不算，例如 LCD 里的 LC</div>
+          </div>
+        </div>
+        <div class="f">
+          <label>手动设置</label>
+          <div><textarea id="overrides" placeholder="每行：值=保留 或 值=排除"></textarea></div>
+        </div>
+        <div class="f">
+          <label>规则测试</label>
+          <div>
+            <div class="inline">
+              <input
+                type="text"
+                id="testVals"
+                value="LCD-LCD, LC-LC, MMC-LCD, MPO-LCD, EBO-LCD\MPO, LCD\LC, EBO-MPO"
+              /><button class="btn" id="testBtn">测试</button>
+            </div>
+            <div id="testOut"></div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>5. 数据分析程序与文件转移</h2>
+        <div class="f">
+          <label>工作模式</label>
+          <div>
+            <select id="workMode">
+              <option value="A">A：本地小程序直连（推荐）</option>
+              <option value="B">B：常驻监视程序（只支持每日模式）</option>
+            </select>
+          </div>
+        </div>
+        <div class="f">
+          <label>每日分析程序</label>
+          <div>
+            <div class="inline">
+              <input
+                type="text"
+                id="batPath"
+                placeholder="例如 D:\Analysis\Daily\agent-data-analysis.bat"
+              /><button class="btn" data-browse="batPath">浏览…</button>
+            </div>
+            <div class="hint">每日导出的 data (n).xlsx 放到这个 bat 所在的文件夹</div>
+            <div id="info_batPath"></div>
+          </div>
+        </div>
+        <div class="f">
+          <label class="mon">月度分析程序</label>
+          <div>
+            <div class="inline">
+              <input
+                type="text"
+                id="batPathMonthly"
+                placeholder="例如 D:\Analysis\Monthly\monthly-analysis.bat"
+              /><button class="btn" data-browse="batPathMonthly">浏览…</button>
+            </div>
+            <div class="hint">
+              月度导出的 data (n).xlsx 放到这个 bat
+              所在的文件夹。<b>必须和每日的是不同文件</b>；建议也放在不同文件夹，避免两个程序读到对方的数据
+            </div>
+            <div id="info_batPathMonthly"></div>
+          </div>
+        </div>
+        <div class="f">
+          <label>处理方式</label>
+          <div>
+            <select id="transferMode">
+              <option value="cut">剪切（先复制、核对后再删原文件）</option>
+              <option value="copy">复制</option>
+            </select>
+          </div>
+        </div>
+        <div class="f">
+          <label>防止重复启动</label>
+          <div>
+            <label
+              ><input type="checkbox" id="preventDuplicate" /> bat
+              正在运行时只放文件，不再启动第二个窗口</label
+            >
+          </div>
+        </div>
+        <div class="f">
+          <label>启动方式</label>
+          <div>
+            <select id="launchMethod">
+              <option value="shell">普通启动（新窗口）</option>
+              <option value="wmi">独立进程启动（bat 窗口被一起关掉时用）</option>
+            </select>
+          </div>
+        </div>
+        <div class="f">
+          <label>B 模式子文件夹</label>
+          <div><input type="text" id="watchSubfolder" /></div>
+        </div>
+        <div class="f">
+          <label>连通测试</label>
+          <div>
+            <button class="btn" id="ping">测试本地小程序</button> <span id="pingOut"></span>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>6. 其他</h2>
+        <div class="f">
+          <label>每步等待（毫秒）</label>
+          <div>
+            <input type="number" id="stepDelay" min="500" step="100" />
+            <div class="hint">报表刷新慢就调大，例如 2500</div>
+          </div>
+        </div>
+        <div class="f">
+          <label>下载超时（秒）</label>
+          <div>
+            <input type="number" id="downloadTimeout" min="30" />
+            <div class="hint">月度模式自动按 2 倍计算</div>
+          </div>
+        </div>
+        <div class="f">
+          <label>上次处理结果</label>
+          <div id="last" class="hint">无</div>
+        </div>
+      </section>
+      <div class="bar">
+        <span id="msg"></span><button class="btn" id="reset">恢复默认</button
+        ><button class="btn main" id="save">保存</button>
+      </div>
+    </main>
+    <script src="common.js"></script>
+    <script src="options.js"></script>
+    <script src="platform-options.js"></script>
+  </body>
+</html>

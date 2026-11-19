@@ -1,0 +1,4 @@
+vendor/
+fixtures/
+*.json
+!package.json

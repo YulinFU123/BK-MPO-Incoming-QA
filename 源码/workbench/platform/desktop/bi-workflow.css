@@ -1,0 +1,68 @@
+.bi-workflow-ribbon,
+.bi-acquisition {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface, var(--card));
+  color: var(--text, var(--txt));
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.bi-workflow-ribbon > strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.bi-workflow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bi-shortcuts {
+  display: inline-block;
+  margin-inline-start: 12px;
+}
+.bi-shortcuts[open] {
+  display: block;
+  margin: 8px 0 0;
+}
+.bi-shortcuts > summary {
+  cursor: pointer;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.bi-workflow-actions select {
+  max-width: 250px;
+  min-height: 34px;
+}
+.bi-workflow-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.bi-acquisition > summary,
+.bi-script-alternative > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px 0;
+}
+.bi-script-alternative {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.bi-workflow-ribbon :focus-visible {
+  outline: 2px solid var(--accent, var(--pri));
+  outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  .bi-workflow-actions > .btn {
+    flex: 1 1 42%;
+  }
+  .bi-workflow-actions select {
+    max-width: 100%;
+    width: 100%;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "fixture": "openpyxl-synthetic-quality.xlsx",
+  "synthetic": true,
+  "generator": "openpyxl",
+  "generatorVersion": "3.1.5",
+  "date": "2026-10-26",
+  "sha256": "abb075ff917b43625649348754a45e411459b0157106e1d8fa303e971748434e",
+  "purpose": "Independent real OOXML fixture for offline reader and encrypted restart integration tests; no company BI data.",
+  "sheets": [
+    "检验明细",
+    "说明"
+  ],
+  "headerRow": 2,
+  "physicalDataRows": [
+    3,
+    5
+  ],
+  "expected": {
+    "firstDate": "2026-10-25",
+    "secondDate": "2026-10-26",
+    "firstSN": "0001Ab",
+    "secondSN": "0002aB",
+    "firstSilk": "0012",
+    "secondSilk": "AB12",
+    "currentInspected": 100,
+    "currentDefective": 2,
+    "currentRate": 0.02
+  }
+}

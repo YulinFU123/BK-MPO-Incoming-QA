@@ -1,0 +1,44 @@
+.sidebar-identity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 6px 12px;
+  margin: -18px 0 8px;
+}
+.sidebar-identity img {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+.sidebar-identity .identity-copy {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.login-identity {
+  display: flex;
+  align-items: center;
+  padding: 0 0 18px;
+}
+.login-identity img {
+  width: 48px;
+  height: 48px;
+}
+.sidebar-collapsed .sidebar-identity {
+  justify-content: center;
+  padding-inline: 0;
+}
+.sidebar-collapsed .identity-copy {
+  display: none;
+}
+@media (max-width: 680px) {
+  .sidebar-identity {
+    padding-inline: 2px;
+    gap: 6px;
+    margin-top: 0;
+  }
+  .sidebar-identity .identity-copy {
+    font-size: 10px;
+  }
+}

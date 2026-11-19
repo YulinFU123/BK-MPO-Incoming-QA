@@ -1,0 +1,32 @@
+{
+  "version": "0.21.3-dev.29",
+  "source": {
+    "tests": 542,
+    "pass": 542,
+    "fail": 0
+  },
+  "biPackaged": {
+    "tests": 160,
+    "pass": 160,
+    "fail": 0
+  },
+  "pythonBI": 90,
+  "pythonSuites": {
+    "analysis-studio": 21,
+    "analysis-report": 9,
+    "analysis-original-report": 6,
+    "daily-report": 13,
+    "judgment-date": 9,
+    "reason-column-report": 8,
+    "template-rate": 6,
+    "daily-template-report": 7,
+    "import-batches": 11
+  },
+  "formalReleaseApproved": false,
+  "storageIssueResolved": false,
+  "sourceFailures": [],
+  "priorAttempts": [],
+  "nativeExcelReport": true,
+  "biBrowserReviewed": true,
+  "visibleUiTested": false
+}

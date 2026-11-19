@@ -1,0 +1,43 @@
+{
+  "version": "0.21.3-dev.28",
+  "source": {
+    "tests": 534,
+    "pass": 534,
+    "fail": 0
+  },
+  "biPackaged": {
+    "tests": 134,
+    "pass": 134,
+    "fail": 0
+  },
+  "pythonBI": 77,
+  "pythonSuites": {
+    "analysis-studio": 21,
+    "analysis-report": 9,
+    "analysis-original-report": 6,
+    "daily-report": 13,
+    "judgment-date": 9,
+    "reason-column-report": 7,
+    "template-rate": 5,
+    "daily-template-report": 7
+  },
+  "formalReleaseApproved": false,
+  "storageIssueResolved": false,
+  "sourceFailures": [],
+  "priorAttempts": [
+    {
+      "attempt": 1,
+      "failures": [
+        "failed password replacement preserves the old key and ciphertext, and locking cancels pending rotation"
+      ],
+      "counts": {
+        "tests": 534,
+        "pass": 533,
+        "fail": 1
+      }
+    }
+  ],
+  "nativeExcelReport": true,
+  "biBrowserReviewed": true,
+  "visibleUiTested": false
+}

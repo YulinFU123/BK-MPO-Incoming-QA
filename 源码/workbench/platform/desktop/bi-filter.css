@@ -1,0 +1,196 @@
+.bi-filter-studio {
+  margin: 16px 0;
+  padding: 18px;
+  border: 1px solid var(--line, #c9d9e9);
+  border-radius: 12px;
+  background: var(--card, #f5f9ff);
+  color: var(--txt, #253c54);
+}
+.bi-filter-studio h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.bi-filter-studio p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: inherit;
+}
+.bi-filter-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+  gap: 18px;
+  margin: 16px 0;
+}
+.bi-filter-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 360px;
+  overflow: auto;
+}
+.bi-filter-fields button {
+  text-align: left;
+  white-space: normal;
+  min-height: 34px;
+  font-size: 12px;
+}
+.bi-filter-fields [aria-pressed='true'] {
+  background: #126fe3;
+  color: white;
+  border-color: #126fe3;
+}
+.bi-filter-editor {
+  min-width: 0;
+}
+.bi-filter-editor h4 {
+  margin: 0 0 12px;
+}
+.bi-filter-editor select,
+.bi-filter-editor input[type='search'],
+.bi-filter-editor textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+.bi-filter-editor textarea {
+  min-height: 72px;
+}
+.bi-filter-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 6px;
+  max-height: 210px;
+  overflow: auto;
+  margin: 8px 0;
+  padding: 8px;
+  border: 1px solid var(--line, #c9d9e9);
+  border-radius: 6px;
+}
+.bi-filter-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  padding: 4px;
+}
+.bi-filter-options input {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.bi-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.bi-filter-actions label {
+  font-size: 12px;
+}
+.bi-filter-studio > textarea {
+  width: 100%;
+  height: 100px;
+  box-sizing: border-box;
+}
+@media (max-width: 760px) {
+  .bi-filter-layout {
+    grid-template-columns: 1fr;
+  }
+  .bi-filter-fields {
+    max-height: 150px;
+  }
+  .bi-filter-studio {
+    padding: 12px;
+  }
+}
+
+.bi-filter-fields button.btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 10px;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--txt, #253c54) !important;
+  box-sizing: border-box;
+  border-radius: 7px;
+  min-height: 45px;
+  width: 100%;
+}
+.bi-filter-fields button.btn strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.bi-filter-fields button.btn small {
+  font-size: 10px;
+  color: var(--muted, #61778e);
+  overflow-wrap: anywhere;
+}
+.bi-filter-fields button.btn[aria-pressed='true'] {
+  background: var(--pri-soft, #e2eeff) !important;
+  border-color: var(--pri, #126fe3) !important;
+  color: var(--pri, #126fe3) !important;
+}
+.bi-filter-fields button.btn:hover {
+  background: var(--bg, #eef5fc) !important;
+}
+.bi-filter-studio button.btn:focus-visible {
+  outline: 2px solid var(--pri, #126fe3);
+  outline-offset: 2px;
+}
+.bi-filter-editor details {
+  margin-top: 12px;
+}
+.bi-filter-editor summary {
+  cursor: pointer;
+  color: var(--pri, #126fe3);
+  font-size: 13px;
+  padding: 8px 0;
+}
+.bi-filter-editor details button {
+  margin: 6px 8px 0 0;
+}
+.bi-filter-editor textarea {
+  margin-top: 8px;
+}
+
+.ncx-inbox-panel {
+  padding: 14px;
+  margin: 16px 0;
+  border: 1px solid var(--line, #c7d5e3);
+  border-radius: 8px;
+}
+.ncx-inbox-panel > label {
+  display: block;
+  margin: 9px 0;
+}
+.ncx-inbox-panel input:not([type='checkbox']) {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+}
+.ncx-inbox-panel .btn {
+  margin: 6px 5px 4px 0;
+}
+.ncx-inbox-panel summary {
+  font-weight: 700;
+}
+
+.daily-defect-filter {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line, #c7d5e3);
+  border-left: 3px solid var(--accent, #1676dd);
+  border-radius: 6px;
+}
+.daily-defect-filter h3 {
+  margin: 0 0 8px;
+}
+.daily-defect-filter .btn {
+  margin: 7px 7px 0 0;
+}
+.daily-defect-filter .multi-list {
+  max-height: 200px;
+}

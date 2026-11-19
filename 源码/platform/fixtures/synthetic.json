@@ -1,0 +1,33 @@
+{
+  "synthetic": true,
+  "notice": "仅为自动化测试和演示构造的数据，不代表真实业务结果。",
+  "legacyState": {
+    "version": 1,
+    "templates": [{
+      "id": "incoming", "name": "合成来料异常",
+      "analysis": { "date": "found_date", "issue": "issue", "code": "silk", "group": "process" },
+      "columns": [
+        {"id":"found_date","label":"发现日期","type":"date"},
+        {"id":"sn","label":"SN","type":"text"},
+        {"id":"issue","label":"异常现象","type":"text"},
+        {"id":"silk","label":"底座丝印","type":"text"},
+        {"id":"process","label":"工序","type":"text"}
+      ]
+    }],
+    "records": [
+      {"id":"demo_1","templateId":"incoming","createdAt":"2026-10-26T01:00:00Z","createdLocalDate":"2026-10-26","values":{"found_date":"2026-10-26","sn":"0001Ab","issue":"外观异常","silk":"0012","process":"装管"}},
+      {"id":"demo_2","templateId":"incoming","createdAt":"2026-10-26T01:01:00Z","createdLocalDate":"2026-10-26","values":{"found_date":"2026-10-26","sn":"0001Ab","issue":"底座断裂","silk":"AB12","process":"装管"}}
+    ]
+  },
+  "legacyMappings": {"incoming":{"dimensions":{"process":"process"}}},
+  "dataset": {"id":"demoQuality","label":"合成检验数据","version":"1","grainFields":["process"],"unit":"piece"},
+  "mapping": {
+    "dateColumn":"业务日","dateFormat":"iso",
+    "dimensions":{"process":"工序"},
+    "measures":{"inspectedUnits":"检验数","defectiveUnits":"不良件数","productionUnits":"产量"}
+  },
+  "rows": [
+    {"业务日":"2026-10-25","工序":"装管","检验数":100,"不良件数":5,"产量":110},
+    {"业务日":"2026-10-26","工序":"装管","检验数":100,"不良件数":2,"产量":120}
+  ]
+}

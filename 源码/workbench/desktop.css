@@ -1,0 +1,141 @@
+/* Desktop hierarchy: dark navigation, toned canvas, explicit content layers. */
+body { background: var(--canvas); color: var(--ink); }
+.sidebar { width: 204px; padding: 26px 12px 18px; background: var(--rail); color: var(--rail-ink); border-right: 1px solid var(--rail-line); backdrop-filter: var(--rail-filter); box-shadow: none; }
+.side-brand { padding: 0 10px 24px; gap: 10px; }
+.side-brand strong { color: var(--rail-ink); font-size: 14px; }
+.side-brand small { color: var(--rail-muted); font-size: 10px; margin-top: 4px; }
+.part-mark, .side-brand .part-mark { background: var(--accent); color: var(--accent-ink); border-radius: 10px; }
+.nav-item { color: var(--rail-muted); border: 1px solid transparent; border-radius: 8px; min-height: 42px; padding: 10px 12px; font-size: 13px; font-weight: 500; gap: 10px; }
+.nav-item svg { color: inherit; }
+.nav-item.active, .nav-item.active svg { color: var(--rail-ink); }
+.nav-item.active { background: var(--rail-active); border-color: var(--rail-line); box-shadow: none; }
+.nav-item:not(.active):hover { background: var(--rail-hover); color: var(--rail-ink); }
+.nav-divider { margin: 16px 10px 7px; border-color: var(--rail-line); }
+.nav-settings summary { color: var(--rail-muted); font-size: 11px; padding: 10px 12px; }
+.nav-settings .nav-item { min-height: 39px; }
+.side-bottom, .side-state { color: var(--rail-muted); border-color: var(--rail-line); }
+.sidebar :is(button,summary):focus-visible { outline-color: var(--rail-ink); }
+.topbar, .shell { margin-left: 204px; }
+.topbar { background: var(--surface-subtle); border-bottom: 1px solid var(--line); box-shadow: none; backdrop-filter: var(--glass-filter); }
+.top-inner { min-height: 65px; padding: 12px 26px; }
+.workspace-heading { color: var(--ink); font-size: 17px; font-weight: 650; }
+.top-actions { gap: 10px; }
+.top-actions label { font-size: 12px; color: var(--muted); }
+.top-actions select { background: var(--control); border-color: var(--input-line); color: var(--ink); }
+.top-button.lock-action { color: var(--ink); border-color: var(--input-line); }
+.shell { padding: 0 26px 24px; }
+.day-header { padding: 16px 0 12px; border-bottom: 1px solid var(--line); }
+.day-header h1 { font-size: 12px; color: var(--muted); }
+.day-meta { gap: 20px; }
+.meta-cell b { font-size: 18px; font-weight: 650; color: var(--ink); }
+.meta-cell span { font-size: 11px; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 2px 6px #132d4805; margin-top: 16px; overflow: clip; }
+.panel-head { background: var(--surface-subtle); border-color: var(--line); padding: 12px 20px; }
+#entryPanel .panel-head { background: transparent; padding: 0; }
+#recordsPanel > .panel-head { display: none; }
+.entry { padding: 0 22px 14px; }
+.entry-readiness { font-size: 12px; color: var(--muted); padding: 14px 0 16px; }
+.entry-readiness[data-state=invalid] { color: var(--muted); }
+.entry-readiness[data-state=ready] { color: var(--success); }
+.entry-group legend { font-size: 14px; font-weight: 650; color: var(--ink); }
+.group-description { font-size: 12px; color: var(--muted); }
+#fieldsGrid { gap: 24px 28px; }
+.group-fields { gap: 18px; }
+.entry-group-identity { padding: 16px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; background: var(--surface-subtle); }
+.entry-group-identity .group-description { float: none; margin: 0 0 8px; text-align: left; }
+.entry-group-identity .field input { font-size: 18px; min-height: 46px; background: var(--control); }
+.entry-group-issue { border-color: var(--line); }
+.field label { font-size: 13px; color: var(--ink); margin-bottom: 7px; }
+input, select, textarea, .field input, .field textarea, .security-form input, .security-form select, .security-form textarea { background: var(--control); color: var(--ink); border-color: var(--input-line); border-radius: 7px; }
+.field input, .field textarea { min-height: 42px; padding: 10px 12px; font-size: 14px; }
+.field input:focus, .field textarea:focus { background: var(--control); border-color: var(--focus-ring); box-shadow: none; }
+.field [aria-invalid=true] { background: var(--error-bg); border-color: var(--danger); }
+.field-note, .input-hint { color: var(--muted); font-size: 11px; }
+.entry-actions { background: var(--surface-subtle); border-top: 1px solid var(--line); border-radius: 8px 8px 0 0; box-shadow: none; padding: 13px 12px 9px; margin-top: 22px; }
+.entry-actions .btn-primary { min-height: 40px; }
+.btn, .top-button { border-color: var(--input-line); background: var(--control); color: var(--ink); border-radius: 7px; font-size: 13px; box-shadow: none; }
+.btn:hover, .top-button:hover { background: var(--selected); color: var(--ink); }
+.btn-primary, .btn-primary:hover, :root[data-theme=graphite] .btn-primary, :root[data-theme=graphite] .btn-primary:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger, .icon-btn.danger { color: var(--danger); }
+.close-x { color: var(--muted); background: var(--surface-subtle); }
+.combo-menu, .action-menu, ::picker(select) { background: var(--popup-surface); border: 1px solid var(--input-line); backdrop-filter: var(--popup-filter); border-radius: 10px; box-shadow: 0 12px 32px #0b23462b; }
+.combo-option, select option { min-height: 36px; border-radius: 6px; }
+.combo-option:hover, .combo-option.selected, select option:hover, select option:focus, .action-menu button:hover { background: var(--accent); color: var(--accent-ink); }
+:root[data-theme=graphite] :is(.combo-option:hover,.combo-option.selected,select option:hover,select option:focus,.action-menu button:hover) { color: var(--accent-ink); }
+.combo-option[aria-selected=true], select option:checked { background: var(--selected); color: var(--selected-ink); }
+.combo-option:is(:hover,.selected) { background: var(--accent); color: var(--accent-ink); }
+.combo-option:is(:hover,.selected) :is(small,.option-check) { color: inherit; }
+.combo-toggle:hover, .combo-toggle[aria-expanded=true] { color: var(--selected-ink); background: var(--selected); }
+.table-tools { padding: 16px 18px; gap: 12px; }
+.table-count { font-size: 11px; line-height: 1.4; color: var(--muted); background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; align-self: center; white-space: nowrap; }
+.table-scroll { max-height: calc(100vh - 270px); border-top: 1px solid var(--line); }
+.data-table th, .data-table th.row-actions { background: var(--header-bg); color: var(--header-ink); border-color: var(--rail-line); }
+:root[data-headers=true] :is(.data-table th,.data-table th.row-actions) { background: var(--header-bg); color: var(--header-ink); }
+.column-sort { color: inherit; font-size: 13px; font-weight: 600; }
+.column-sort:hover { color: inherit; background: #ffffff12; }
+.data-table th[aria-sort=ascending], .data-table th[aria-sort=descending] { box-shadow: inset 0 -3px 0 #93c9ff; }
+.data-table td { font-size: 13px; padding: 10px 11px; border-color: var(--line); }
+.data-table .row-actions { padding: 8px; }
+.record-ref { font-size: 10px; line-height: 1.5; margin-bottom: 4px; color: var(--muted); }
+.row-actions .icon-btn { border-radius: 4px; min-height: 27px; padding: 4px 5px; font-size: 12px; }
+.row-actions .icon-btn:first-of-type { background: var(--selected); color: var(--selected-ink); }
+.record-filters { background: var(--surface-subtle); border-color: var(--line); padding: 12px 14px; margin: 0 18px 14px; }
+.record-filters summary { color: var(--ink); font-size: 12px; }
+.analysis-kpi { border-radius: 8px; background: var(--surface-subtle); }
+.analysis-kpis > .analysis-kpi:first-child { background: var(--metric-bg); border-color: var(--metric-bg); }
+.analysis-kpis > .analysis-kpi:first-child :is(b,span) { color: var(--metric-ink); }
+.analysis-kpis > .analysis-kpi:first-child small { color: var(--metric-muted); }
+.analysis-card, .trend-section { border-radius: 9px; background: var(--surface); border-color: var(--line); }
+.matrix-table th, #xlsxPreview th { background: var(--surface-subtle); color: var(--ink); font-weight: 600; }
+.analysis-tabs { border-color: var(--line); }
+.analysis-tabs button[aria-selected=true] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.analysis-tabs button:hover { background: var(--selected); color: var(--selected-ink); }
+.analysis-summary { border-radius: 0 7px 7px 0; }
+dialog { background: var(--surface); border-color: var(--line); border-radius: 13px; box-shadow: var(--frame-shadow); }
+.modal-head { background: var(--surface-subtle); border-color: var(--line); padding: 19px 22px; }
+.modal-head h2 { font-size: 18px; }
+.config-foot { background: var(--surface-subtle); border-color: var(--line); }
+#settingsDialog .modal-body { background: var(--canvas); }
+.settings-tabs { background: var(--surface-subtle); }
+.settings-tabs button[aria-selected=true] { background: var(--accent); color: var(--accent-ink); }
+#columnRows tr { background: var(--surface); border-color: var(--line); border-radius: 8px; }
+.security-form { padding-top: 8px; }
+.security-summary { background: var(--selected); color: var(--selected-ink); border-color: var(--line); }
+.appearance-preview { background: var(--surface-subtle); }
+.theme-card { background: var(--surface-subtle); border-radius: 9px; }
+.theme-card:has(input:checked) { background: var(--selected); }
+.theme-thumbnail { height: 88px; --mini-rail:#142d4a; --mini-body:#e8eef6; --mini-surface:#f8fafd; --mini-ink:#172b46; --mini-line:#bbcadd; --mini-head:#20466e; background: var(--mini-body); border-color: var(--mini-line); }
+.theme-card[data-preview-theme=graphite] .theme-thumbnail { --mini-rail:#0c1d31; --mini-body:#0d1928; --mini-surface:#17283d; --mini-ink:#e9f2ff; --mini-line:#49617d; --mini-head:#294867; background: var(--mini-body); }
+.theme-card[data-preview-theme=glass] .theme-thumbnail { --mini-body:#dfeaf5; background: var(--mini-body); }
+.theme-card[data-preview-theme=contrast] .theme-thumbnail { --mini-rail:#111; --mini-body:#e7e7e7; --mini-surface:#fff; --mini-ink:#000; --mini-line:#333; --mini-head:#111; background: var(--mini-body); }
+.theme-thumbnail .mini-rail { display: grid; align-content: start; gap: 5px; width: 20%; flex: 0 0 20%; padding: 10px 5px; background: var(--mini-rail); border: 0; }
+.mini-rail span { display: block; height: 4px; border-radius: 2px; background: #93badb; }
+.theme-thumbnail .mini-work { flex: 1; padding: 9px; display: grid; gap: 5px; color: var(--mini-ink); min-width: 0; }
+.mini-heading { font-size: 8px; font-weight: 600; text-align: left; }
+.mini-input { height: 15px; background: var(--mini-surface); border: 1px solid var(--mini-line); border-radius: 3px; font-size: 7px; text-align: left; padding: 1px 4px; }
+.mini-table { display: grid; grid-template-columns: 1fr 1fr; background: var(--mini-surface); border-top: 5px solid var(--mini-head); color: var(--mini-ink); font-size: 7px; }
+.mini-table span { padding: 2px 4px; text-align: left; }
+.theme-card > small { line-height: 1.6; }
+:root[data-density=compact] .data-table td { padding: 7px 9px; }
+:root[data-density=compact] .entry-group-identity { padding: 12px 14px; }
+:root[data-font=large] :is(.field input,.field textarea,.field label,.btn,.top-button,.nav-item,.data-table td,.matrix-table td,.matrix-table th,.combo-option,select option) { font-size: 15px; }
+@media (max-width: 1200px) {
+  .sidebar { width: 184px; padding-left: 9px; padding-right: 9px; }
+  .topbar, .shell { margin-left: 184px; }
+  .top-inner { padding: 12px 20px; }
+  .shell { padding-left: 20px; padding-right: 20px; }
+  .side-brand { padding-left: 7px; padding-right: 7px; }
+}
+@media (max-width: 1000px) {
+  .sidebar { width: 172px; }
+  .topbar, .shell { margin-left: 172px; }
+  .nav-item { padding-left: 10px; padding-right: 10px; }
+}
+@media (forced-colors: active) {
+  .auth-frame, .panel, dialog { box-shadow: none; }
+  .nav-item.active { color: HighlightText; }
+  .data-table th, .data-table th.row-actions { background: Canvas; color: CanvasText; }
+  .btn-primary, .analysis-tabs button[aria-selected=true], .settings-tabs button[aria-selected=true] { background: Highlight; color: HighlightText; }
+  .auth-local::before { background: CanvasText; }
+}

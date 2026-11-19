@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="silver">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';connect-src 'none';base-uri 'none';form-action 'none';object-src 'none'"
+    />
+    <title></title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="../shared-controls.css" />
+    <link rel="stylesheet" href="navigation.css" />
+    <link rel="stylesheet" href="../field-controls.css" />
+    <link rel="stylesheet" href="../chart-surface.css" />
+    <link rel="stylesheet" href="brand.css" />
+    <link rel="stylesheet" href="../insight-summary.css" />
+    <link rel="stylesheet" href="quality.css" />
+    <link rel="stylesheet" href="label-studio.css" />
+    <script src="icons.js" defer></script>
+    <script src="../selection-controls.js" defer></script>
+    <script src="../field-controls.js" defer></script>
+    <script src="../chart-surface.js" defer></script>
+    <script src="../insight-summary.js" defer></script>
+    <script src="quality-ui.js" defer></script>
+    <script src="../../vendor/qrcode/index.js" defer></script>
+    <script src="../../domain/label-template.js" defer></script>
+    <script src="../../domain/label-sheet.js" defer></script>
+    <script src="../../domain/label-geometry.js" defer></script>
+    <script src="../../domain/label-layout.js" defer></script>
+    <script src="../label-render.js" defer></script>
+    <script src="label-memory-ui.js" defer></script>
+    <script src="label-designer.js" defer></script>
+    <script src="label-studio.js" defer></script>
+    <script src="navigation-model.js" defer></script>
+    <script src="navigation-ui.js" defer></script>
+    <script src="renderer.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#mainContent">跳到工作区</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="sidebar-identity">
+          <img src="assets/logo.svg" alt="异常分析平台标志" width="28" height="28" />
+          <span class="identity-copy">本地工作台</span>
+        </div>
+        <div class="workspace-state">
+          <span class="status-dot"></span><span id="workspaceLabel">尚未打开工作区</span>
+        </div>
+        <button type="button" id="openFunctions" class="function-search-trigger" disabled>
+          <span>查找功能</span><small>Ctrl K</small>
+        </button>
+        <nav class="nav-list" id="primaryNavigation" aria-label="按工作流程导航"></nav>
+        <div class="sidebar-bottom">
+          <label class="theme-label" for="themeSelect">界面风格</label>
+          <select id="themeSelect" aria-label="界面风格">
+            <option value="silver">雾银</option>
+            <option value="glass">浅色玻璃</option>
+            <option value="graphite">石墨</option>
+            <option value="contrast">高对比</option>
+          </select>
+          <div class="sidebar-foot">
+            <span class="offline-dot"></span>离线运行<span id="versionLabel">开发版</span>
+          </div>
+        </div>
+      </aside>
+      <div class="main-shell">
+        <header class="toolbar">
+          <div class="toolbar-leading">
+            <button
+              type="button"
+              class="icon-button"
+              id="toggleSidebar"
+              aria-label="收起侧栏"
+              title="显示或收起侧栏"
+            >
+              收起侧栏</button
+            ><span id="viewTitle" hidden></span
+            ><span id="modeBadge" class="mode-badge" hidden>示例数据</span>
+          </div>
+          <div class="toolbar-actions">
+            <button type="button" id="toolbarImport" class="button primary" disabled>
+              常用操作</button
+            ><button type="button" id="toolbarSecondary" class="button secondary" hidden disabled>
+              相关功能</button
+            ><button type="button" id="lockButton" class="button quiet" disabled>锁定</button>
+          </div>
+        </header>
+        <div class="busy-line" id="busyLine" hidden></div>
+        <main id="mainContent" tabindex="-1">
+          <section id="lockView" class="lock-view" aria-label="打开工作区">
+            <div class="lock-content">
+              <div class="login-identity">
+                <img src="assets/logo.svg" alt="异常分析平台标志" width="48" height="48" />
+              </div>
+              <p class="lead">打开已有加密文件，或新建一个工作区。</p>
+              <div class="workspace-actions">
+                <button type="button" id="openWorkspace" class="workspace-choice">
+                  <span data-icon="folder"></span><strong>打开已有工作区</strong
+                  ><small>选择加密数据文件</small></button
+                ><button type="button" id="createWorkspace" class="workspace-choice">
+                  <span data-icon="plus"></span><strong>新建工作区</strong
+                  ><small>独立保存，不改动旧版数据</small>
+                </button>
+              </div>
+              <form id="unlockForm" class="unlock-form" hidden>
+                <p class="selected-workspace">
+                  <span data-icon="file"></span><span id="selectedWorkspace"></span>
+                </p>
+                <label for="passwordInput" id="passwordLabel">工作区密码</label>
+                <div class="password-field">
+                  <input
+                    id="passwordInput"
+                    type="password"
+                    autocomplete="current-password"
+                    maxlength="1024"
+                    placeholder="输入工作区密码"
+                    required
+                  /><button
+                    type="button"
+                    class="icon-button"
+                    id="togglePassword"
+                    aria-label="显示密码"
+                    title="显示密码"
+                  >
+                    显示
+                  </button>
+                </div>
+                <label id="confirmPasswordWrap" class="confirm-password" hidden
+                  >再次输入密码<input
+                    id="confirmPasswordInput"
+                    type="password"
+                    autocomplete="new-password"
+                    maxlength="1024"
+                    placeholder="再次输入，避免设置错误"
+                /></label>
+                <p class="field-help" id="passwordHelp">密码仅用于打开此工作区。</p>
+                <div class="form-actions">
+                  <button class="button primary" type="submit" id="unlockButton">打开工作区</button
+                  ><button class="button quiet" type="button" id="cancelSelection">取消选择</button>
+                </div>
+              </form>
+              <div class="lock-divider"></div>
+              <button type="button" id="openDemo" class="button demo-button">
+                <span data-icon="chart"></span>先查看示例数据<span class="choice-note"
+                  >不写入业务文件</span
+                >
+              </button>
+              <p class="lock-note">录入、跟进和数量分析使用同一工作区。全部数据保存在本机。</p>
+            </div>
+          </section>
+
+          <div id="workspaceView" class="workspace-view" hidden>
+            <div id="demoNotice" class="notice demo-notice" hidden>
+              <span data-icon="info"></span
+              ><span>当前显示明确构造的示例数据，不代表实际业务结果，关闭后清空。</span
+              ><button type="button" id="demoNewWorkspace" class="text-button">
+                使用自己的数据
+              </button>
+            </div>
+            <div id="dataScope" class="scope-bar">
+              <label class="scope-dataset"
+                >数据集<select id="datasetSelect">
+                  <option value="">尚无数据集</option>
+                </select></label
+              >
+              <div class="date-fields">
+                <label>开始日期<input type="date" id="startDate" /></label
+                ><span class="date-dash">至</span
+                ><label>结束日期<input type="date" id="endDate" /></label>
+              </div>
+              <div class="date-shortcuts" aria-label="快捷日期">
+                <button type="button" data-days="7">近 7 天</button
+                ><button type="button" data-days="30">近 30 天</button
+                ><button type="button" data-days="all">全部</button>
+              </div>
+              <button
+                type="button"
+                class="icon-button"
+                id="refreshButton"
+                title="刷新数据"
+                aria-label="刷新数据"
+              >
+                刷新
+              </button>
+            </div>
+            <div class="dimension-filters" id="dimensionFilters" hidden></div>
+            <details id="qualityScopeDisclosure" class="quality-scope-disclosure" hidden>
+              <summary><strong>调整核对范围</strong><span id="qualityScopeSummary"></span></summary>
+              <div id="qualityScopeFields"></div>
+            </details>
+            <section id="legacyMount" aria-label="异常记录工作区" hidden></section>
+            <section id="biMount" aria-label="BI分析工作区" hidden>
+              <p class="bi-loading">正在打开离线分析引擎…</p>
+            </section>
+
+            <section class="directory-page" data-page="home" aria-label="工作台" hidden>
+              <div class="workflow-intro"><p id="homeWorkspace"></p></div>
+              <div class="directory-layout">
+                <div id="homeMain" class="directory-column"></div>
+                <aside id="homeAside" class="directory-column" aria-label="常用操作"></aside>
+              </div>
+              <p class="directory-note">
+                异常记录、检验数量与BI历史各自保留原口径。需要某项功能时，可使用左侧“查找功能”。
+              </p>
+            </section>
+            <section class="directory-page" data-page="analysis-hub" aria-label="分析与报表" hidden>
+              <div class="workflow-intro">
+                <p>按要回答的问题选择分析入口。记录条数、检验数量和BI历史分别核对。</p>
+              </div>
+              <div class="directory-layout">
+                <div id="analysisMain" class="directory-column"></div>
+                <div id="analysisAside" class="directory-column"></div>
+              </div>
+            </section>
+            <section class="directory-page" data-page="data-center" aria-label="数据管理" hidden>
+              <div class="workflow-intro">
+                <p>先选择资料类型，再导入或配置；原字段映射、校验和数据文件继续沿用。</p>
+              </div>
+              <div class="directory-layout">
+                <div id="dataImports" class="directory-column"></div>
+                <div id="dataRules" class="directory-column"></div>
+              </div>
+            </section>
+            <section class="directory-page" data-page="settings-hub" aria-label="设置与备份" hidden>
+              <div class="workflow-intro">
+                <p>显示与访问设置集中管理。加密工作区与独立BI资料分别备份。</p>
+              </div>
+              <div class="directory-layout">
+                <div id="settingsMain" class="directory-column"></div>
+                <div id="settingsAside" class="directory-column"></div>
+              </div>
+            </section>
+
+            <section id="overviewView" data-page="overview" aria-label="分析总览">
+              <div id="overviewEmpty" class="empty-state">
+                <span class="empty-icon" data-icon="chart"></span>
+                <h2>先导入一份检验数据</h2>
+                <p>配置日期、检验件数和不良件数后，开始查看变化。</p>
+                <button type="button" class="button primary" data-start-import>导入 Excel</button
+                ><small>异常记录条数不会自动当作不良件数。</small>
+              </div>
+              <div id="analysisContent" hidden>
+                <div id="quantityInsights"></div>
+                <div class="metric-strip" aria-label="当前日期范围指标">
+                  <div class="metric main-metric">
+                    <span>不良率</span><strong id="metricRate">—</strong
+                    ><small id="metricRateChange">尚无可比较的前期数据</small>
+                  </div>
+                  <div class="metric">
+                    <span>检验件数</span><strong id="metricInspected">—</strong
+                    ><small id="metricInspectedDetail">按当前范围汇总</small>
+                  </div>
+                  <div class="metric">
+                    <span>不良件数</span><strong id="metricDefective">—</strong
+                    ><small>件数与缺陷次数分别统计</small>
+                  </div>
+                  <div class="metric">
+                    <span>异常记录</span><strong id="metricRecords">—</strong
+                    ><small id="metricSerials">与数量事实独立统计</small>
+                  </div>
+                </div>
+                <div class="analysis-layout">
+                  <section class="trend-panel" aria-labelledby="trendTitle">
+                    <div class="panel-heading">
+                      <div>
+                        <h2 id="trendTitle">每日变化</h2>
+                        <p id="trendCaption">点击日期可查看对应明细。</p>
+                      </div>
+                      <div class="segmented" aria-label="趋势指标">
+                        <button
+                          type="button"
+                          data-chart="rate"
+                          class="selected"
+                          aria-pressed="true"
+                        >
+                          不良率</button
+                        ><button type="button" data-chart="quantity" aria-pressed="false">
+                          件数
+                        </button>
+                      </div>
+                    </div>
+                    <div class="chart-key" id="chartKey"></div>
+                    <div
+                      class="trend-chart"
+                      id="trendChart"
+                      tabindex="0"
+                      aria-label="每日趋势图"
+                    ></div>
+                    <div id="chartDetail" class="chart-detail" aria-live="polite">
+                      选择图中日期，核对当日数据。
+                    </div>
+                  </section>
+                  <aside class="analysis-aside">
+                    <div class="panel-heading">
+                      <h2>统计口径</h2>
+                      <span class="tiny-tag">当前来源</span>
+                    </div>
+                    <div id="qualityStatus" class="source-status"></div>
+                    <dl id="scopeDetails" class="scope-details"></dl>
+                    <div class="aside-note">
+                      <span data-icon="info"></span>
+                      <p>不良率 = 不良件数 ÷ 检验件数。缺失检验数时不计算，未采集的日期不补零。</p>
+                    </div>
+                    <button type="button" id="showDataButton" class="button secondary full-width">
+                      查看数据明细<span data-icon="chevron"></span>
+                    </button>
+                  </aside>
+                </div>
+                <section class="observation-summary" id="observationSummary" hidden>
+                  <div>
+                    <h2>异常记录分布</h2>
+                    <p>记录条数按异常现象统计，不代表不良件数。</p>
+                  </div>
+                  <div id="issueDistribution" class="issue-distribution"></div>
+                </section>
+              </div>
+            </section>
+
+            <section id="dataView" data-page="data" hidden aria-label="数据明细">
+              <div id="qualitySampleScope" class="quality-sample-scope" hidden>
+                <span id="qualitySampleLabel"></span
+                ><button type="button" class="button quiet" id="returnQualityCheck">
+                  返回核对结果</button
+                ><button type="button" class="button quiet" id="clearQualitySamples">
+                  查看全部数据
+                </button>
+              </div>
+              <div class="data-tools">
+                <div class="segmented source-switch">
+                  <button type="button" data-source="quality" class="selected" aria-pressed="true">
+                    检验数据</button
+                  ><button type="button" data-source="observations" aria-pressed="false">
+                    异常记录
+                  </button>
+                </div>
+                <label class="search-box"
+                  ><span data-icon="search"></span
+                  ><input
+                    type="search"
+                    id="dataSearch"
+                    placeholder="搜索当前数据"
+                    maxlength="256"
+                    aria-label="搜索当前数据" /></label
+                ><label class="density-switch"
+                  ><input type="checkbox" id="compactRows" />紧凑行高</label
+                >
+              </div>
+              <div class="table-frame">
+                <div class="table-caption">
+                  <strong id="tableCount">数据明细</strong
+                  ><span id="sortStatus">点击表头排序，序号随显示顺序更新。</span>
+                </div>
+                <div class="table-scroll" id="dataTableScroll">
+                  <table id="dataTable">
+                    <thead id="dataTableHead"></thead>
+                    <tbody id="dataTableBody"></tbody>
+                  </table>
+                </div>
+                <div id="tableEmpty" class="table-empty" hidden>
+                  当前条件下没有数据，请调整日期、筛选或搜索。
+                </div>
+                <footer class="pagination">
+                  <span id="pageDescription">暂无数据</span>
+                  <div>
+                    <label
+                      >每页<select id="pageSize">
+                        <option>25</option>
+                        <option selected>50</option>
+                        <option>100</option>
+                      </select></label
+                    ><button type="button" id="previousPage" class="button secondary">上一页</button
+                    ><span id="pageNumber">1 / 1</span
+                    ><button type="button" id="nextPage" class="button secondary">下一页</button>
+                  </div>
+                </footer>
+              </div>
+            </section>
+
+            <section
+              id="qualityView"
+              class="quality-page"
+              data-page="quality-check"
+              hidden
+              aria-label="数据质量核对"
+            >
+              <div class="quality-page-header">
+                <div>
+                  <h2>数据质量核对</h2>
+                  <p id="qualityScope"></p>
+                </div>
+                <button type="button" class="button secondary" id="qualityRefresh">重新核对</button>
+              </div>
+              <p class="quality-message">
+                日期用于各来源核对；上方数据集和维度筛选仅用于检验数量。核对不会修改、合并或删除记录。
+              </p>
+              <div id="qualityResults" aria-live="polite"></div>
+              <div class="quality-bi-toolbar">
+                <h3>BI历史核对</h3>
+                <button type="button" class="button secondary" id="biQualityRefresh">
+                  核对BI历史
+                </button>
+              </div>
+              <div id="biQualityResults" aria-live="polite"></div>
+            </section>
+
+            <section
+              id="labelStudio"
+              class="label-studio"
+              data-page="label-studio"
+              hidden
+              aria-label="二维码排版"
+            >
+              <div class="label-studio-head">
+                <div>
+                  <h2>二维码标签</h2>
+                  <p>先设计一张，再按编号套用到整批标签。</p>
+                </div>
+                <div class="label-head-actions">
+                  <button id="labelOpenMemory" type="button" class="button quiet">记忆与方案</button
+                  ><button id="labelPickWorkbook" type="button" class="button secondary">
+                    读取Excel编号
+                  </button>
+                </div>
+              </div>
+              <div class="label-workflow-bar">
+                <div class="label-view-tabs" role="tablist" aria-label="标签工作步骤">
+                  <button
+                    type="button"
+                    id="labelViewDesign"
+                    role="tab"
+                    aria-controls="labelDesignView"
+                    aria-selected="true"
+                  >
+                    设计单张</button
+                  ><button
+                    type="button"
+                    id="labelViewBatch"
+                    role="tab"
+                    aria-controls="labelBatchView"
+                    aria-selected="false"
+                  >
+                    批量排版
+                  </button>
+                </div>
+                <div class="label-export">
+                  <button type="button" class="button primary" data-label-export="xlsx" disabled>
+                    导出Excel</button
+                  ><button type="button" class="button secondary" data-label-export="pdf" disabled>
+                    导出PDF</button
+                  ><button type="button" class="button secondary" data-label-export="png" disabled>
+                    导出二维码PNG</button
+                  ><button
+                    type="button"
+                    class="button secondary"
+                    data-label-export="print"
+                    disabled
+                  >
+                    打印标签
+                  </button>
+                </div>
+              </div>
+              <div class="label-content-switches">
+                <label class="label-check"
+                  ><input id="labelShowCode" type="checkbox" checked />编号文字</label
+                ><label class="label-check"
+                  ><input id="labelShowName" type="checkbox" checked />名称</label
+                ><label class="label-check"
+                  ><input id="labelSignatures" type="checkbox" checked />审核栏</label
+                ><label class="label-check"
+                  ><input id="labelBorder" type="checkbox" checked />外框</label
+                ><span id="labelSummary" class="label-summary">载入编号后可批量导出。</span>
+              </div>
+              <section
+                id="labelDesignView"
+                role="tabpanel"
+                aria-labelledby="labelViewDesign"
+                class="label-design-workspace"
+              >
+                <div class="label-design-main">
+                  <div class="label-designer-tools">
+                    <button id="designAddText" type="button" class="button secondary">
+                      添加文字</button
+                    ><button id="designAddLine" type="button" class="button secondary">
+                      添加横线</button
+                    ><button id="designDelete" type="button" class="button quiet" disabled>
+                      删除所选</button
+                    ><button id="designUndo" type="button" class="button quiet" disabled>
+                      撤销</button
+                    ><button id="designRedo" type="button" class="button quiet" disabled>
+                      重做</button
+                    ><button id="designReset" type="button" class="button quiet">恢复自动</button>
+                  </div>
+                  <div class="label-design-stage" id="labelDesignStage">
+                    <div
+                      id="labelDesignCanvas"
+                      class="label-design-canvas"
+                      tabindex="0"
+                      role="group"
+                      aria-label="单张标签设计区"
+                    ></div>
+                  </div>
+                  <div class="label-designer-bottom">
+                    <span id="labelDesignDimensions">50 × 50 mm</span
+                    ><label class="label-check"
+                      ><input id="designSnap" type="checkbox" checked />吸附0.5mm网格</label
+                    >
+                    <div>
+                      <button id="designPrevious" type="button" class="button quiet" disabled>
+                        上一条</button
+                      ><span id="designRecordCount">设计用示例</span
+                      ><button id="designNext" type="button" class="button quiet" disabled>
+                        下一条
+                      </button>
+                    </div>
+                  </div>
+                  <p class="label-caption" id="labelDesignHint">
+                    点击选择元素，拖动位置；拖动右下角调整大小。方向键微调，Shift加快。
+                  </p>
+                </div>
+                <aside class="label-parameters label-design-properties" aria-label="所选元素属性">
+                  <div class="label-fields">
+                    <label for="labelWidth"
+                      >标签宽（mm）<input
+                        id="labelWidth"
+                        type="number"
+                        min="8"
+                        max="1000"
+                        step=".1"
+                        value="50" /></label
+                    ><label for="labelHeight"
+                      >标签高（mm）<input
+                        id="labelHeight"
+                        type="number"
+                        min="8"
+                        max="1000"
+                        step=".1"
+                        value="50"
+                    /></label>
+                  </div>
+                  <label for="designMode"
+                    >模板方式<select id="designMode">
+                      <option value="auto">自动适配</option>
+                      <option value="custom">自定义模板</option>
+                    </select></label
+                  ><label for="designElement"
+                    >当前对象<select id="designElement">
+                      <option value="border">外框</option>
+                    </select></label
+                  >
+                  <section id="designBorderPanel">
+                    <h3>外框</h3>
+                    <div class="label-fields">
+                      <label for="designBorderWidth"
+                        >线宽（mm）<input
+                          id="designBorderWidth"
+                          type="number"
+                          min="0.05"
+                          max="3"
+                          step="0.05"
+                          value="0.25" /></label
+                      ><label for="designBorderInset"
+                        >内缩（mm）<input
+                          id="designBorderInset"
+                          type="number"
+                          min="0"
+                          max="40"
+                          step=".1"
+                          value="0" /></label
+                      ><label for="designBorderRadius"
+                        >圆角（mm）<input
+                          id="designBorderRadius"
+                          type="number"
+                          min="0"
+                          max="40"
+                          step=".1"
+                          value="0" /></label
+                      ><label for="designBorderStyle"
+                        >线型<select id="designBorderStyle">
+                          <option value="solid">实线</option>
+                          <option value="dashed">虚线</option>
+                          <option value="dotted">点线</option>
+                        </select></label
+                      ><label for="designBorderColor"
+                        >边框颜色<input id="designBorderColor" type="color" value="#444444"
+                      /></label>
+                    </div>
+                  </section>
+
+                  <section id="designElementPanel" hidden>
+                    <h3 id="designElementTitle">所选元素</h3>
+                    <div class="label-fields">
+                      <label for="designX"
+                        >左侧（mm）<input
+                          id="designX"
+                          type="number"
+                          min="0"
+                          max="1000"
+                          step=".1"
+                          value="2" /></label
+                      ><label for="designY"
+                        >顶部（mm）<input
+                          id="designY"
+                          type="number"
+                          min="0"
+                          max="1000"
+                          step=".1"
+                          value="2" /></label
+                      ><label for="designWidth"
+                        >宽（mm）<input
+                          id="designWidth"
+                          type="number"
+                          min="0"
+                          max="1000"
+                          step=".1"
+                          value="22" /></label
+                      ><label for="designHeight"
+                        >高（mm）<input
+                          id="designHeight"
+                          type="number"
+                          min="0"
+                          max="1000"
+                          step=".1"
+                          value="22"
+                      /></label>
+                    </div>
+                    <div id="designTextPanel" hidden>
+                      <label for="designBinding"
+                        >文字内容<select id="designBinding">
+                          <option value="fixed">固定文字</option>
+                          <option value="code">每条编号</option>
+                          <option value="name">每条名称</option>
+                          <option value="creator">每条制作人</option>
+                        </select></label
+                      ><label for="designText"
+                        >固定文字 / 动态文字前缀<textarea
+                          id="designText"
+                          rows="2"
+                          maxlength="160"
+                        ></textarea>
+                      </label>
+                      <div class="label-fields">
+                        <label for="designFont"
+                          >字号（pt）<input
+                            id="designFont"
+                            type="number"
+                            min="3"
+                            max="96"
+                            step="0.5"
+                            value="9" /></label
+                        ><label for="designAlign"
+                          >文字对齐<select id="designAlign">
+                            <option value="left">左对齐</option>
+                            <option value="center">居中</option>
+                            <option value="right">右对齐</option>
+                          </select></label
+                        ><label for="designFontFamily"
+                          >字体<select id="designFontFamily">
+                            <option value="sans">无衬线（黑体）</option>
+                            <option value="serif">衬线（宋体）</option>
+                            <option value="mono">等宽</option>
+                          </select></label
+                        ><label for="designValign"
+                          >框内垂直对齐<select id="designValign">
+                            <option value="top">顶部</option>
+                            <option value="middle">居中</option>
+                            <option value="bottom">底部</option>
+                          </select></label
+                        ><label for="designTextColor"
+                          >文字颜色<input type="color" id="designTextColor" value="#111111"
+                        /></label>
+                      </div>
+                      <label class="label-check"
+                        ><input id="designBold" type="checkbox" />加粗</label
+                      >
+                    </div>
+                    <div id="designLinePanel" hidden>
+                      <div class="label-fields">
+                        <label for="designLineWidth"
+                          >线宽（mm）<input
+                            id="designLineWidth"
+                            type="number"
+                            min="0.05"
+                            max="3"
+                            step="0.05"
+                            value="0.2" /></label
+                        ><label for="designLineColor"
+                          >线条颜色<input type="color" id="designLineColor" value="#666666"
+                        /></label>
+                      </div>
+                    </div>
+                  </section>
+                  <details id="designArrangePanel" open>
+                    <summary>对齐与组合</summary>
+                    <p id="designSelectionInfo" class="label-caption">
+                      点击选择；Shift多选，Ctrl+A全选。
+                    </p>
+                    <label for="designAlignTarget"
+                      >对齐到<select id="designAlignTarget">
+                        <option value="label">标签范围</option>
+                        <option value="selection">选区范围</option>
+                      </select></label
+                    >
+                    <div class="design-align-actions">
+                      <button class="button" data-design-align="left">左对齐</button
+                      ><button class="button" data-design-align="center">水平居中</button
+                      ><button class="button" data-design-align="right">右对齐</button
+                      ><button class="button" data-design-align="top">顶对齐</button
+                      ><button class="button" data-design-align="middle">垂直居中</button
+                      ><button class="button" data-design-align="bottom">底对齐</button>
+                    </div>
+                    <div class="design-align-actions">
+                      <button class="button" id="designGroup">组合</button
+                      ><button class="button" id="designUngroup">取消组合</button
+                      ><button class="button" id="designFit">适合标签</button
+                      ><button class="button" id="designDistributeX">横向等距</button
+                      ><button class="button" id="designDistributeY">纵向等距</button
+                      ><button class="button" id="designSelectAll">全选</button>
+                    </div>
+                    <label class="label-check"
+                      ><input id="designScaleText" type="checkbox" checked />缩放时同步字号</label
+                    >
+                    <label class="label-check"
+                      ><input id="designSmartSnap" type="checkbox" checked />智能对齐参考线</label
+                    >
+                  </details>
+                  <details id="labelAutoControls" open>
+                    <summary>自动排版设置</summary>
+                    <div class="label-fields">
+                      <label for="labelLayout"
+                        >自动排列<select id="labelLayout">
+                          <option value="auto">按宽高自动</option>
+                          <option value="vertical">二维码在上</option>
+                          <option value="horizontal">二维码在左</option>
+                        </select></label
+                      ><label for="labelQrMode"
+                        >自动大小<select id="labelQrMode">
+                          <option value="auto">贴合可用区域</option>
+                          <option value="manual">指定毫米</option>
+                        </select></label
+                      ><label for="labelQrSize"
+                        >二维码（mm）<input
+                          id="labelQrSize"
+                          type="number"
+                          min="2"
+                          max="1000"
+                          step=".1"
+                          value="22" /></label
+                      ><label for="labelFontSize"
+                        >默认字号（pt）<input
+                          id="labelFontSize"
+                          type="number"
+                          min="3"
+                          max="96"
+                          step="0.5"
+                          value="9"
+                      /></label>
+                    </div>
+                    <div class="label-scale" id="labelScaleRow">
+                      <label for="labelQrScale">占可用区域（%）</label>
+                      <div>
+                        <input
+                          id="labelQrScaleSlider"
+                          aria-label="二维码占比滑块"
+                          type="range"
+                          min="10"
+                          max="100"
+                          value="100"
+                        /><input
+                          id="labelQrScale"
+                          aria-label="二维码占比"
+                          type="number"
+                          min="10"
+                          max="100"
+                          value="100"
+                        />
+                      </div>
+                    </div>
+                  </details>
+                  <details>
+                    <summary>快捷尺寸</summary>
+                    <div class="label-presets">
+                      <button
+                        type="button"
+                        class="button secondary"
+                        data-label-preset="fixture"
+                        aria-pressed="true"
+                      >
+                        50×50夹具</button
+                      ><button
+                        type="button"
+                        class="button secondary"
+                        data-label-preset="stripper"
+                        aria-pressed="false"
+                      >
+                        62×20热剥钳
+                      </button>
+                    </div>
+                  </details>
+                  <details id="labelMemoryDetails">
+                    <summary>排版方案与记忆</summary>
+                    <label class="label-check"
+                      ><input
+                        id="labelAutoRemember"
+                        type="checkbox"
+                        checked
+                      />自动记住本工作区的排版</label
+                    ><label class="label-check"
+                      ><input
+                        id="labelRememberCodes"
+                        type="checkbox"
+                      />同时记住本批编号和逐条制作人</label
+                    >
+                    <label for="labelProfiles"
+                      >已存方案<select id="labelProfiles">
+                        <option value="">选择常用排版</option>
+                      </select></label
+                    ><label for="labelProfileTitle"
+                      >方案名称<input
+                        id="labelProfileTitle"
+                        maxlength="40"
+                        placeholder="例如：夹具自定义版"
+                    /></label>
+                    <div class="label-sub-actions">
+                      <button id="labelProfileSave" type="button" class="button secondary">
+                        保存方案</button
+                      ><button id="labelProfileRemove" type="button" class="button quiet" disabled>
+                        移除方案</button
+                      ><button id="labelProfileUndo" type="button" class="button quiet" hidden>
+                        撤销移除
+                      </button>
+                    </div>
+                    <div class="label-sub-actions">
+                      <button id="labelMemorySave" type="button" class="button secondary">
+                        立即记住</button
+                      ><button id="labelMemoryReload" type="button" class="button quiet">
+                        恢复上次记忆
+                      </button>
+                    </div>
+                    <p class="label-caption">
+                      模板和常用文字在本机加密记忆，与当前Windows账户绑定；不包含在.eap备份中。
+                    </p>
+                  </details>
+                </aside>
+              </section>
+              <section id="labelBatchView" role="tabpanel" aria-labelledby="labelViewBatch" hidden>
+                <div class="label-layout">
+                  <div class="label-parameters">
+                    <details open id="labelRecordsDetails">
+                      <summary>本批内容</summary>
+                      <div class="label-fields">
+                        <label for="labelName"
+                          >名称（可留空）<input
+                            id="labelName"
+                            maxlength="100"
+                            value="纵切夹具" /></label
+                        ><label for="labelCreator"
+                          >新编号制作人<input id="labelCreator" maxlength="60" placeholder="可留空"
+                        /></label>
+                      </div>
+                      <label for="labelCodes">完整编号，每行一个</label
+                      ><textarea
+                        id="labelCodes"
+                        maxlength="300000"
+                        spellcheck="false"
+                        placeholder="粘贴编号，或读取Excel编号"
+                      ></textarea
+                      ><label class="label-check"
+                        ><input id="labelSort" type="checkbox" checked />按编号自然排序</label
+                      ><label class="label-check"
+                        ><input id="labelAllowDuplicates" type="checkbox" />允许重复编号</label
+                      >
+                      <div class="label-sub-actions">
+                        <button id="labelDemo" type="button" class="button quiet">
+                          载入示例编号
+                        </button>
+                      </div>
+                    </details>
+                    <details open>
+                      <summary>纸张与自动排版</summary>
+                      <div class="label-fields">
+                        <label for="labelPaperSize"
+                          >纸张<select id="labelPaperSize">
+                            <option value="a4">A4</option>
+                            <option value="a3">A3</option>
+                            <option value="a5">A5</option>
+                            <option value="letter">Letter</option>
+                            <option value="custom">自定义尺寸</option>
+                          </select></label
+                        >
+                        <label for="labelPageAlignX"
+                          >整页水平<select id="labelPageAlignX">
+                            <option value="start">靠左</option>
+                            <option value="center">居中</option>
+                            <option value="end">靠右</option>
+                          </select></label
+                        >
+                        <label for="labelPaperWidth"
+                          >纸宽（mm）<input
+                            id="labelPaperWidth"
+                            type="number"
+                            min="20"
+                            max="2000"
+                            step=".1"
+                            value="297"
+                        /></label>
+                        <label for="labelPaperHeight"
+                          >纸高（mm）<input
+                            id="labelPaperHeight"
+                            type="number"
+                            min="20"
+                            max="2000"
+                            step=".1"
+                            value="210"
+                        /></label>
+                        <label for="labelPageAlignY"
+                          >整页垂直<select id="labelPageAlignY">
+                            <option value="start">靠上</option>
+                            <option value="center">居中</option>
+                            <option value="end">靠下</option>
+                          </select></label
+                        >
+                        <label for="labelLastRowAlign"
+                          >不足一排<select id="labelLastRowAlign">
+                            <option value="start">靠左</option>
+                            <option value="center">居中</option>
+                            <option value="end">靠右</option>
+                          </select></label
+                        >
+                      </div>
+                      <label class="label-check"
+                        ><input
+                          id="labelSeparateMargins"
+                          type="checkbox"
+                        />分别设置四边页边距</label
+                      >
+                      <div id="labelMarginSides" class="label-fields" hidden>
+                        <label for="labelMarginLeft"
+                          >左边距（mm）<input
+                            id="labelMarginLeft"
+                            type="number"
+                            min="0"
+                            max="500"
+                            step=".1"
+                            value="10" /></label
+                        ><label for="labelMarginRight"
+                          >右边距（mm）<input
+                            id="labelMarginRight"
+                            type="number"
+                            min="0"
+                            max="500"
+                            step=".1"
+                            value="10" /></label
+                        ><label for="labelMarginTop"
+                          >上边距（mm）<input
+                            id="labelMarginTop"
+                            type="number"
+                            min="0"
+                            max="500"
+                            step=".1"
+                            value="10" /></label
+                        ><label for="labelMarginBottom"
+                          >下边距（mm）<input
+                            id="labelMarginBottom"
+                            type="number"
+                            min="0"
+                            max="500"
+                            step=".1"
+                            value="10"
+                        /></label>
+                      </div>
+                      <p id="labelPrintableSummary" class="label-caption"></p>
+                      <label class="label-check"
+                        ><input
+                          id="labelShowPrintable"
+                          type="checkbox"
+                          checked
+                        />预览可打印边界（不导出）</label
+                      >
+
+                      <div class="label-fields">
+                        <label for="labelGapX"
+                          >横向间距（mm）<input
+                            id="labelGapX"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step=".1"
+                            value="5" /></label
+                        ><label for="labelGapY"
+                          >纵向间距（mm）<input
+                            id="labelGapY"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step=".1"
+                            value="5" /></label
+                        ><label for="labelPadding"
+                          >自动内边距（mm）<input
+                            id="labelPadding"
+                            type="number"
+                            min="0"
+                            max="40"
+                            step=".1"
+                            value="2" /></label
+                        ><label for="labelMargin"
+                          >纸张页边距（mm）<input
+                            id="labelMargin"
+                            type="number"
+                            min="0"
+                            max="60"
+                            step=".1"
+                            value="10" /></label
+                        ><label for="labelColumns"
+                          >每排张数，0自动<input
+                            id="labelColumns"
+                            type="number"
+                            min="0"
+                            max="50"
+                            step="1"
+                            value="0" /></label
+                        ><label for="labelOrientation"
+                          >纸张方向<select id="labelOrientation">
+                            <option value="landscape">横向</option>
+                            <option value="portrait">纵向</option>
+                          </select></label
+                        >
+                      </div>
+                    </details>
+                    <details>
+                      <summary>连续编号</summary>
+                      <label for="labelPrefix"
+                        >编号前缀<input id="labelPrefix" maxlength="115" value="FIX-"
+                      /></label>
+                      <div class="label-fields">
+                        <label for="labelStart"
+                          >开始数字<input
+                            id="labelStart"
+                            type="number"
+                            min="0"
+                            max="999999999"
+                            step="1"
+                            value="1" /></label
+                        ><label for="labelEnd"
+                          >结束数字<input
+                            id="labelEnd"
+                            type="number"
+                            min="0"
+                            max="999999999"
+                            step="1"
+                            value="19" /></label
+                        ><label for="labelDigits"
+                          >补零位数<input
+                            id="labelDigits"
+                            type="number"
+                            min="1"
+                            max="12"
+                            step="1"
+                            value="3"
+                        /></label>
+                      </div>
+                      <button id="labelRangeUse" type="button" class="button secondary">
+                        替换为连续编号
+                      </button>
+                    </details>
+                    <section class="label-import-review" id="labelImportReview" hidden>
+                      <label for="labelImportSheets"
+                        >选择要使用的工作表<select id="labelImportSheets"></select
+                      ></label>
+                      <p id="labelImportNotice"></p>
+                      <div class="label-sub-actions">
+                        <button id="labelImportUse" type="button" class="button primary">
+                          使用该表编号</button
+                        ><button id="labelImportCancel" type="button" class="button quiet">
+                          取消
+                        </button>
+                      </div>
+                    </section>
+                    <div class="label-sub-actions">
+                      <button id="labelUpdate" type="button" class="button secondary">
+                        立即更新预览
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="label-preview">
+                      <div class="label-preview-tools">
+                        <div>
+                          <button id="labelPrevious" type="button" class="button quiet" disabled>
+                            上一页</button
+                          ><span id="labelPageCount">尚无预览</span
+                          ><button id="labelNext" type="button" class="button quiet" disabled>
+                            下一页
+                          </button>
+                        </div>
+                        <label><input id="labelSingle" type="checkbox" />单张放大</label>
+                      </div>
+                      <div class="label-canvas" id="labelCanvas"></div>
+                    </div>
+                    <p class="label-caption">
+                      按编号从左到右、从上到下套用同一模板；列数自动计算，也可指定。打印选择实际大小，先试打一页。
+                    </p>
+                  </div>
+                </div>
+              </section>
+              <p id="labelMessage" class="label-message" role="status"></p>
+              <p class="label-caption">
+                <span id="labelMemoryStatus" role="status">打开排版页后读取记忆。</span>
+              </p>
+            </section>
+            <section id="importView" data-page="import" hidden aria-label="导入与核对">
+              <div class="page-heading"><p>先检查工作表和列映射，再确认整批保存。</p></div>
+              <div class="import-start-panel">
+                <span class="large-icon" data-icon="import"></span>
+                <div><p>支持普通 XLSX，保留文本编号和来源行号。每批最多 10,000 条。</p></div>
+                <button type="button" class="button primary" data-start-import>
+                  选择 Excel 文件
+                </button>
+              </div>
+              <section class="batch-section">
+                <div class="panel-heading">
+                  <h2>已导入批次</h2>
+                  <span id="batchCount" class="muted"></span>
+                </div>
+                <div id="batchList" class="batch-list"></div>
+              </section>
+              <div class="subtle-note">
+                <span data-icon="info"></span>
+                <p>
+                  此入口导入检验、产量等数量事实。异常记录的 Excel
+                  导入、扫码和处理跟进可从左侧对应模块进入。公司 BI 自动导出尚未接入。
+                </p>
+              </div>
+            </section>
+
+            <section id="securityView" data-page="security" hidden aria-label="数据安全">
+              <div class="page-heading">
+                <p>异常记录与数量核对使用加密文件；原 BI 历史库与报表使用独立目录，分别备份。</p>
+              </div>
+              <div class="security-status">
+                <div>
+                  <h2 id="securityWorkspace">本地工作区</h2>
+                  <p id="storageDescription">尚未打开加密文件。</p>
+                </div>
+                <span id="storageBadge" class="status-label">已锁定</span>
+              </div>
+              <div class="security-actions">
+                <article>
+                  <div>
+                    <h2>异常记录与数量备份</h2>
+                    <p>保留 .eap 加密状态，不含独立 BI 目录。</p>
+                    <button type="button" id="backupButton" class="button primary">
+                      保存加密备份
+                    </button>
+                  </div>
+                </article>
+                <article>
+                  <div>
+                    <h2>从加密备份恢复</h2>
+                    <p>先备份当前工作区，再恢复到新文件。</p>
+                    <button type="button" id="restoreButton" class="button secondary">
+                      选择备份并恢复
+                    </button>
+                  </div>
+                </article>
+                <article class="original-record-action">
+                  <div>
+                    <h2>读取原异常记录</h2>
+                    <p id="originalRecordHelp">复制原软件的表头、记录与跟进，原文件只读保留。</p>
+                    <button type="button" id="originalRecordsButton" class="button secondary">
+                      读取原软件数据
+                    </button>
+                  </div>
+                </article>
+                <article>
+                  <div>
+                    <h2>BI 历史资料</h2>
+                    <p>
+                      完整保留配置、CSV历史库、日报SQLite与归档原表，存于工作区旁的 .bi-data
+                      目录。此目录为明文，面板密码不会加密这些文件。
+                    </p>
+                    <p id="biEngineStatus" class="field-help"></p>
+                    <div class="form-actions">
+                      <button type="button" id="copyBIData" class="button secondary">
+                        复制原 BI 资料</button
+                      ><button type="button" id="backupBIData" class="button secondary">
+                        完整备份 BI 目录
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="security-notes">
+                <h2>使用须知</h2>
+                <ul>
+                  <li>保管密码；忘记密码无法读取 .eap 加密文件。</li>
+                  <li>原始资料保留。复制 BI 资料须使用尚未启用 BI 的新工作区，避免覆盖。</li>
+                  <li>BI 完整备份保留原格式、为明文；配置 JSON 备份不包含历史库。</li>
+                  <li>示例 BI 使用演示资料，保存在示例目录，与业务工作区分开。</li>
+                  <li>当前为开发版，公司电脑、扫描枪、断电恢复与长期稳定性待验收。</li>
+                </ul>
+              </div>
+            </section>
+          </div>
+        </main>
+        <footer class="window-status">
+          <span id="bottomStatus">本地文件，离线可用</span
+          ><span id="rowStatus">文件流程开发版</span>
+        </footer>
+      </div>
+    </div>
+
+    <dialog id="functionDialog" class="function-dialog" aria-label="查找功能">
+      <div class="function-dialog-head">
+        <input
+          id="functionQuery"
+          type="search"
+          maxlength="120"
+          placeholder="输入功能名，例如导入、趋势、备份"
+          aria-label="查找功能"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="true"
+          aria-controls="functionResults"
+        /><button type="button" class="button secondary" id="functionClose">关闭</button>
+      </div>
+      <div class="function-dialog-meta">
+        <span>方向键选择，回车打开，Esc返回</span><span id="functionCount"></span>
+      </div>
+      <div
+        class="function-results"
+        id="functionResults"
+        role="listbox"
+        aria-label="匹配的功能"
+      ></div>
+      <p id="functionEmpty" class="function-empty" hidden>
+        未找到匹配功能，试试“导入”“表头”或“备份”。
+      </p>
+    </dialog>
+    <dialog id="importDialog" class="import-dialog" aria-labelledby="dialogTitle">
+      <div class="dialog-header">
+        <div>
+          <h2 id="dialogTitle">导入 Excel</h2>
+          <p id="dialogSubtitle">选择文件并核对工作表。</p>
+        </div>
+        <button type="button" class="icon-button" id="closeImport" aria-label="关闭导入窗口">
+          关闭
+        </button>
+      </div>
+      <ol class="import-steps" aria-label="导入进度">
+        <li data-step-label="1" class="current"><span>1</span>选择文件</li>
+        <li data-step-label="2"><span>2</span>核对表头</li>
+        <li data-step-label="3"><span>3</span>配置映射</li>
+        <li data-step-label="4"><span>4</span>预览确认</li>
+      </ol>
+      <div class="dialog-body">
+        <section data-import-step="1">
+          <div class="file-pick">
+            <span class="large-icon" data-icon="file"></span>
+            <h3>选择普通 XLSX 文件</h3>
+            <p>读取内容，不修改原工作簿。</p>
+            <button type="button" id="pickWorkbook" class="button primary">选择文件</button>
+          </div>
+          <p id="pickedFileName" class="file-name" hidden></p>
+        </section>
+        <section data-import-step="2" hidden>
+          <div class="two-fields">
+            <label>工作表<select id="sheetSelect"></select></label
+            ><label>表头所在行<select id="headerRowSelect"></select></label>
+          </div>
+          <p id="sheetHelp" class="field-help">
+            请选中真正的列名称所在行，不要把标题或数据当作表头。
+          </p>
+          <div class="sample-table-wrap"><table id="sheetSample"></table></div>
+        </section>
+        <section data-import-step="3" hidden>
+          <div class="mapping-intro">
+            <label
+              >导入到数据集<select id="importDatasetSelect">
+                <option value="">建立新数据集</option>
+              </select></label
+            >
+            <div class="two-fields">
+              <label
+                >数据集名称<input
+                  id="datasetName"
+                  maxlength="256"
+                  placeholder="例如：来料检验" /></label
+              ><label
+                >内部名称<input
+                  id="datasetId"
+                  maxlength="64"
+                  placeholder="例如：incomingQuality"
+                  pattern="[A-Za-z][A-Za-z0-9_]*"
+              /></label>
+            </div>
+            <p class="field-help">不同总量和明细应分别建立数据集，避免重复汇总。</p>
+          </div>
+          <div class="mapping-grid" id="mappingGrid"></div>
+          <label class="date-format-label"
+            >文本日期格式<select id="dateFormat">
+              <option value="iso">年-月-日（2026-10-26）</option>
+              <option value="ymd-slash">年/月/日（2026/10/26）</option>
+            </select></label
+          >
+          <p class="field-help">
+            日期单元格会自动转换；数字与英文编号保留文本。已选择的工序、型号等字段构成统计粒度。
+          </p>
+        </section>
+        <section data-import-step="4" hidden>
+          <div id="previewSummary" class="preview-summary"></div>
+          <div id="previewProblems" class="preview-problems"></div>
+          <label id="acknowledgeWrap" class="acknowledge" hidden
+            ><input type="checkbox" id="acknowledgeWarnings" /><span
+              >我已核对上述警告，确认使用源文件中的数据。</span
+            ></label
+          >
+          <p class="field-help">确认后整批保存；存在无效行时不会导入任何一行。</p>
+        </section>
+      </div>
+      <footer class="dialog-footer">
+        <span id="dialogStatus" role="status"></span>
+        <div>
+          <button type="button" id="importBack" class="button secondary" hidden>上一步</button
+          ><button type="button" id="importNext" class="button primary" disabled>下一步</button
+          ><button type="button" id="commitImport" class="button primary" hidden>确认导入</button>
+        </div>
+      </footer>
+    </dialog>
+    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="false"></div>
+    <dialog id="originalRecordsDialog" class="local-dialog" aria-label="读取原软件数据">
+      <div class="local-dialog-body">
+        <p id="originalSourceStatus"></p>
+        <p id="originalSourceDescription" class="field-help"></p>
+        <form id="originalRecordsForm">
+          <label for="originalPasswordInput">原软件密码</label>
+          <div class="password-field">
+            <input
+              id="originalPasswordInput"
+              type="password"
+              autocomplete="off"
+              maxlength="1024"
+              placeholder="输入原异常记录台密码"
+              required
+            />
+          </div>
+          <div id="originalReplaceWarning" class="replace-warning" hidden>
+            <p>
+              当前工作区已有异常记录。继续会替换当前异常记录，保留数量分析数据。原软件文件不会改写，程序会先保留当前工作区的恢复备份。
+            </p>
+            <label class="acknowledge"
+              ><input id="originalReplaceConfirmed" type="checkbox" /><span
+                >确认替换当前异常记录，保留数量分析数据。</span
+              ></label
+            >
+          </div>
+          <p class="field-help">密码仅用于本次读取，不保存到界面设置。</p>
+          <div class="local-dialog-actions">
+            <button type="button" id="cancelOriginalRecords" class="button secondary">取消</button
+            ><button type="submit" id="submitOriginalRecords" class="button primary">
+              读取并导入
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="restoreNoticeDialog" class="local-dialog" aria-label="恢复前核对">
+      <div class="local-dialog-body">
+        <p id="restoreNoticeText">
+          请先保存当前工作区的加密备份。继续后会锁定当前工作区，再选择备份并恢复到新文件。
+        </p>
+        <p id="restoreBackupStatus" class="field-help"></p>
+        <div class="local-dialog-actions restore-confirm-actions">
+          <button type="button" id="cancelRestore" class="button secondary">取消</button
+          ><button type="button" id="backupBeforeRestore" class="button secondary">
+            先保存备份</button
+          ><button type="button" id="confirmRestore" class="button primary">
+            已备份，继续恢复
+          </button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>

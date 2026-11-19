@@ -1,0 +1,17 @@
+{
+  "name": "exception-analysis-platform-core",
+  "version": "0.21.3-dev.29",
+  "private": true,
+  "description": "BK_MPO 智能异常管理工作台：A4图表独立指标",
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": ">=24.22.0 <25"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check-boundaries.js",
+    "qa:storage": "node scripts/check-storage-reliability.js",
+    "demo": "node cli/demo.js"
+  }
+}

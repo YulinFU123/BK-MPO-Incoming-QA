@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "BK_MPO BI 联动（开发候选）",
+  "version": "1.5.0",
+  "description": "基于已验证导出扩展的独立联动分支；本地回执、自动接收和定时导出",
+  "permissions": ["storage", "downloads", "nativeMessaging", "tabs", "alarms"],
+  "host_permissions": ["https://app.powerbi.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "BI NC Exporter（点击显示/隐藏面板）",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://app.powerbi.com/*"],
+      "js": ["common.js", "platform-common.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

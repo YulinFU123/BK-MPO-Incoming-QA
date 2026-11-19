@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';script-src 'self';style-src 'self';connect-src 'none';object-src 'none';base-uri 'none'"
+    />
+    <title>功能入口自检</title>
+    <link rel="stylesheet" href="choices-check.css" />
+    <link rel="stylesheet" href="navigation-check.css" />
+    <script src="../app/navigation-model.js" defer></script>
+    <script src="navigation-check.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>功能入口自检</h1>
+      <p>
+        在GPT内置浏览器打开实际界面并逐项导航。仅使用构造示例；不验证所有业务组合或Windows原生窗口。
+      </p>
+      <div class="actions">
+        <button id="runNavigation">运行入口自检</button
+        ><span id="navigationSummary" role="status">尚未执行</span>
+      </div>
+      <iframe id="testWorkspace" src="../app/index.html" title="待验证的实际示例工作区"></iframe>
+      <table>
+        <thead>
+          <tr>
+            <th>功能</th>
+            <th>结果</th>
+          </tr>
+        </thead>
+        <tbody id="navigationResults"></tbody>
+      </table>
+    </main>
+  </body>
+</html>

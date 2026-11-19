@@ -1,0 +1,93 @@
+.insight-summary {
+  margin: 16px 0 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--choice-line, #bfcbd8);
+  border-left: 3px solid var(--choice-accent, #0969c8);
+  border-radius: 8px;
+  background: var(--choice-field, #fbfcfd);
+  color: var(--choice-ink, #142333);
+  font: 13px/1.6 var(--choice-font, sans-serif);
+}
+.insight-summary-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.insight-summary-heading h3 {
+  margin: 0;
+  font: 600 15px/1.5 var(--choice-font, sans-serif);
+  color: inherit;
+}
+.insight-summary-heading > span,
+.insight-footnote,
+.insight-evidence {
+  color: var(--choice-muted, #536576);
+  font-size: 12px;
+}
+.insight-summary-row {
+  display: flex;
+  align-items: start;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--choice-line, #bfcbd8);
+}
+.insight-summary-copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.insight-summary-copy strong {
+  font-weight: 600;
+}
+.insight-summary-copy p,
+.insight-evidence p {
+  margin: 3px 0 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.6;
+}
+.insight-evidence summary {
+  cursor: pointer;
+  padding-top: 4px;
+}
+.insight-action {
+  flex: none;
+  min-height: 32px;
+  margin-top: 4px;
+  padding: 5px 10px;
+  background: transparent;
+  color: var(--choice-accent, #0969c8);
+  border: 1px solid var(--choice-line, #bfcbd8);
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+.insight-action:focus-visible,
+.insight-evidence summary:focus-visible {
+  outline: 2px solid var(--choice-accent, #0969c8);
+  outline-offset: 3px;
+}
+.insight-footnote {
+  margin: 8px 0 0;
+}
+:root[data-font='large'] .insight-summary {
+  font-size: 15px;
+}
+:root[data-font='large'] .insight-evidence,
+:root[data-font='large'] .insight-footnote {
+  font-size: 14px;
+}
+@media (max-width: 560px) {
+  .insight-summary {
+    padding: 12px;
+  }
+  .insight-summary-row {
+    gap: 10px;
+  }
+  .insight-action {
+    padding: 5px 8px;
+  }
+}
