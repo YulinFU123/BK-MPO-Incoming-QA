@@ -24,7 +24,7 @@ function render(available = true, dataSourceMode = 'auto', grouping = null) {
     ['hsMetrics', ...panels.map((x) => 'hsPanel-' + x)].map((x) => [x, element('div')]),
   );
   const clicks = [],
-    charts = [],
+    charts = [], ranks = [],
     tables = [];
   const bi = {
     grouping,
@@ -36,8 +36,8 @@ function render(available = true, dataSourceMode = 'auto', grouping = null) {
     pageSize: 10,
     range: { start: '2026-10-01', end: '2026-10-30' },
     issues: [{ value: '装管反', count: 100 }],
-    processes: [],
-    employees: [],
+    processes: [{ value: '装管', count: 100 }],
+    employees: Array.from({ length: 15 }, (_, x) => ({ value: 'QA-' + x, count: 20 - x })),
     shifts: [],
     rows: [],
     trend: [
@@ -54,9 +54,9 @@ function render(available = true, dataSourceMode = 'auto', grouping = null) {
   };
   vm.runInNewContext(
     source.slice(source.indexOf('  function chartHeight('), source.indexOf('  function drillBI(')) +
-      '\nrenderBIData();',
+      '\nrenderBIData(); if (available) { buildBIPanelChart(report, "trend", 1050, true); buildBIPanelChart(report, "owners", 1050, true); }',
     {
-      report: { primary: { available }, biSource: bi, recordCount: 5, pending: 2, overdue: 1 },
+      available, report: { primary: { available }, biSource: bi, recordCount: 5, pending: 2, overdue: 1 },
       getContext: () => ({ dataSourceMode }),
       $: (id) => elements[id],
       node: element,
@@ -65,7 +65,7 @@ function render(available = true, dataSourceMode = 'auto', grouping = null) {
       G: {
         fmt: (n) => (n == null ? '—' : String(n)),
         donut: () => element('donut'),
-        ranking: () => element('rank'),
+        ranking: (items, options) => { ranks.push({ items, ...options }); return element('rank'); },
         empty: (text) => element('empty', '', text),
       },
       window: {
@@ -86,7 +86,7 @@ function render(available = true, dataSourceMode = 'auto', grouping = null) {
         new Date(Date.parse(date) + offset * 86400000).toISOString().slice(0, 10),
     },
   );
-  return { elements, charts, clicks, tables };
+  return { elements, charts, clicks, tables, ranks };
 }
 test('BI homepage keeps 100 pcs and 5 manual records on distinct labelled cards and actions', () => {
   const r = render(),
@@ -130,4 +130,51 @@ test('clicking comparison series requests the matching previous date and a bound
     start: '2026-09-29', end: '2026-09-29', previous: true,
   }]);
   assert.ok(charts[1].height >= 200 && charts[1].height <= 360);
+});
+
+test('enlarged BI charts grow and keep row drill-down; ranking shows all returned categories', () => {
+  const { charts, clicks, ranks } = render();
+  assert.equal(charts[2].minimumWidth, 1050);
+  assert.ok(charts[2].height > charts[0].height);
+  assert.equal(charts[2].compact, false);
+  charts[2].onPoint(0, 0);
+  const original = ranks.find((x) => x.items.length === 15);
+  const enlarged = ranks.at(-1);
+  assert.equal(original.limit, 10);
+  assert.equal(enlarged.limit, 15);
+  enlarged.onSelect('QA-14');
+  assert.deepEqual(JSON.parse(JSON.stringify(clicks)), [
+    ['bi', { start: '2026-10-29', end: '2026-10-29', previous: false }],
+    ['bi', { field: 'employee', value: 'QA-14' }],
+  ]);
+});
+
+test('linked BI drill-down requests exact clicked bucket and does not mutate homepage filters', async () => {
+  const dialogNode = { ...element('dialog'), open: true };
+  const request = [];
+  const contexts = [];
+  const report = { scope: { start: '2026-09-01', end: '2026-09-30', filters: { process: 'MPO' } },
+    biSource: { range: { start: '2026-10-01', end: '2026-10-31' }, sharedAnalysis: { filters: [{ label: '班次' }] } } };
+  const original = structuredClone(report);
+  vm.runInNewContext(source.slice(source.indexOf('  function drillBI('), source.indexOf('  async function exportBIRows(')) +
+    "\ndrillBI({ field: 'issue', value: '装管反', start: '2026-10-05', end: '2026-10-11' });", {
+    report, node: element, sourcePreference: { channel: 'studio' }, detailTicket: 0, structuredClone,
+    dialog(title, side) { assert.equal(side, true); return dialogNode; },
+    renderDrillContext: (...args) => contexts.push(args),
+    api: async (...args) => {
+      request.push(args);
+      return { biSource: { state: 'empty', message: '没有明细' } };
+    },
+    G: { empty: (text) => element('p', '', text) },
+    window: { BIFieldLabels: require('../desktop/app/bi-field-labels') },
+  });
+  await Promise.resolve();
+  assert.deepEqual(report, original);
+  assert.deepEqual(JSON.parse(JSON.stringify(request[0])), ['homeOverview', {
+    query: { start: '2026-10-05', end: '2026-10-11', filters: { process: 'MPO' }, page: 1, pageSize: 10 },
+    preference: { channel: 'studio', mode: 'bi' }, biFilter: { field: 'issue', value: '装管反' },
+    biRange: { start: '2026-10-05', end: '2026-10-11' },
+  }]);
+  assert.equal(contexts[0][2].selection, '不良项：装管反');
+  assert.deepEqual(contexts[0][2].applied, [{ label: '班次' }]);
 });

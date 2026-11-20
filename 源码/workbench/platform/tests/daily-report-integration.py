@@ -99,6 +99,73 @@ class DailyReportTests(unittest.TestCase):
             self.assertEqual(native_export.call_args.kwargs['reason_groups'], ())
             self.assertEqual(template_groups.call_count, 2)
 
+    def test_one_off_reasons_replace_only_reason_filter_and_restrict_export_population(self):
+        source, _ = self.source('defects', ['日期', '工序', '班次', '判定原因', '数量'], [
+            ['2026-11-01', '装管', '白班', '断裂', 1],
+            ['2026-11-01', '装管', '白班', '破皮', 2],
+            ['2026-11-01', '装管', '白班', '装管反', 3],
+            ['2026-11-01', '装管', '白班', '疑似装管反', 4],
+            ['2026-11-01', '测试', '白班', '装管反', 5],
+            ['2026-11-02', '装管', '白班', '装管反', 6],
+        ])
+        field = source['mapping']['defect']
+        settings = {'sheetReasons': ['断裂']}
+        request = dict(action='exportOriginalReport', sourceId=source['id'], revision=store.revision(self.db),
+                       config={'sources': [source], 'dailyReports': {source['id']: settings}},
+                       query={'range':'custom', 'start':'2026-11-01', 'end':'2026-11-01', 'filters': [
+                           {'field': 'defect', 'op': 'in', 'values': ['断裂']},
+                           {'field': 'process', 'op': 'in', 'values': ['装管']},
+                       ]}, template='模板.xlsx', output='输出.xlsx')
+        with patch.object(original_report, 'export') as native_export, patch.object(
+                original_report, 'template_daily_groups', return_value=()):
+            for layout in ('readable', 'reason-columns'):
+                settings['chartLayout'] = layout
+                service.handle(self.db, {**request, 'reportReasons': ['装管反', '破皮']})
+                rows = native_export.call_args.args[3]
+                self.assertCountEqual([row['values'][field] for row in rows], ['装管反', '破皮'])
+                self.assertEqual(sum(row['quantity'] for row in rows), 5)
+                if layout == 'reason-columns':
+                    self.assertIsNone(native_export.call_args.kwargs['sheet_reasons'])
+            service.handle(self.db, request)
+            self.assertEqual([r['values'][field] for r in native_export.call_args.args[3]], ['断裂'])
+            self.assertEqual(native_export.call_args.kwargs['sheet_reasons'], ['断裂'])
+            native_export.reset_mock()
+            with self.assertRaisesRegex(ValueError, '没有记录'):
+                service.handle(self.db, {**request, 'reportReasons': ['不存在']})
+            native_export.assert_not_called()
+
+    @unittest.skipUnless(os.environ.get('BK_ANALYZED_TEMPLATE'), 'Local analyzed layout template required')
+    def test_one_off_reasons_generate_matching_total_and_category_sheets(self):
+        headers = [*original_report.HEADERS, '班次']
+        field_values = {'数量': 1, '工序': '装管', '班次': '白班', '报告时间': '2026-11-01 09:00:00',
+                        '判定时间': '2026-11-01 10:00:00', '责任人': '合成测试人员'}
+        rows = [[{**field_values, '容器号': f'QA-{index}', '判定原因': reason}.get(header, '') for header in headers]
+                for index, reason in enumerate(['断裂', '装管反', '疑似装管反'], 1)]
+        source, _ = self.source('defects', headers, rows)
+        output = self.root / '所选原因.xlsx'
+        request = dict(action='exportOriginalReport', sourceId=source['id'], revision=store.revision(self.db),
+                       config={'sources': [source], 'dailyReports': {source['id']: {
+                           'chartLayout': 'reason-columns', 'sheetReasons': ['断裂'],
+                       }}}, query={'range': 'all', 'filters': [{'field': 'defect', 'op': 'in', 'values': ['断裂']}]},
+                       reportReasons=['装管反'], template=os.environ['BK_ANALYZED_TEMPLATE'], output=str(output))
+        preview = service.handle(self.db, {**request, 'action': 'previewDailyRate'})
+        self.assertEqual([point['quantity'] for point in preview['trend']], [1])
+        result = service.handle(self.db, request)
+        self.assertEqual(result['recordCount'], 1)
+        self.assertEqual(result['groups'], {'装管反': 1})
+        book = openpyxl.load_workbook(output, read_only=True, data_only=True)
+        try:
+            self.assertIn('装管反', book.sheetnames)
+            self.assertNotIn('断裂', book.sheetnames)
+            for sheet_name in ('总表', '装管反'):
+                rows = list(book[sheet_name].iter_rows(values_only=True))
+                exported = [row for row in rows if 'QA-2' in row]
+                self.assertEqual(len(exported), 1)
+                self.assertIn('装管反', exported[0])
+                self.assertFalse(any('QA-1' in row or 'QA-3' in row for row in rows))
+        finally:
+            book.close()
+
     def test_binding_changes_invalidate_import_and_missing_sources_do_not_substitute(self):
         self.prepare()
         before = store.mapping_hash(self.production)

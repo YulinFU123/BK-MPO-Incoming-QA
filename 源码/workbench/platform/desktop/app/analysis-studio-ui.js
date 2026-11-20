@@ -1640,6 +1640,9 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
     const productionDraft = window.createDailyProductionDraft(M.dailyReport(config, src.id).manualProduction || [], applied?.range);
     const reasonGroupState = { open: false, draft: null };
     const sheetReasonState = { open: false, dirty: false };
+    const reportReasonState = { open: false, selected: new Set() };
+    const reportReasonRequest = () => reportReasonState.selected.size
+      ? { reportReasons: [...reportReasonState.selected] } : {};
     const rateKeywordState = { open: false, draft: null };
     const templateMap = activeTemplateMap();
     const automaticReason = templateMap ? templateMap.columns['判定原因'] :
@@ -1684,6 +1687,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
       return {
         sourceId: src.id, query: { ...applied.query, range: 'custom', ...applied.range }, revision: applied.revision,
         ...(activeTemplateMap() ? { templateMap: activeTemplateMap().columns } : {}),
+        ...reportReasonRequest(),
       };
     }
     const renderSettings = () => {
@@ -1694,7 +1698,14 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
       window.renderDailyReportSettings(content, {
         el, btn, field, select, check,
         source: src, settings: M.dailyReport(config, src.id), productionDraft,
-        reasonGroupState, reasonOptionsUnavailable, sheetReasonState, automaticReason,
+        reasonGroupState, reasonOptionsUnavailable, sheetReasonState, reportReasonState, automaticReason,
+        loadReportReasonOptions: reasonField && applied?.recordCount ? (search, offset) => {
+          const { query } = appliedReportRequest();
+          const replaced = new Set([reasonField]);
+          if (src.mapping.defect === reasonField) replaced.add('defect');
+          const scope = { ...query, filters: query.filters.filter(({ field }) => !replaced.has(field)) };
+          return call('facets', { sourceId: src.id, query: scope, field: reasonField, search, offset, matchOp: 'contains' });
+        } : null,
         saveSheetReasons: (selected) => persistReasonSetting({ sheetReasons: selected }),
         bindReasonColumn: (column) => persistReasonSetting({ reasonColumn: column,
           sheetReasons: null, reasonGroups: [] }),
@@ -1743,7 +1754,8 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
         update: (key, value) => {
           try {
             if (key === 'productionMode') requireSavedProduction();
-            if (key === 'chartLayout' && reasonGroupState.draft) throw Error('请先保存分组或取消编辑。');
+            if (key === 'chartLayout' && (reasonGroupState.draft || sheetReasonState.dirty))
+              throw Error('请先保存分组或分表选择，或取消编辑。');
             if (key === 'chartLayout' && rateKeywordState.draft)
               throw Error('请先保存日报标题与关键词，或取消关键词编辑。');
             changeSetting(key, value);
@@ -1798,11 +1810,12 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
         previewRate: () => run(async (token) => {
           requireSavedSettings();
           const request = appliedReportRequest();
-          const signature = JSON.stringify(M.dailyReport(config, src.id));
+          const signature = () => JSON.stringify([M.dailyReport(config, src.id), reportReasonRequest()]);
+          const snapshot = signature();
           await flush();
           const data = await call('previewDailyRate', request);
           if (token !== epoch || !dialog.isConnected) return;
-          if (productionDraft.dirty() || rateKeywordState.draft || signature !== JSON.stringify(M.dailyReport(config, src.id))) {
+          if (productionDraft.dirty() || rateKeywordState.draft || snapshot !== signature()) {
             notice('配置已改变，请重新核对不良率。');
             return;
           }
@@ -1830,7 +1843,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
           target.append(scroll);
           notice('已核对不良率数据；缺失产量的日期保留说明，不填为零。');
         }),
-        export: () => leave(() => exportOriginal()),
+        export: () => leave(() => exportOriginal(undefined, reportReasonRequest())),
       });
     };
     function persistReasonSetting(changes) {
@@ -1851,6 +1864,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
         }
         if (token !== epoch || !dialog.isConnected) return;
         sheetReasonState.open = sheetReasonState.dirty = false;
+        if ('reasonColumn' in changes) reportReasonState.selected.clear();
         renderSettings();
         notice('已保存当前数据源的判定原因设置。');
       }, '正在保存判定原因设置…');
@@ -1869,7 +1883,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
     dialog.showModal();
     status();
   }
-  function exportOriginal(templateToken) {
+  function exportOriginal(templateToken, reportScope = {}) {
     return run(async (token) => {
       const current = result;
       if (!current?.recordCount || !current.canExportOriginalReport)
@@ -1882,6 +1896,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
         revision: current.revision,
         ...(activeTemplateMap() ? { templateMap: activeTemplateMap().columns } : {}),
         ...(templateToken ? { templateToken } : {}),
+        ...reportScope,
       });
       if (token !== epoch) return;
       if (response.cancelled) {

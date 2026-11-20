@@ -245,7 +245,7 @@ window.createHomeStudio = ({
     home.prepend(node('div', 'home-studio'));
     home.firstElementChild.id = 'homeStudio';
     new ResizeObserver(() => {
-      const { clientWidth: width, clientHeight: height } = $('homeStudio');
+      const { clientWidth: width, clientHeight: height } = $('hsContent') || $('homeStudio');
       if (!report || busy || !getContext().unlocked ||
           (Math.abs(width - observedWidth) < 4 && Math.abs(height - observedHeight) < 4)) return;
       observedWidth = width;
@@ -286,7 +286,11 @@ window.createHomeStudio = ({
     $('toolbarImport').before(top);
     const dialog = node('dialog', 'hs-dialog');
     dialog.id = 'hsDetail';
-    document.body.append(dialog);
+    dialog.setAttribute('aria-labelledby', 'hsDetailTitle');
+    const zoom = node('dialog', 'hs-dialog hs-chart-zoom');
+    zoom.id = 'hsChartZoom';
+    zoom.setAttribute('aria-labelledby', 'hsChartZoomTitle');
+    document.body.append(zoom, dialog);
     dialog.addEventListener('close', () => {
       if (!dialog.open) {
         detailTicket++;
@@ -553,8 +557,9 @@ window.createHomeStudio = ({
           controls.append(move);
         }
         header.append(controls);
-      } else if (key === 'trend' && !report?.biSource?.sharedAnalysis)
-        header.append(
+      } else if (key !== 'records') {
+        const controls = node('div', 'hs-chart-actions');
+        if (key === 'trend' && !report?.biSource?.sharedAnalysis) controls.append(
           selectControl(
             '趋势周期',
             [
@@ -570,6 +575,12 @@ window.createHomeStudio = ({
             },
           ),
         );
+        const zoom = button('放大', () => enlargeChart(key, titles[key][0]));
+        zoom.disabled = !report || busy || (report.primary?.source === 'bi' && !report.primary.available);
+        zoom.setAttribute('aria-label', '放大：' + titles[key][0]);
+        controls.append(zoom);
+        header.append(controls);
+      }
       panel.append(header);
       const body = node('div', 'hs-panel-body');
       body.id = 'hsPanel-' + key;
@@ -983,7 +994,7 @@ window.createHomeStudio = ({
     const tips = [
       ['点数字卡看明细', '上方每一张指标卡都可以点击，直接下钻到对应的记录或检验明细。'],
       ['筛选收在条件栏里', '点「筛选条件」展开日期、工序、异常类型等筛选；收起时标题上会显示当前生效条件。'],
-      ['图表都能点', '趋势图的点、分布图的分项、排行条都可点击，查看对应来源。'],
+      ['放大图表与查看明细', '点「放大」看大图；点折线点、排行条或分布分类，在右侧查看对应记录，不改变首页筛选。'],
     ];
     for (const [title, body] of tips) {
       const li = node('li');
@@ -1201,10 +1212,40 @@ window.createHomeStudio = ({
     bar.append(note);
     root.append(bar);
   }
-  function chartHeight(panel) {
-    const pageHeight = $('homeStudio')?.clientHeight || 700;
-    const width = $('hsPanel-' + panel)?.clientWidth || 480;
-    return Math.round(Math.min(360, Math.max(200, Math.min(width * 0.65, pageHeight * 0.38))));
+  function chartHeight(panel, width = $('hsPanel-' + panel)?.clientWidth || 480, enlarged = false) {
+    if (enlarged) return Math.round(Math.min(570, Math.max(300, width * 0.48)));
+    return panel === 'trend'
+      ? Math.round(Math.min(400, Math.max(265, width * 0.38)))
+      : Math.round(Math.min(320, Math.max(220, width * 0.54)));
+  }
+  function enlargeChart(key, title) {
+    if (!report || busy) return;
+    const d = $('hsChartZoom');
+    if (d.open) return;
+    const snapshot = report;
+    const h = node('header', 'hs-dialog-head');
+    const label = node('h2', '', title);
+    label.id = 'hsChartZoomTitle';
+    h.append(label, button('关闭大图', () => d.close(), 'hs-dialog-close'));
+    const body = node('div');
+    d.replaceChildren(h, node('p', 'hs-dialog-note', '点击图中的数据点、条形或分类查看对应记录。'), body);
+    d.showModal();
+    let renderedWidth = 0;
+    const draw = () => {
+      if (!d.open || report !== snapshot) return;
+      const width = Math.max(280, body.clientWidth || 900);
+      if (Math.abs(width - renderedWidth) < 4) return;
+      renderedWidth = width;
+      const factory = snapshot.primary?.source === 'bi' ? buildBIPanelChart : buildManualPanelChart;
+      body.replaceChildren(factory(snapshot, key, width, true));
+    };
+    const observe = new ResizeObserver(draw);
+    d.addEventListener('close', () => {
+      observe.disconnect();
+      if (!d.open) d.replaceChildren();
+    }, { once: true });
+    observe.observe(body);
+    draw();
   }
   const biColumns = [
     ['date', 'BI业务日期'],
@@ -1282,55 +1323,10 @@ window.createHomeStudio = ({
         put(key, G.empty(bi.message || '当前没有可用BI，未将缺失当作零。'));
       return;
     }
-    const trend = bi.trend || [];
-    const chart = (comparison) =>
-      window.ChartSurface.create({
-        title: comparison ? 'BI数量与同长上期' : 'BI不良数量趋势',
-        unit: bi.unitLabel || 'pcs',
-        compact: true,
-        minimumWidth: Math.max(280, ($('hsPanel-' + (comparison ? 'comparison' : 'trend'))?.clientWidth || 304) - 24),
-        height: chartHeight(comparison ? 'comparison' : 'trend'),
-        labels: trend.map((x) => (x.start === x.end ? x.start.slice(5) : x.key.slice(5))),
-        fullLabels: trend.map((x) => `${x.start} 至 ${x.end}，来源${x.covered}/${x.days}天`),
-        series: [
-          { name: 'BI不良数量', values: trend.map((x) => x.quantity) },
-          ...(comparison
-            ? [{ name: '同长上期（来源完整才比较）', values: trend.map((x) => x.previous) }]
-            : []),
-        ],
-        onPoint: (series, index) => {
-          const p = trend[index],
-            offset =
-              series === 1
-                ? -Math.round((Date.parse(bi.range.end) - Date.parse(bi.range.start)) / 86400000) -
-                  1
-                : 0;
-          drillBI({ start: shift(p.start, offset), end: shift(p.end, offset), previous: series === 1 });
-        },
-      });
-    put('trend', chart(false));
-    put('comparison', chart(true));
-    put(
-      'issues',
-      G.donut(bi.issues, bi.quantity, (value) => drillBI({ field: 'issue', value }), {
-        unit: bi.unitLabel || 'pcs',
-        label: 'BI不良数量',
-        quantity: true,
-      }),
-    );
-    for (const [panel, field, values] of [
-      ['process', 'process', bi.processes],
-      ['owners', 'employee', bi.employees],
-      ['time', 'shift', bi.shifts],
-    ])
-      put(
-        panel,
-        G.ranking(values, {
-          unit: bi.unitLabel || 'pcs',
-          limit: panel === 'owners' ? 10 : 7,
-          onSelect: (value) => drillBI({ field, value }),
-        }),
-      );
+    for (const key of model.panels) {
+      const body = $('hsPanel-' + key);
+      if (body && key !== 'records') put(key, buildBIPanelChart(r, key, Math.max(280, (body.clientWidth || 380) - 24)));
+    }
     const body = $('hsPanel-records');
     if (body) {
       renderRows(body, bi.rows, bi.page, bi.total, {
@@ -1352,14 +1348,53 @@ window.createHomeStudio = ({
       body.append(pager);
     }
   }
+  function buildBIPanelChart(r, key, width, enlarged = false) {
+    const bi = r.biSource;
+    if (key === 'issues') {
+      if (enlarged) return G.ranking(bi.issues, { unit: bi.unitLabel || 'pcs', limit: bi.issues.length,
+        onSelect: (value) => drillBI({ field: 'issue', value }) });
+      return G.donut(bi.issues, bi.quantity, (value) => drillBI({ field: 'issue', value }), {
+        unit: bi.unitLabel || 'pcs', label: 'BI不良数量', quantity: true,
+      });
+    }
+    if (key !== 'trend' && key !== 'comparison') {
+      const [field, values] = {
+        process: ['process', bi.processes], owners: ['employee', bi.employees], time: ['shift', bi.shifts],
+      }[key];
+      return G.ranking(values, { unit: bi.unitLabel || 'pcs', limit: enlarged ? values.length : key === 'owners' ? 10 : 7,
+        onSelect: (value) => drillBI({ field, value }) });
+    }
+    const comparison = key === 'comparison', trend = bi.trend || [];
+    return window.ChartSurface.create({
+      title: comparison ? 'BI数量与同长上期' : 'BI不良数量趋势',
+      unit: bi.unitLabel || 'pcs', compact: !enlarged, minimumWidth: width, height: chartHeight(key, width, enlarged),
+      labels: trend.map((x) => (x.start === x.end ? x.start.slice(5) : x.key.slice(5))),
+      fullLabels: trend.map((x) => `${x.start} 至 ${x.end}，来源${x.covered}/${x.days}天`),
+      series: [
+        { name: 'BI不良数量', values: trend.map((x) => x.quantity) },
+        ...(comparison ? [{ name: '同长上期（来源完整才比较）', values: trend.map((x) => x.previous) }] : []),
+      ],
+      onPoint: (series, index) => {
+        const point = trend[index];
+        const offset = series === 1
+          ? -Math.round((Date.parse(bi.range.end) - Date.parse(bi.range.start)) / 86400000) - 1 : 0;
+        drillBI({ start: shift(point.start, offset), end: shift(point.end, offset), previous: series === 1 });
+      },
+    });
+  }
   function drillBI({ field, value, start, end, previous = false } = {}) {
-    const d = dialog('BI来源明细'),
+    if (!report?.biSource) return;
+    const d = dialog('BI来源明细', true),
       content = node('div'),
       t = ++detailTicket;
     const linked = report.biSource?.sharedAnalysis;
     const base = structuredClone({ ...report.scope, ...(linked ? report.biSource.range : {}) }),
       pref = { ...sourcePreference, mode: 'bi' };
     const biFilter = field ? { field, value } : null;
+    const labels = { issue: '不良项', employee: '责任员工', shift: '报检班别',
+      process: window.BIFieldLabels.process(report.biSource) };
+    renderDrillContext(d, base, { start, end, previous, selection: field ? `${labels[field]}：${value || '未填写'}` : '',
+      applied: linked ? report.biSource.sharedAnalysis.filters : null });
     d.append(content);
     let page = 1;
     async function loadPage() {
@@ -1380,14 +1415,18 @@ window.createHomeStudio = ({
         }
         renderRows(content, bi.rows, bi.page, bi.total, {
           detail: true,
-          columns: window.BIFieldLabels.columns(biColumns, bi),
+          columns: window.BIFieldLabels.columns([
+            ['sn', '容器号 / SN'], ['date', 'BI业务日期'], ['issue', '不良项'], ['quantity', '不良数量'],
+            ['employee', '责任员工'], ['process', '工序'], ['shift', '报检班别'],
+            ...(bi.rows.some((row) => row.file || row.sourceRow) ? [['file', '来源文件'], ['sourceRow', '源行号']] : []),
+          ], bi),
         });
         const pager = node('div', 'hs-pagination');
         pager.append(
           node(
             'span',
             '',
-            `共 ${bi.total} 行，数量合计 ${G.fmt(bi.quantity)} ${bi.unitLabel || 'pcs'}`,
+            `明细 ${bi.total} 行 · 不良数量 ${G.fmt(bi.quantity)} ${bi.unitLabel || 'pcs'} · 第 ${bi.page} 页`,
           ),
           button('上一页', () => {
             page = Math.max(1, bi.page - 1);
@@ -1414,6 +1453,8 @@ window.createHomeStudio = ({
             }),
           ]),
         );
+        pager.children[1].disabled = bi.page <= 1;
+        pager.children[2].disabled = bi.page >= Math.max(1, Math.ceil(bi.total / 10));
         content.append(pager);
       } catch (e) {
         if (t === detailTicket && d.open) content.replaceChildren(G.empty(e.message));
@@ -1579,74 +1620,36 @@ window.createHomeStudio = ({
       b.append(badge, copy);
       $('hsMetrics').append(b);
     }
-    const body = (key) => $('hsPanel-' + key),
-      replace = (key, x) => {
-        if (body(key)) body(key).replaceChildren(x);
-      };
-    replace(
-      'trend',
-      G.combo(r.trend, {
-        width: Math.max(280, (body('trend')?.clientWidth || 380) - 24),
-        height: chartHeight('trend'),
-        onRange: (p) => drill({ kind: 'records', start: p.start, end: p.end }),
+    for (const key of model.panels) {
+      const body = $('hsPanel-' + key);
+      if (!body) continue;
+      if (key === 'records') renderRows(body, r.rows, r.page, r.total);
+      else body.replaceChildren(buildManualPanelChart(r, key, Math.max(280, (body.clientWidth || 380) - 24)));
+    }
+  }
+  function buildManualPanelChart(r, key, width, enlarged = false) {
+    if (key === 'trend' || key === 'comparison') {
+      const comparison = key === 'comparison';
+      return G.combo(r.trend, {
+        width, height: chartHeight(key, width, enlarged), comparison,
+        onRange: (p, prior) => {
+          const offset = prior ? -Math.round((Date.parse(r.scope.end) - Date.parse(r.scope.start)) / 86400000) - 1 : 0;
+          drill({ kind: 'records', start: shift(p.start, offset), end: shift(p.end, offset) });
+        },
         onQuantity: (p) => drill({ kind: 'quantity', start: p.start, end: p.end }),
-      }),
-    );
-    replace(
-      'issues',
-      G.donut(r.issues, r.recordCount, (value) => filterDrill('issue', value)),
-    );
-    replace(
-      'process',
-      G.ranking(r.processes, {
-        onSelect: (value) => filterDrill('process', value),
-        unmapped: '未映射工序',
-      }),
-    );
-    replace(
-      'owners',
-      r.owners.some((x) => x.value)
-        ? G.ranking(r.owners, {
-            limit: 10,
-            onSelect: (value) => filterDrill('owner', value),
-            unmapped: '未分配',
-          })
-        : G.empty('当前记录未填写跟进负责人；可在原待办跟进页补充。'),
-    );
-    replace(
-      'comparison',
-      G.combo(r.trend, {
-        comparison: true,
-        width: Math.max(280, (body('comparison')?.clientWidth || 380) - 24),
-        height: chartHeight('comparison'),
-        onRange: (p, prior) =>
-          drill({
-            kind: 'records',
-            start: prior
-              ? shift(
-                  p.start,
-                  -Math.round((Date.parse(r.scope.end) - Date.parse(r.scope.start)) / 86400000) - 1,
-                )
-              : p.start,
-            end: prior
-              ? shift(
-                  p.end,
-                  -Math.round((Date.parse(r.scope.end) - Date.parse(r.scope.start)) / 86400000) - 1,
-                )
-              : p.end,
-          }),
-      }),
-    );
-    replace(
-      'time',
-      r.shifts.some((x) => x.value)
-        ? G.ranking(r.shifts, {
-            onSelect: (value) => filterDrill('shift', value),
-            unmapped: '未填写',
-          })
-        : G.empty('未提供报检班别字段，不按自然时间推断生产班次。'),
-    );
-    if (body('records')) renderRows(body('records'), r.rows, r.page, r.total);
+      });
+    }
+    if (key === 'issues') return enlarged
+      ? G.ranking(r.issues, { limit: r.issues.length, onSelect: (value) => filterDrill('issue', value) })
+      : G.donut(r.issues, r.recordCount, (value) => filterDrill('issue', value));
+    const [field, values, unmapped, missing] = {
+      process: ['process', r.processes, '未映射工序'],
+      owners: ['owner', r.owners, '未分配', '当前记录未填写跟进负责人；可在原待办跟进页补充。'],
+      time: ['shift', r.shifts, '未填写', '未提供报检班别字段，不按自然时间推断生产班次。'],
+    }[key];
+    if (missing && !values.some((x) => x.value)) return G.empty(missing);
+    return G.ranking(values, { limit: enlarged ? values.length : key === 'owners' ? 10 : 7, unmapped,
+      onSelect: (value) => filterDrill(field, value) });
   }
   function filterDrill(key, value) {
     drill({ kind: 'records', extra: { [key]: value } });
@@ -1742,25 +1745,40 @@ window.createHomeStudio = ({
       root.append(pager);
     }
   }
-  function dialog(title) {
+  function renderDrillContext(d, base, { start, end, previous = false, selection = '', applied = null } = {}) {
+    const row = node('div', 'hs-detail-context');
+    const first = start || base.start, last = end || base.end;
+    const dates = first === last ? first : `${first} 至 ${last}`;
+    for (const label of [previous ? '同长上期' : '', dates, selection, '保留首页已应用的其他筛选'])
+      if (label) row.append(node('span', '', label));
+    d.append(row);
+    if (applied?.length) {
+      const details = node('details', 'hs-active-bi-filters');
+      const list = node('ul');
+      const names = { in: '包含所选', equals: '等于', notIn: '排除所选', notEquals: '不等于',
+        empty: '为空', notEmpty: '有值', contains: '包含', notContains: '不包含', startsWith: '开头是',
+        endsWith: '结尾是', gte: '≥', lte: '≤', between: '介于' };
+      for (const rule of applied) list.append(node('li', '', [rule.label, names[rule.op],
+        rule.values.map((value) => value || '（空白）').join('、')].filter(Boolean).join(' ')));
+      details.append(node('summary', '', '查看首页筛选条件'), list);
+      d.append(details);
+    }
+  }
+  function dialog(title, side = false) {
     const d = $('hsDetail');
     if (d.open) d.close();
     d.replaceChildren();
-    const h = node('header', 'hs-dialog-head');
-    h.append(
-      node('h2', '', title),
-      button('关闭', () => d.close(), 'hs-dialog-close'),
-    );
+    d.classList.toggle('hs-detail-side', side);
+    const h = node('header', 'hs-dialog-head'), label = node('h2', '', title);
+    label.id = 'hsDetailTitle';
+    h.append(label, button('关闭', () => d.close(), 'hs-dialog-close'));
     d.append(h);
+    d.onclick = (event) => { if (event.target === d) {
+      const bounds = d.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX >= bounds.right ||
+          event.clientY < bounds.top || event.clientY >= bounds.bottom) d.close();
+    } };
     d.showModal();
-    // 点击阴影（backdrop）直接关闭：dialog 元素本身即 backdrop 命中区，内部内容点击 target 为子节点
-    d.addEventListener(
-      'click',
-      (ev) => {
-        if (ev.target === d) d.close();
-      },
-      { once: true },
-    );
     return d;
   }
   function showRow(row) {
@@ -1791,7 +1809,10 @@ window.createHomeStudio = ({
   async function drill({ kind, extra = {}, start, end, status } = {}) {
     if (!report) return;
     const base = structuredClone(report.scope),
-      d = dialog(kind === 'quantity' ? '检验数量来源与统计口径' : '当前条件对应异常记录');
+      d = dialog(kind === 'quantity' ? '检验数量来源与统计口径' : '当前条件对应异常记录', true);
+    const labels = { issue: '异常类型', process: '工序', owner: '跟进负责人', shift: '报检班别' };
+    renderDrillContext(d, base, { start, end, selection: Object.entries(extra)
+      .map(([key, val]) => `${labels[key] || key}：${val || '未填写'}`).join(' · ') });
     d.append(
       node(
         'p',
@@ -2106,6 +2127,7 @@ window.createHomeStudio = ({
       sourcePreference = { mode: 'auto', channel: 'auto', dailyScope: '', employee: '' };
       homeColumns = { sources: {} };
       if ($('hsDetail')?.open) $('hsDetail').close();
+      if ($('hsChartZoom')?.open) $('hsChartZoom').close();
       if ($('hsSearch')) $('hsSearch').value = '';
       $('hsDetail')?.replaceChildren();
       $('homeStudio')?.replaceChildren();

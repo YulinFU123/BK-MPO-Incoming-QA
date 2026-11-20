@@ -126,13 +126,13 @@ def facets(db, source, query, field, search='', offset=0, match_op=None, case_se
 def production_scope(rows, source, query, rate_basis):
     """Selected-defect comparisons use the full production scope of other filters."""
     if rate_basis == 'selected-defects':
-        filters = [rule for rule in query.get('filters', []) if not is_defect_filter(rule['field'], source)]
+        filters = [rule for rule in query.get('filters', []) if not is_defect_filter(rule['field'], source, query)]
         query = {**query, 'filters': filters}
     return select_rows(rows, source, query)
 
 
-def is_defect_filter(field, source):
-    return role(field, source) == 'defect' or (
+def is_defect_filter(field, source, query):
+    return field == query.get('_reportReasonField') or role(field, source) == 'defect' or (
         source.get('kind') == 'defects' and
         any(c['id'] == field and c['label'].strip() == '判定原因' for c in source['columns'])
     )
@@ -149,7 +149,7 @@ def rate_context(db,source,production,query,base,span,rate_basis='same-scope',*,
     translated=[]; invalid=[]; unmatched=[]
     for f in query.get('filters',[]):
         key=role(f['field'],source)
-        if rate_basis == 'selected-defects' and is_defect_filter(f['field'], source):
+        if rate_basis == 'selected-defects' and is_defect_filter(f['field'], source, query):
             # An explicit daily-report policy: selected defective units divided
             # by all matched process/shift production. The numerator remains
             # filtered; only this declared role need not exist in production.

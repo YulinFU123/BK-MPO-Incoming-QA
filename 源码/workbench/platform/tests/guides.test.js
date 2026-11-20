@@ -201,8 +201,18 @@ test('exit and Escape are available at every step and persist an independent res
   await h.ui.open('legacy-entry');
   assert.ok(h.button('完成引导'));
   h.button('完成引导').click();
+  assert.equal(h.ui.isOpen(), true);
+  assert.equal(h.button('引导已完成').disabled, true);
+  assert.deepEqual(h.lifecycle, ['hidden', 'restored', 'hidden']);
   await h.ui.flush();
   assert.equal(h.state().progress['legacy-entry'].status, 'completed');
+  h.button('上一步').click();
+  h.button('下一步').click();
+  assert.equal(h.button('引导已完成').disabled, true);
+  h.button('退出引导').click();
+  assert.equal(h.ui.isOpen(), false);
+  await h.ui.flush();
+  assert.deepEqual(h.state().progress['legacy-entry'], { status: 'completed', step: 4 });
   await h.ui.open('bi-daily');
   h.button('跳过本功能').click();
   await h.ui.flush();

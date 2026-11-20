@@ -155,6 +155,21 @@ def handle(db,body):
         # A manual reason choice cannot make unrelated, missing template mappings valid.
         if isinstance(template_map, dict) or all(resolved.values()):
             template_map = resolved
+    if 'reportReasons' in body and action in ('dailyProductionCohorts', 'previewDailyRate', 'exportOriginalReport'):
+        from . import original_report
+        reasons = body['reportReasons']
+        if (not isinstance(reasons, list) or not 1 <= len(reasons) <= 200 or
+                any(not isinstance(value, str) or not value.strip() or len(value) > 512 for value in reasons) or
+                len(set(reasons)) != len(reasons)):
+            raise ValueError('请选择有效的导出判定原因（最多 200 项）。')
+        field = settings.get('reasonColumn') or original_report.resolve_columns(source, template_map)['判定原因']
+        if not field:
+            raise ValueError('请先绑定「判定原因列」。')
+        replaced = {field, 'defect'} if source['mapping'].get('defect') == field else {field}
+        query = {**query, '_reportReasonField': field, 'filters': [
+            *[rule for rule in query.get('filters', []) if rule['field'] not in replaced],
+            {'field': field, 'op': 'in', 'values': reasons, 'caseSensitive': True},
+        ]}
     if action == 'dailyProductionCohorts':
         if source.get('kind') != 'defects':
             raise ValueError('请选择日报的不良明细来源。')
@@ -197,6 +212,8 @@ def handle(db,body):
         if store.revision(db) != body['revision']:
             raise ValueError('分析数据已更新，请重新查询后再导出。')
         catalog, span, base, rows = analysis.core(db, source, query)
+        if not rows and 'reportReasons' in body:
+            raise ValueError('所选判定原因在当前日期及其他筛选范围内没有记录。')
         analysis.sort_details(rows, source, query)
         settings = config.get('dailyReports', {}).get(source['id'], {})
         layout = settings.get('chartLayout', 'original')
@@ -208,7 +225,8 @@ def handle(db,body):
             return original_report.export(
                 body['template'], body['output'], source, rows, template_map, chart_layout=layout,
                 rate_report=None, reason_groups=settings.get('reasonGroups', ()), daily_rows=people, daily_title=title,
-                daily_reason_groups=groups, template_rate=rate, sheet_reasons=settings.get('sheetReasons'))
+                daily_reason_groups=groups, template_rate=rate,
+                sheet_reasons=None if 'reportReasons' in body else settings.get('sheetReasons'))
         rate_report = daily_rate_report(db, source, sources, query, settings, template_map)
         return original_report.export(body['template'], body['output'], source, rows,
                                       template_map, rate_report=rate_report, chart_layout=layout, reason_groups=())

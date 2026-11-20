@@ -680,6 +680,37 @@ test('daily report manual reason binding and selected reasons persist after reop
   assert.deepEqual(h.calls.findLast(({ body }) => body?.action === 'exportOriginalReport').body.query.filters, filters);
 });
 
+test('daily template export can replace the reason filter without changing the active query or settings', async (t) => {
+  const column = 'h_0000000000000001';
+  const h = harness(t, { mlightGuide: true, originalTemplate: true, importRun: true,
+    dailySettings: { chartLayout: 'readable', includeRate: true, reasonColumn: column },
+  });
+  const process = { field: 'process', op: 'in', values: ['装管'], caseSensitive: true };
+  const filters = [process, { field: column, op: 'in', values: ['断裂'], caseSensitive: true }];
+  await h.ui.openTab('day', { sourceId: 'bi', query: { ...M.viewDefaults('day'), filters }, drill: true });
+  await h.click('每日导表配置');
+  const picker = h.all().find((node) => node.tagName === 'details' && node.children[0]?.textContent.startsWith('选择导出判定原因'));
+  picker.open = true;
+  await picker.ontoggle();
+  const request = (action) => h.calls.findLast(({ body }) => body?.action === action).body;
+  assert.deepEqual(request('facets').query.filters, [process]);
+  const item = h.all().find((node) => node.className === 'lab-check' && node.textContent === '装管反（1 条）');
+  assert.ok(item);
+  item.children[0].checked = true;
+  await item.children[0].onchange();
+  assert.match(picker.children[0].textContent, /已选 1 项/);
+  await h.click('核对不良率数据与折线图');
+  assert.deepEqual([...request('previewDailyRate').reportReasons], ['装管反']);
+  await h.click('导出每日目标 Excel');
+  assert.deepEqual([...request('exportOriginalReport').reportReasons], ['装管反']);
+  assert.deepEqual(request('exportOriginalReport').query.filters, filters);
+  await h.click('每日导表配置');
+  assert.match(h.root.textContent, /选择导出判定原因 · 沿用当前筛选/);
+  await h.click('导出每日目标 Excel');
+  assert.equal(request('exportOriginalReport').reportReasons, undefined);
+  assert.deepEqual(request('exportOriginalReport').query.filters, filters);
+});
+
 test('choosing an exported workbook in daily settings remembers its format for the selected source', async (t) => {
   const templatePath = 'C:/合成/旧分析报表.xlsx';
   const h = harness(t, { originalTemplate: true,
