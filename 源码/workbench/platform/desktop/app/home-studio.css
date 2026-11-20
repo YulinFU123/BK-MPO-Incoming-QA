@@ -757,17 +757,15 @@
   box-shadow: inset 0 0 0 3px #f7f2ff;
 }
 .hs-chart-grid {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
-.hs-chart-grid > .hs-panel { flex: 1 1 100%; box-sizing: border-box; }
+.hs-chart-grid > .hs-panel { box-sizing: border-box; }
 @container (min-width: 740px) {
-  .hs-chart-grid > .hs-panel:not(.hs-panel-records) { flex-basis: calc((100% - 10px) / 2); }
-}
-@container (min-width: 1120px) {
-  .hs-chart-grid > .hs-panel:not(.hs-panel-records) { flex-basis: calc((100% - 20px) / 3); }
+  .hs-chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hs-chart-grid > .hs-panel-trend,
+  .hs-chart-grid > .hs-panel-records { grid-column: 1 / -1; }
 }
 .hs-panel {
   min-width: 0;
@@ -823,7 +821,11 @@
   padding: 0 12px 10px;
   min-height: 0;
 }
-.hs-panel-move { display: flex; flex: none; gap: 4px; }
+.hs-panel-move, .hs-chart-actions { display: flex; flex: none; align-items: center; gap: 6px; }
+.hs-chart-actions .hs-button { white-space: nowrap; }
+.hs-panel .home-rank-item { min-height: 33px; }
+.hs-panel .home-rank-track i { min-height: 10px; }
+.hs-panel .home-rank-item > span:first-child { white-space: normal; overflow-wrap: anywhere; }
 .hs-active-bi-filters { margin: 6px 12px; color: var(--hs-muted); font-size: 12px; }
 .hs-active-bi-filters li { overflow-wrap: anywhere; }
 .hs-panel-owners,
@@ -1197,6 +1199,24 @@
 .hs-dialog::backdrop {
   background: #10243977;
 }
+.hs-dialog.hs-chart-zoom { box-sizing: border-box; width: min(1440px, calc(100vw - 32px)); max-height: 92dvh; }
+.hs-chart-zoom .home-rank-item { min-height: 42px; grid-template-columns: minmax(110px, 1fr) minmax(60px, 4fr) auto; }
+.hs-chart-zoom .home-rank-item > span:first-child { white-space: normal; overflow-wrap: anywhere; }
+.hs-dialog.hs-detail-side {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(830px, 72vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 10px 0 0 10px;
+}
+.hs-detail-side::backdrop { background: #10243938; }
+.hs-detail-context { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 0 0 14px; color: var(--hs-muted, #60758e); font-size: 12px; }
+.hs-detail-context span { overflow-wrap: anywhere; }
+@media (max-width: 720px) { .hs-dialog.hs-detail-side { width: 100vw; } }
 .hs-dialog-head {
   display: flex;
   align-items: center;

@@ -482,11 +482,11 @@ function renderDailyRateKeywords(root, options) {
 }
 
 // A task-specific view. Persistence and file operations remain with the host.
-function renderSheetReasons(root, options) {
+function renderSheetReasons(root, options, allowSheets) {
   const { el, btn, check, select, settings, source, sheetReasonState: state } = options;
   if (!state) return;
   const section = el('section', undefined, 'lab-daily-section');
-  section.append(el('h4', '判定原因与分表'));
+  section.append(el('h4', allowSheets ? '判定原因与分表' : '判定原因列'));
   const autoLabel = source.columns.find((column) => column.id === options.automaticReason)?.label;
   const target = settings.reasonColumn || '';
   const column = select('判定原因列', [['', autoLabel ? '自动：' + autoLabel : '自动：未识别'],
@@ -500,12 +500,13 @@ function renderSheetReasons(root, options) {
   const binding = el('div', undefined, 'lab-fields');
   binding.append(column, saveColumn);
   section.append(binding, el('p', '确认更换绑定时，将清除旧列的分表选择和合并分组。绑定按数据源记忆。', 'lab-muted'));
+  root.append(section);
+  if (!allowSheets) return;
   const entry = el('div', undefined, 'lab-config-actions');
   const chosen = settings.sheetReasons;
   entry.append(el('span', chosen ? `已指定 ${chosen.length} 项分表` : '默认：所有非空原因各自分表'),
     btn('选择要分表的原因', () => { state.open = true; entry.hidden = true; drawEditor(); }));
   section.append(entry);
-  root.append(section);
   const drawEditor = () => {
     if (!options.loadReasonOptions) {
       entry.hidden = false;
@@ -580,6 +581,85 @@ function renderSheetReasons(root, options) {
   if (state.open) { entry.hidden = true; drawEditor(); }
 }
 
+// Report-only scope. The selected reasons live in this dialog, not the workspace config.
+function renderReportReasons(root, { el, btn, check, reportReasonState: state, loadReportReasonOptions, reasonOptionsUnavailable, draftChanged }) {
+  if (!state) return;
+  const details = el('details', undefined, 'lab-daily-section');
+  const summary = el('summary');
+  const updateSummary = () => {
+    summary.textContent = state.selected.size ? `选择导出判定原因 · 已选 ${state.selected.size} 项` : '选择导出判定原因 · 沿用当前筛选';
+  };
+  updateSummary();
+  details.append(summary, el('p', '勾选后，仅将所选原因写入本次报表，替换原有判定原因筛选；日期和其他条件保持不变。不选则沿用当前筛选。', 'lab-muted'));
+  root.append(details);
+  if (!loadReportReasonOptions) {
+    details.append(el('p', reasonOptionsUnavailable, 'lab-muted'));
+    return;
+  }
+  const search = el('input');
+  search.type = 'search';
+  search.setAttribute('aria-label', '搜索导出判定原因');
+  search.placeholder = '搜索导出判定原因';
+  const status = el('p', '', 'lab-muted');
+  status.setAttribute('aria-live', 'polite');
+  const list = el('div', undefined, 'lab-facet-values');
+  const pager = el('div', undefined, 'lab-facet-tools');
+  details.append(search, status, list, pager, btn('清除导出原因选择', () => {
+    state.selected.clear();
+    updateSummary();
+    draftChanged();
+    return load();
+  }));
+  let offset = 0, revision = 0, timer, started = false;
+  async function load() {
+    started = true;
+    const id = ++revision;
+    list.replaceChildren();
+    pager.replaceChildren();
+    status.textContent = '正在读取判定原因…';
+    try {
+      const page = await loadReportReasonOptions(search.value.trim(), offset);
+      if (id !== revision || !details.isConnected) return;
+      const candidates = page.values.filter(({ value }) => value.trim() && value.length <= 512);
+      const visible = new Set(candidates.map(({ value }) => value));
+      const rows = [...candidates, ...[...state.selected].filter((value) => !visible.has(value)).map((value) => ({ value }))];
+      const message = candidates.length ? '按原始原因精确匹配，可多选。' : '没有匹配的非空判定原因。';
+      for (const { value, count } of rows) {
+        const label = count === undefined ? `${value}（已选）` : `${value}（${count} 条）`;
+        const item = check(label, state.selected.has(value), (yes) => {
+          if (yes && state.selected.size >= 200) {
+            item.children[0].checked = false;
+            status.textContent = '最多选择 200 项判定原因。';
+            return;
+          }
+          if (yes) state.selected.add(value); else state.selected.delete(value);
+          status.textContent = message;
+          updateSummary();
+          draftChanged();
+        });
+        list.append(item);
+      }
+      status.textContent = message;
+      if (offset) pager.append(btn('上一页', () => { offset -= 200; return load(); }));
+      if (page.more) pager.append(btn('下一页', () => { offset += 200; return load(); }));
+    } catch (error) {
+      if (id !== revision || !details.isConnected) return;
+      status.textContent = '无法读取判定原因：' + error.message;
+      pager.append(btn('重试', load));
+    }
+  }
+  details.open = state.open;
+  details.ontoggle = () => {
+    state.open = details.open;
+    if (details.open && !started) return load();
+  };
+  if (details.open) queueMicrotask(() => { if (!started && details.isConnected) void load(); });
+  search.oninput = (event) => {
+    if (event?.isComposing) return;
+    offset = 0; revision++; clearTimeout(timer); timer = setTimeout(load, 180);
+  };
+}
+
 window.renderDailyReportSettings = (root, options) => {
   const { el, btn, field, select, check, settings, source, productions, update } = options;
   const dailyByReason = settings.chartLayout === 'reason-columns';
@@ -623,10 +703,8 @@ window.renderDailyReportSettings = (root, options) => {
     hidden: '总表保留明细，判定原因汇总和各分类工作表仍可查看。',
   };
   columns.append(el('p', layoutTip[settings.chartLayout || 'readable'], 'lab-muted'));
-  if (dailyByReason) {
-    renderSheetReasons(columns, options);
-    renderDailyReasonGroups(columns, options);
-  }
+  renderSheetReasons(columns, options, dailyByReason);
+  if (dailyByReason) renderDailyReasonGroups(columns, options);
 
   const rates = section('2 · 实际产量与不良率',
     dailyByReason
@@ -675,6 +753,7 @@ window.renderDailyReportSettings = (root, options) => {
     dailyByReason
       ? '导出沿用当前日期和筛选。不良率表与总表折线共用同一组值。判定业务日从 07:00 开始，缺产量时可在 Excel 填写。'
       : '导出会使用当前已应用的日期和筛选。勾选附加不良率时，折线图放在单独工作表。');
+  renderReportReasons(output, options);
   const tools = el('div', undefined, 'lab-config-actions');
   if (settings.includeRate || dailyByReason) tools.append(btn('核对不良率数据与折线图', options.previewRate));
   tools.append(btn('导出每日目标 Excel', options.export, true));

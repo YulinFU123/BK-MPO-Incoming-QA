@@ -259,7 +259,15 @@ function createAnalysisStudioHost({
         return { ...info, templateToken: chosenTemplate.token, templatePath: template };
       }
       let daily;
-      if (['previewDailyRate', 'dailyProductionCohorts', 'exportOriginalReport'].includes(input.action)) {
+      const isDailyReport = ['previewDailyRate', 'dailyProductionCohorts', 'exportOriginalReport'].includes(input.action);
+      if (input.reportReasons !== undefined) {
+        const reasons = input.reportReasons;
+        if (!isDailyReport || !Array.isArray(reasons) || reasons.length < 1 || reasons.length > 200 ||
+            reasons.some((value) => typeof value !== 'string' || !value.trim() || value.length > 512) ||
+            new Set(reasons).size !== reasons.length)
+          throw new PlatformError('INVALID_ARGUMENT', '请选择有效的导出判定原因（最多 200 项）。');
+      }
+      if (isDailyReport) {
         if (!Number.isInteger(input.revision) || input.revision < 0 || !input.query)
           throw new PlatformError('INVALID_ARGUMENT', '请先查询当前筛选结果。');
         if (!config.sources.some((source) => source.id === input.sourceId && source.kind === 'defects'))

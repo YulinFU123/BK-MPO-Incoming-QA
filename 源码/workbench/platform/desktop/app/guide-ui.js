@@ -40,6 +40,7 @@
         handledClose = false,
         pending = {},
         generation = 0;
+      const completedThisSession = new Set();
       const dialog = make('dialog', undefined, 'feature-guide');
       dialog.id = 'featureGuideDialog';
       dialog.setAttribute('aria-labelledby', 'guideTitle');
@@ -83,7 +84,7 @@
       const previous = button('上一步', () => move(-1));
       const next = button(
         '下一步',
-        () => (step === model.get(current).steps.length - 1 ? close('completed') : move(1)),
+        () => (step === model.get(current).steps.length - 1 ? complete() : move(1)),
         'button primary',
       );
       const replay = button(
@@ -91,7 +92,7 @@
         () => {
           stopPlayback();
           step = 0;
-          remember('paused');
+          remember('paused', { restart: true });
           render();
         },
         'button quiet',
@@ -139,6 +140,7 @@
           client.adopt(address, row);
           data = model.validate(row.data);
           pending = {};
+          completedThisSession.clear();
           corrupt = false;
           error = '';
           confirm.checked = false;
@@ -227,7 +229,10 @@
           demoAction.textContent = demo.action;
         }
         previous.disabled = step === 0;
-        next.textContent = step === guide.steps.length - 1 ? '完成引导' : '下一步';
+        const last = step === guide.steps.length - 1;
+        const completed = completedThisSession.has(current);
+        next.textContent = last ? (completed ? '引导已完成' : '完成引导') : '下一步';
+        next.disabled = last && completed;
         steps.replaceChildren();
         guide.steps.forEach((item, index) => {
           const row = make('li');
@@ -238,7 +243,7 @@
               step = index;
               remember('paused');
               render();
-              next.focus();
+              (next.disabled ? closeButton : next).focus();
             },
             'guide-step',
           );
@@ -288,7 +293,9 @@
         })();
         return loading;
       }
-      function remember(state) {
+      function remember(state, { restart = false } = {}) {
+        if (state === 'paused' && !restart && completedThisSession.has(current)) return;
+        if (state !== 'completed') completedThisSession.delete(current);
         data = model.mark(data, current, state, step);
         pending[current] = data.progress[current];
         if (loaded && !corrupt) client.change(address, data);
@@ -316,7 +323,7 @@
         stopPlayback();
         if (restart || step === model.get(current).steps.length - 1) {
           step = 0;
-          remember('paused');
+          remember('paused', { restart: true });
           render();
         }
         schedulePlayback();
@@ -354,6 +361,14 @@
           onError(e);
           return false;
         }
+      }
+      function complete() {
+        stopPlayback();
+        completedThisSession.add(current);
+        remember('completed');
+        render();
+        closeButton.focus();
+        void flush();
       }
       function close(state = 'paused') {
         if (!dialog.open) return;
@@ -393,6 +408,7 @@
         opening = true;
         try {
           await beforeOpen();
+          completedThisSession.clear();
           current = id;
           step = 0;
           search.value = '';

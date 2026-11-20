@@ -88,6 +88,22 @@ document.getElementById('run').onclick = async () => {
     assert(p.querySelectorAll('circle[role=button]').length > 0, '无件数数据');
     assert(p.querySelectorAll('.home-value').length > 4, '点值不足');
   });
+  await check('趋势整行、放大后仍可打开右侧明细', async () => {
+    const panel = doc().querySelector('[data-home-panel=trend]');
+    const grid = $('hsChartGrid');
+    assert(Math.abs(panel.getBoundingClientRect().width - grid.getBoundingClientRect().width) < 3, '趋势未占整行');
+    const height = Number($('hsPanel-trend').querySelector('svg').getAttribute('height'));
+    clickText(panel, '放大');
+    const zoom = $('hsChartZoom');
+    assert(zoom.open && Number(zoom.querySelector('svg').getAttribute('height')) > height, '放大后图表不够高');
+    const point = zoom.querySelector('circle[role=button]');
+    point.dispatchEvent(new (w().MouseEvent)('click', { bubbles: true }));
+    await wait(() => $('hsDetail').open && $('hsDetail').querySelector('tbody tr'), '放大趋势点对应的明细');
+    assert($('hsDetail').classList.contains('hs-detail-side'), '明细没有在右侧打开');
+    clickText($('hsDetail'), '关闭');
+    assert(zoom.open, '关闭明细不应关闭大图');
+    clickText(zoom, '关闭大图');
+  });
   await check('分类图和条形图可打开精确对应明细', async () => {
     const b = $('hsPanel-issues').querySelector('button');
     const label = b.querySelector('span').textContent;
