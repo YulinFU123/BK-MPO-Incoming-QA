@@ -32,6 +32,7 @@ window.renderAnalysisSources = (
     processHint = null,
     defectHint = null,
     calendarHint = null,
+    refreshMappingErrors = () => {},
     refreshColumnLocks = () => {};
   const ruleText = () =>
     `${calendarRule.dayLabel} ${calendarRule.dayStart}–${calendarRule.dayEnd}；${calendarRule.nightLabel} ${calendarRule.nightStart}–次日${calendarRule.nightEnd}。包含结束分钟；其他时间或缺少时分的行标为“未归班”。`;
@@ -87,6 +88,7 @@ window.renderAnalysisSources = (
   }
   const update = (key, value) => {
     draft = { ...draft, [key]: value };
+    if (key === 'mapping') refreshMappingErrors();
     notifyUpdate(key, value);
     updateDateHint();
     refreshColumnLocks();
@@ -328,6 +330,27 @@ window.renderAnalysisSources = (
     ));
     updateDateHint();
     const fields = markGuide(el('div', undefined, 'lab-fields'), 'mapping');
+    const controls = new Map();
+    const fieldName = role => role === 'process' && draft.kind === 'defects' ? '分类字段（工序／产品类型）'
+      : role === 'quantity' && draft.kind === 'production' ? '实际产量数值' : model.labels[role];
+    refreshMappingErrors = () => {
+      const conflicts = new Map(model.mappingConflicts(draft.mapping));
+      for (const [role, { select, hint }] of controls) {
+        const id = draft.mapping[role], group = conflicts.get(id);
+        hint.hidden = !group;
+        if (group) {
+          const column = draft.columns.find(c => c.id === id);
+          hint.textContent = '重复选列：「' + (column ? columnName(column) : id) + '」也用于' +
+            group.filter(r => r !== role).map(r => '「' + fieldName(r) + '」').join('、') + '。';
+          select.setAttribute('aria-invalid', 'true');
+          select.setAttribute('aria-describedby', hint.id);
+        } else {
+          hint.textContent = '';
+          select.removeAttribute('aria-invalid');
+          select.removeAttribute('aria-describedby');
+        }
+      }
+    };
     for (const role of (draft.kind === 'production' ? ['date', 'process', 'shift', 'quantity', 'product', 'floor'] : model.roles)) {
       const required =
         role === 'date' ||
@@ -335,9 +358,7 @@ window.renderAnalysisSources = (
         (draft.kind === 'production' && ['quantity', 'process', 'shift'].includes(role));
       const currentExample = el('small', example(draft.mapping[role]) ? '样例：' + example(draft.mapping[role]) : '可从任意已选表头绑定', 'lab-mapping-example');
       const control = choice(
-          (role === 'process' && draft.kind === 'defects'
-            ? '分类字段（工序／产品类型）'
-            : role === 'quantity' && draft.kind === 'production' ? '实际产量数值' : model.labels[role]) + (required ? ' *' : ''),
+          fieldName(role) + (required ? ' *' : ''),
           [
             ['', '不指定'],
             ...draft.columns.map((c) => [
@@ -354,9 +375,13 @@ window.renderAnalysisSources = (
             currentExample.textContent = example(v) ? '样例：' + example(v) : '未指定或暂无样例';
           },
         );
-      control.append(currentExample);
+      const hint = el('small', '', 'lab-mapping-conflict');
+      hint.id = 'labMappingConflict-' + role;
+      controls.set(role, { select: control.lastChild, hint });
+      control.append(hint, currentExample);
       fields.append(control);
     }
+    refreshMappingErrors();
     body.append(fields);
     if (draft.kind === 'production') {
       body.append(el('p', inspection?.productionHints?.quantityNote || '实际产量用于不良率分母。请不要选择目标产量、差异、良率或金额。', 'lab-date-mapping-note'));

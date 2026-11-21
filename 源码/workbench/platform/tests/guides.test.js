@@ -4,6 +4,8 @@ const test = require('node:test'),
 const model = require('../domain/guides'),
   navigation = require('../desktop/app/navigation-model');
 const state = require('../domain/module-state');
+const pictures = require('../desktop/app/guide-pictures');
+const crops = require('../desktop/app/guide-crops');
 const createClient = require('../desktop/app/module-state-client');
 const createUI = require('../desktop/app/guide-ui')(model, createClient);
 
@@ -24,6 +26,16 @@ test('all 33 pages, 9 existing actions and 10 specific tools have real read-only
   assert.equal(model.get('__proto__'), null);
   assert.ok(Object.isFrozen(model.get('home').steps));
 });
+test('the workbench guide opens the illustrated reader in BI, without removing the separate live import walkthrough', () => {
+  const fs = require('node:fs'), path = require('node:path');
+  const read = file => fs.readFileSync(path.join(__dirname, '../desktop/app', file), 'utf8');
+  assert.match(read('renderer.js'), /guideButton\.onclick = \(\) => guideUI\.open\(\)/);
+  assert.match(read('analysis-source-ui.js'), /btn\('导入实操引导', onImportGuide\)/);
+  const includes = [...read('index.html').matchAll(/<script src="([^"]+)" defer>/g)].map(m => m[1]);
+  for (const file of ['guide-manual.js','guide-quality.js','guide-tools.js','guide-bi.js','guide-crops.js','guide-pictures.js'])
+    assert(includes.indexOf(file) >= 0 && includes.indexOf(file) < includes.indexOf('guide-ui.js'), file);
+});
+
 test('progress is bounded to actual steps and rejects business payloads, future formats and unsafe IDs', () => {
   const a = { scope: 'global', module: 'guides' };
   assert.deepEqual(state.validate(a, {}), model.defaults());
@@ -60,6 +72,7 @@ function harness(options = {}) {
       this.tagName = tag;
       this.children = [];
       this.listeners = {};
+      this.style = {};
       this.value = '';
       nodes.push(this);
     }
@@ -159,6 +172,7 @@ test('import demonstration advances, pauses, restarts, and only writes guide pro
   const h = harness();
   await h.ui.open('analysis-studio', { autoplay: true });
   const preview = h.all().find((node) => node.className === 'guide-demo-action');
+  assert.equal(h.all().find(n => n.tagName === 'img').alt.includes(pictures.get('analysis-studio', 0).label), true);
   assert.equal(preview.textContent, '确认文件可打开');
   t.mock.timers.tick(8500);
   assert.equal(preview.textContent, '识别最新文件表头');
@@ -177,6 +191,94 @@ test('import demonstration advances, pauses, restarts, and only writes guide pro
   h.button('退出引导').click();
   await h.ui.flush();
   assert(h.calls.every(({ method }) => ['readModuleState', 'saveModuleState'].includes(method)));
+});
+
+test('a late progress read cannot replace a screenshot that is already enlarged', async () => {
+  const initial = model.mark(model.defaults(), 'workspace-manager', 'paused', 1);
+  const h = harness({ initial, deferRead: true });
+  const opened = h.ui.open('workspace-manager');
+  await Promise.resolve();
+  h.button('放大截图').click(); h.releaseRead(); await opened;
+  const [thumb, full] = h.all().filter(n => n.tagName === 'img');
+  assert.equal(full.src, pictures.get('workspace-manager', 0).file);
+  assert.equal(thumb.src, (crops['workspace-manager:0'] || pictures.get('workspace-manager', 0)).file);
+  h.button('返回引导').click();
+  h.ui.close(); await h.ui.flush();
+});
+
+test('all guide steps render their own verified local asset, target and evidence type', async () => {
+  const fs = require('node:fs'), path = require('node:path'), h = harness();
+  assert.deepEqual([...pictures.ids].sort(), model.all.map(g => g.id).sort());
+  let total = 0;
+  const checked = new Set();
+  function verifyAsset(file) {
+    assert.match(file, /^assets\/guide-[a-z0-9-]+\/(?:[\w-]+\/)*[\w-]+\.(png|svg)$/);
+    if (checked.has(file)) return;
+    const buf = fs.readFileSync(path.join(__dirname, '../desktop/app', file));
+    if (file.endsWith('.png')) {
+      assert.equal(buf.subarray(1,4).toString(), 'PNG', file);
+      assert(buf.readUInt32BE(16) >= 120 && buf.readUInt32BE(20) >= 40, file);
+    } else {
+      const svg = buf.toString(); assert.match(svg, /<svg\b/);
+      assert.doesNotMatch(svg, /<script\b|<foreignObject\b|(?:href|src)=["']https?:/i, file);
+    }
+    checked.add(file);
+  }
+  const rectOK = r => r.length === 4 && r.every(Number.isFinite) && r[0]>=0 && r[1]>=0 && r[2]>0 && r[3]>0 && r[0]+r[2]<=100.1 && r[1]+r[3]<=100.1;
+  for (const guide of model.all) {
+    const id = guide.id;
+    await h.ui.open(id);
+    assert.equal(pictures.count(id), guide.steps.length, id);
+    const unique = new Set();
+    for (let i = 0; i < guide.steps.length; i++) {
+      if (i) h.button('下一步').click();
+      const p = pictures.get(id, i), crop = crops[id+':'+i] || p, desc = id+':'+i;
+      assert(p && p.label.trim() && rectOK(p.rect) && rectOK(crop.rect), desc);
+      assert(['capture','diagram'].includes(p.kind), desc);
+      assert.equal(h.all().find(n => n.tagName === 'figure').hidden, false, desc);
+      const images = h.all().filter(n => n.tagName === 'img');
+      assert.deepEqual(images.map(n => n.src), [crop.file,p.file], desc);
+      assert(images.every(n => n.alt.includes(p.label) && n.alt.includes(p.kind === 'capture' ? '实拍' : '示意')), desc);
+      const marks = h.all().filter(n => n.className === 'guide-mark');
+      assert.deepEqual(marks.map(n => ['left','top','width','height'].map(prop => parseFloat(n.style[prop]))), [crop.rect,p.rect], desc);
+      verifyAsset(crop.file); verifyAsset(p.file);
+      unique.add(p.file + JSON.stringify(p.rect)); total++;
+    }
+    assert(unique.size > 1, id + ' must not repeat one overview for every step');
+    h.ui.close(); await h.ui.flush();
+  }
+  assert.equal(total, 180);
+});
+
+test('workspace steps point at bundled examples; zoom Escape returns to the same step without writing progress', async () => {
+  const h = harness();
+  await h.ui.open('workspace-manager');
+  const [reader, zoom] = h.all().filter(n => n.tagName === 'dialog');
+  const caption = h.all().find(n => n.className === 'guide-picture-label');
+  const images = h.all().filter(n => n.tagName === 'img');
+  for (let i = 0; i < model.get('workspace-manager').steps.length; i++) {
+    if (i) h.button('下一步').click();
+    const pic = pictures.get('workspace-manager', i);
+    assert.equal(images[0].src, (crops['workspace-manager:' + i] || pic).file);
+    assert.equal(images[1].src, pic.file);
+    assert.match(caption.textContent, /图中标记/);
+    const calls = h.calls.length;
+    h.button('放大截图').click();
+    assert(zoom.open && reader.open);
+    zoom.listeners.keydown({ key: 'Escape', preventDefault() {}, stopPropagation() {} });
+    assert(!zoom.open && reader.open);
+    assert.equal(h.doc.focused, h.button('放大截图'));
+    assert.equal(h.calls.length, calls);
+    assert(h.all().some(n => n.textContent === `第 ${i + 1} 步，共 5 步`));
+  }
+  h.button('完成引导').click();
+  assert(reader.open);
+  h.button('退出引导').click();
+  await h.ui.flush();
+  await h.ui.open('label-design');
+  assert.equal(images[1].src, pictures.get('label-design', 0).file, 'switching topics must replace the last screenshot');
+  h.ui.close();
+  await h.ui.flush();
 });
 
 test('exit and Escape are available at every step and persist an independent resumable cursor', async () => {

@@ -55,8 +55,21 @@ document.getElementById('run').onclick = async () => {
     const status = await api('status');
     if (!status.unlocked) $('openDemo').click();
     await ready();
-    assert($('hsNavigation').querySelectorAll('details').length === 4, '分组不完整');
-    assert(doc().querySelector('[role=tablist]'), '无标签');
+    assert($('hsNavigation').querySelector('.hs-nav-utilities:not([open])'), '工具设置应默认折叠');
+    assert(!doc().querySelector('[role=tablist]'), '单方案不应重复显示标签栏');
+    const menu = $('hsMoreActions'), trigger = $('hsMore').querySelector('[popovertarget]');
+    assert(menu && !menu.matches(':popover-open') && menu.querySelector('.hs-new-tab'), '低频功能入口缺失');
+    const bounds = () => ['.hs-heading', '.hs-filter-panel', '#hsMetrics', '#hsChartGrid'].map(selector => {
+      const { x, y, width, height } = doc().querySelector(selector).getBoundingClientRect();
+      return [x, y, width, height];
+    });
+    const before = JSON.stringify(bounds());
+    trigger.click();
+    assert(menu.matches(':popover-open') && before === JSON.stringify(bounds()), '打开更多操作挤动页面');
+    trigger.click();
+    assert(!menu.matches(':popover-open') && before === JSON.stringify(bounds()), '收起更多操作挤动页面');
+    assert(!$('hsMetrics').closest('details'), '关键指标不应折叠');
+    $('hsFilterToggle').click();
     assert(doc().querySelector('.hs-settings'), '无右侧设置');
   });
   await check('五指标与实际接口一致，不从异常条数推算不良件数', async () => {
@@ -132,8 +145,9 @@ document.getElementById('run').onclick = async () => {
       end: '2026-10-29',
       grain: 'week',
     });
-    clickText($('homeStudio'), '新建分析工作区');
-    doc().querySelector('[aria-label="新分析工作区名称"]').value = '第二分析视图';
+    $('hsMore').querySelector('[popovertarget]').click();
+    clickText($('homeStudio'), '新建分析方案');
+    doc().querySelector('[aria-label="新分析方案名称"]').value = '第二分析视图';
     clickText($('hsDetail'), '创建工作区');
     await ready();
     assert(doc().querySelectorAll('[role=tab]').length === 2, '标签未新增');
@@ -173,7 +187,7 @@ document.getElementById('run').onclick = async () => {
     const close = doc().querySelector('[aria-label="关闭标签 第二分析视图"]');
     close.click();
     await ready();
-    assert(doc().querySelectorAll('[role=tab]').length === 1, '标签未关闭');
+    assert(doc().querySelectorAll('[role=tab]').length === 0, '单方案仍显示标签栏');
     const settings = doc().querySelector('.hs-settings');
     clickText(settings, '工作区');
     clickText(doc().querySelector('.hs-settings'), '第二分析视图');

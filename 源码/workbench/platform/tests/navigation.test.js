@@ -23,6 +23,34 @@ test('BI workbench opens analysis directly while old links and source restrictio
     analysisTab: null,
   });
 });
+test('back retraces actual pages and BI periods without looping on duplicate destinations', () => {
+  const trail = navigation.createBackTrail();
+  trail.visit('home');
+  assert.equal(trail.peek(), null);
+  trail.visit('analysis-studio');
+  trail.syncTab('day');
+  for (const tab of ['day', 'week', 'month', 'month']) trail.visit('analysis-studio', tab);
+  trail.visit('settings-hub');
+  assert.deepEqual(trail.back(), { view: 'analysis-studio', analysisTab: 'month' });
+  assert.equal(trail.back().analysisTab, 'week');
+  assert.equal(trail.back().analysisTab, 'day');
+  assert.equal(trail.back().view, 'home');
+  assert.equal(trail.back(), null);
+});
+test('restored subpage can return home; history is bounded and cannot cross a workspace reset', () => {
+  const trail = navigation.createBackTrail();
+  trail.visit('overview');
+  assert.equal(trail.peek().view, 'home');
+  for (let n = 0; n < 70; n++) trail.visit(n % 2 ? 'data' : 'home');
+  let count = 0;
+  while (trail.back()) count++;
+  assert.equal(count, 50);
+  trail.visit('analysis-studio', 'week');
+  trail.clear();
+  assert.equal(trail.back(), null);
+  trail.visit('home');
+  assert.equal(trail.peek(), null);
+});
 const common = require('../desktop/legacy-common-actions');
 const { BI_PAGES } = require('../desktop/bi-host');
 const original = [
@@ -85,21 +113,17 @@ test('global function lookup keeps route and action identities, Chinese search, 
   }
   assert.ok(Object.isFrozen(navigation.routes) && Object.isFrozen(navigation.routes[0]));
 });
-test('context buttons use actual page operations instead of sending every page to quantity import', () => {
-  assert.deepEqual(navigation.contextActions('legacy-records'), [
-    'import-record-xlsx',
-    'export-records',
-  ]);
-  assert.deepEqual(navigation.contextActions('legacy-entry'), [
-    'batch-scan',
-    'route:legacy-settings',
-  ]);
-  assert.deepEqual(navigation.contextActions('legacy-analysis'), ['export-analysis']);
-  for (const route of navigation.routes)
-    for (const id of navigation.contextActions(route.id))
-      assert.ok(
-        id.startsWith('route:') ? navigation.getRoute(id.slice(6)) : navigation.getAction(id),
-      );
+test('the shell toolbar has no business-command slots; page-local import and drill entries remain', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../desktop/app/index.html'), 'utf8');
+  const toolbar = html.match(/<header class="toolbar">([\s\S]*?)<\/header>/)[1];
+  assert.doesNotMatch(toolbar, /toolbarImport|toolbarSecondary|data-start-import|data-destination/);
+  assert.match(toolbar, /id="lockButton"/);
+  for (const id of ['overviewView', 'dataView', 'importView']) {
+    const section = html.split('id="' + id + '"')[1].split('</section>')[0];
+    assert.match(section, /data-start-import/, id);
+  }
+  for (const key of ['batch-scan', 'import-record-xlsx', 'export-records', 'export-followup', 'export-analysis'])
+    assert(navigation.getAction(key), key + ' remains in function search');
 });
 test('common actions reuse real original controls and preserve the hidden compatibility backup', () => {
   const root = path.resolve(__dirname, '../..');

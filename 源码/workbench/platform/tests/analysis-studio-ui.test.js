@@ -798,6 +798,24 @@ test('switching production sources cancels a pending daily-only binding', async 
   assert.equal(h.config().productionSource, 'production-b');
 });
 
+test('duplicate source columns mark every involved selector and clear individually on correction', async (t) => {
+  const h = harness(t, { importRun: true });
+  await h.ui.openTab('sources');
+  await h.click('BI不良数据 · 不良');
+  const select = role => h.all().find(n => n.id === 'labMappingConflict-' + role).parent.children[0];
+  const change = (role, value) => { const n = select(role); n.value = value; n.onchange(); };
+  const col = select('defect').value;
+  change('reporter', col); change('employee', col);
+  assert.deepEqual(h.all().filter(n => n['aria-invalid'] === 'true').map(n => n['aria-describedby']).sort(),
+    ['labMappingConflict-defect', 'labMappingConflict-employee', 'labMappingConflict-reporter']);
+  assert.match(h.all().find(n => n.id === 'labMappingConflict-defect').textContent, /责任员工.*报检人/);
+  change('reporter', ''); assert.equal(select('reporter')['aria-invalid'], undefined);
+  assert.equal(select('employee')['aria-invalid'], 'true');
+  change('employee', ''); assert.equal(h.all().some(n => n['aria-invalid'] === 'true'), false);
+  assert.equal(select('defect').value, col);
+  await h.ui.flush();
+});
+
 test('BI homepage shortcuts open source/report tabs directly and keep period navigation valid', async (t) => {
   const h = harness(t);
   await h.ui.openTab('sources');

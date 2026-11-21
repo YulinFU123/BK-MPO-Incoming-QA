@@ -48,7 +48,7 @@
     assert(d.querySelector('.wm-header button'), '缺新建');
   });
   await check('新建窗口仅填写业务信息', () => {
-    d.querySelector('.wm-header button').click();
+    d.querySelector('.wm-header .primary').click();
     assert(d.querySelector('.wm-dialog[open]'), '对话框未打开');
     assert(!d.querySelector('.wm-dialog input[type=password]'), '不应出现密码');
   });
@@ -57,6 +57,8 @@
   await check('实际新建工作区并显示卡片', async () => {
     const f = d.querySelector('.wm-dialog form');
     f.querySelector('input').value = name;
+    const source = f.querySelector('[aria-label="主要数据来源（必选）"]');
+    source.value = 'records'; source.dispatchEvent(new w.Event('change'));
     f.requestSubmit();
     await wait(
       () =>
@@ -100,8 +102,8 @@
     const card = d.querySelector('[data-workspace-id="' + a.id + '"]');
     card.querySelector('.wm-card-name').click();
     await wait(() => d.querySelectorAll('.wm-metric').length === 4);
-    assert(d.querySelector('.wm-chart-grid'), '图表缺失');
-    assert(d.querySelector('.wm-recent table'), '表格缺失');
+    assert(d.querySelector('.wm-preview-empty'), '空工作区应显示范围提示');
+    assert(!d.querySelector('.wm-chart-grid') && !d.querySelector('.wm-recent table'), '空工作区不应渲染空图表');
   });
   await check('日期输入、字段、默认值和扫码入口均可发现', () => {
     assert(d.querySelectorAll('.wm-dates input[type=date]').length === 2, '日期输入缺失');
@@ -156,7 +158,8 @@
         !d.getElementById('workspaceManager').hidden &&
         !d.getElementById('workspaceManager').hasAttribute('aria-busy'),
     );
-    [...d.querySelectorAll('.wm-scope button')].find((x) => x.textContent === '近7天').click();
+    const range = d.querySelector('.wm-scope select[aria-label="快捷日期范围"]');
+    range.value = '7'; range.dispatchEvent(new w.Event('change', { bubbles: true }));
     await wait(() => d.querySelector('.wm-metric strong')?.textContent === '2');
     assert(
       d.querySelector('[data-workspace-id="' + a.id + '"] .wm-card-metrics strong').textContent ===

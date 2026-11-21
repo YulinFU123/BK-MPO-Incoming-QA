@@ -49,6 +49,12 @@
     <link rel="stylesheet" href="module-state.css" />
     <script src="module-state-client.js" defer></script>
     <script src="../../domain/guides.js" defer></script>
+    <script src="guide-manual.js" defer></script>
+    <script src="guide-quality.js" defer></script>
+    <script src="guide-tools.js" defer></script>
+    <script src="guide-bi.js" defer></script>
+    <script src="guide-pictures.js" defer></script>
+    <script src="guide-crops.js" defer></script>
     <script src="guide-ui.js" defer></script>
     <link rel="stylesheet" href="guide.css" />
     <script src="module-state-ui.js" defer></script>
@@ -97,12 +103,15 @@
         <nav class="nav-list" id="primaryNavigation" aria-label="按工作流程导航"></nav>
         <div class="sidebar-bottom">
           <label class="theme-label" for="themeSelect">界面风格</label>
-          <select id="themeSelect" aria-label="界面风格">
+          <div class="theme-picker">
+          <select id="themeSelect" aria-label="界面风格" title="切换界面风格">
             <option value="silver">雾银</option>
             <option value="glass">浅色玻璃</option>
             <option value="graphite">石墨</option>
             <option value="contrast">高对比</option>
           </select>
+          <svg class="theme-picker-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+          </div>
           <div class="sidebar-foot">
             <span class="offline-dot"></span>离线运行<span id="versionLabel">开发版</span>
           </div>
@@ -119,15 +128,11 @@
               title="显示或收起侧栏"
             >
               收起侧栏</button
-            ><span id="viewTitle" hidden></span
+            ><button type="button" id="pageBack" class="button quiet" aria-keyshortcuts="Alt+ArrowLeft" hidden disabled>← 返回</button><span id="viewTitle" hidden></span
             ><span id="modeBadge" class="mode-badge" hidden>示例数据</span>
           </div>
           <div class="toolbar-actions">
-            <button type="button" id="toolbarImport" class="button primary" disabled>
-              常用操作</button
-            ><button type="button" id="toolbarSecondary" class="button secondary" hidden disabled>
-              相关功能</button
-            ><button type="button" id="lockButton" class="button quiet" disabled>锁定</button>
+            <button type="button" id="lockButton" class="button quiet" disabled>锁定</button>
           </div>
         </header>
         <div class="busy-line" id="busyLine" hidden></div>
@@ -197,7 +202,7 @@
           <div id="workspaceView" class="workspace-view" hidden>
             <div id="demoNotice" class="notice demo-notice" hidden>
               <span data-icon="info"></span
-              ><span>当前显示明确构造的示例数据，不代表实际业务结果，关闭后清空。</span
+              ><span>示例数据 · 非业务结果，退出后清空。</span
               ><button type="button" id="demoNewWorkspace" class="text-button">
                 使用自己的数据
               </button>
@@ -334,6 +339,7 @@
                 ><small>异常记录条数不会自动当作不良件数。</small>
               </div>
               <div id="analysisContent" hidden>
+                <div class="page-shortcuts"><button type="button" class="button secondary" data-start-import>导入检验数量</button></div>
                 <div id="quantityInsights"></div>
                 <div class="metric-strip" aria-label="当前日期范围指标">
                   <div class="metric main-metric">
@@ -411,6 +417,7 @@
             </section>
 
             <section id="dataView" data-page="data" hidden aria-label="数据明细">
+              <div class="page-shortcuts"><button type="button" class="button secondary" data-start-import>导入检验数量</button><button type="button" class="button quiet" data-destination="overview">查看检验总览</button></div>
               <div id="qualitySampleScope" class="quality-sample-scope" hidden>
                 <span id="qualitySampleLabel"></span
                 ><button type="button" class="button quiet" id="returnQualityCheck">
@@ -487,6 +494,7 @@
               <p class="quality-message">
                 日期用于各来源核对；上方数据集和维度筛选仅用于检验数量。核对不会修改、合并或删除记录。
               </p>
+              <div class="page-shortcuts" data-workspace-source="records"><button type="button" class="button quiet" data-destination="data">检验数量明细</button><button type="button" class="button quiet" data-destination="legacy-records">记录查询</button></div>
               <div id="qualityResults" aria-live="polite"></div>
               <div class="quality-bi-toolbar" data-workspace-source="bi">
                 <h3>BI历史核对</h3>

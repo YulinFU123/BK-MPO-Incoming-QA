@@ -69,10 +69,10 @@ window.createHomeStudio = ({
     b.prepend(icon(name));
     return b;
   };
-  let resizeFrame = 0,
+  let resizeFrame = 0, contentObserver, observedViewport = 0,
     observedWidth = 0,
     observedHeight = 0;
-  let arrangingPanels = false;
+  let arrangingPanels = false, utilityOpen = false, sourceDetailsOpen = false;
   let homeColumns = { sources: {} };
   let data = model.defaults(),
     sourcePreference = { mode: 'auto', channel: 'auto', dailyScope: '', employee: '' },
@@ -88,21 +88,6 @@ window.createHomeStudio = ({
     filtersOpen = false,
     queryTimer = null,
     detailTicket = 0;
-  const HINT_KEY = 'hs-home-hint-v1';
-  const hintSeen = () => {
-    try {
-      return localStorage.getItem(HINT_KEY) === '1';
-    } catch {
-      return false;
-    }
-  };
-  const markHintSeen = () => {
-    try {
-      localStorage.setItem(HINT_KEY, '1');
-    } catch {
-      /* non-critical */
-    }
-  };
   const temporary = new Map();
   const transient = () => {
     if (!temporary.has(data.activeId))
@@ -244,17 +229,22 @@ window.createHomeStudio = ({
     const home = document.querySelector('[data-page="home"]');
     home.prepend(node('div', 'home-studio'));
     home.firstElementChild.id = 'homeStudio';
-    new ResizeObserver(() => {
-      const { clientWidth: width, clientHeight: height } = $('hsContent') || $('homeStudio');
-      if (!report || busy || !getContext().unlocked ||
-          (Math.abs(width - observedWidth) < 4 && Math.abs(height - observedHeight) < 4)) return;
+    const resizeCharts = () => {
+      const canvas = $('hsContent');
+      if (!canvas || currentRoute !== 'home') return;
+      const { clientWidth: width, clientHeight: height } = canvas;
+      if (!width || !report || busy || !getContext().unlocked ||
+          (Math.abs(width - observedWidth) < 4 && Math.abs(height - observedHeight) < 4 && observedViewport === window.innerHeight)) return;
+      observedViewport = window.innerHeight;
       observedWidth = width;
       observedHeight = height;
       cancelAnimationFrame(resizeFrame);
       resizeFrame = requestAnimationFrame(() => {
         if (report && !busy && getContext().unlocked) renderData();
       });
-    }).observe($('homeStudio'));
+    };
+    contentObserver = new ResizeObserver(resizeCharts);
+    window.addEventListener?.('resize', resizeCharts);
     const oldIds = ['dashboard', 'homeWorkspace', 'homeMain', 'homeAside'];
     for (const id of oldIds)
       if ($(id))
@@ -283,7 +273,9 @@ window.createHomeStudio = ({
     };
     label.append(input);
     top.append(label);
-    $('toolbarImport').before(top);
+    top.setAttribute('role', 'group');
+    top.setAttribute('aria-label', '首页搜索与快捷操作');
+    $('homeStudio').before(top);
     const dialog = node('dialog', 'hs-dialog');
     dialog.id = 'hsDetail';
     dialog.setAttribute('aria-labelledby', 'hsDetailTitle');
@@ -308,6 +300,10 @@ window.createHomeStudio = ({
     const mode = getContext().dataSourceMode || 'auto';
     renderGlobalTools(mode);
     const groups = window.WorkbenchNavigation.groupsFor(mode);
+    const utilities = node('details', 'hs-nav-utilities');
+    utilities.open = utilityOpen;
+    utilities.append(node('summary', '', '工具与设置'));
+    utilities.ontoggle = () => { if (utilities.isConnected) utilityOpen = utilities.open; };
     for (const [id, title, ids] of groups) {
       const details = node('details', 'hs-nav-group');
       details.open = nav.expanded.includes(id);
@@ -345,8 +341,10 @@ window.createHomeStudio = ({
           : nav.expanded.filter((k) => k !== id);
         client.change(NAV, nav);
       };
-      navRoot.append(details);
+      if (currentRoute === 'home' && ['data', 'system'].includes(id)) utilities.append(details);
+      else navRoot.append(details);
     }
+    if (currentRoute === 'home') navRoot.append(utilities);
   }
   function renderGlobalTools(mode) {
     const top = $('hsGlobalTools');
@@ -433,7 +431,8 @@ window.createHomeStudio = ({
     const tabs = node('div', 'hs-tabs');
     tabs.setAttribute('role', 'tablist');
     tabs.setAttribute('aria-label', '分析方案标签');
-    for (const v of data.views.filter((v) => v.open)) {
+    const openViews = data.views.filter((v) => v.open);
+    for (const v of openViews) {
       const tab = node('div', 'hs-tab-wrap');
       const b = ib(v.name, 'folder', () => switchView(v.id), 'hs-tab');
       b.setAttribute('role', 'tab');
@@ -445,8 +444,8 @@ window.createHomeStudio = ({
       tab.append(b, close);
       tabs.append(tab);
     }
-    tabs.append(ib('新建分析方案', 'plus', () => newView(), 'hs-new-tab'));
-    root.append(tabs);
+    const addView = ib('新建分析方案', 'plus', () => newView(), 'hs-new-tab');
+    if (openViews.length > 1) { tabs.append(addView); root.append(tabs); }
     const canvas = node('div', 'hs-canvas'),
       main = node('div', 'hs-content'),
       settings = node('aside', 'hs-settings');
@@ -457,15 +456,25 @@ window.createHomeStudio = ({
       symbol = node('span', 'hs-heading-symbol');
     symbol.append(icon('cube'));
     const copy = node('div');
-    copy.append(
-      node('h1', '', `智能分析 · ${active().name}`),
-      node('p', '', '当前文件中的独立分析视图，筛选与布局分别记忆。'),
-    );
+    const source = report?.primary?.source || getContext().dataSourceMode;
+    copy.append(node('span', 'hs-context-label', source === 'bi' ? 'BI 导入分析' : source === 'records' ? '人工异常分析' : '工作区分析'),
+      node('h1', '', active().name));
     identity.append(symbol, copy);
     const tools = node('div', 'hs-heading-actions');
-    tools.append(
-      ib('刷新', 'refresh', () => refresh()),
-      ib('导出当前明细', 'download', () => exportRows()),
+    const more = node('div', 'hs-more');
+    more.id = 'hsMore';
+    const trigger = node('button', 'hs-button hs-more-trigger', '更多操作');
+    trigger.type = 'button';
+    trigger.setAttribute('popovertarget', 'hsMoreActions');
+    const extra = node('div', 'hs-more-actions');
+    extra.id = 'hsMoreActions';
+    extra.setAttribute('popover', 'auto');
+    extra.setAttribute('role', 'group');
+    extra.setAttribute('aria-label', '更多操作');
+    more.append(trigger, extra);
+    tools.append(ib('刷新', 'refresh', () => refresh()), ib('导出当前明细', 'download', () => exportRows()), more);
+    if (openViews.length === 1) extra.append(addView);
+    extra.append(
       ...(report?.primary?.source === 'bi' && report.biSource?.homeFields?.columns.length
         ? [button('分析表头', () => editHomeColumns(report.biSource.homeFields))] : []),
       ib('保存布局', 'save', () =>
@@ -486,7 +495,18 @@ window.createHomeStudio = ({
     });
     arrange.id = 'hsArrangePanels';
     arrange.setAttribute('aria-pressed', String(arrangingPanels));
-    tools.append(arrange);
+    if (arrangingPanels) tools.append(arrange);
+    else extra.append(arrange);
+    renderHomeHint(extra);
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowDown') return;
+      event.preventDefault();
+      if (!extra.matches(':popover-open')) extra.showPopover({ source: trigger });
+      extra.querySelector('button')?.focus();
+    });
+    extra.addEventListener('click', (event) => {
+      if (event.target.closest('button') && extra.matches(':popover-open')) extra.hidePopover();
+    }, true);
     heading.append(identity, tools);
     main.append(heading);
     const alert = node('div', 'hs-error');
@@ -496,7 +516,7 @@ window.createHomeStudio = ({
     alert.textContent = error;
     main.append(alert);
     renderFilterPanel(main);
-    if (!hintSeen()) renderHomeHint(main);
+
     const cards = node('div', 'hs-metrics');
     cards.id = 'hsMetrics';
     main.append(cards);
@@ -603,6 +623,8 @@ window.createHomeStudio = ({
     renderSettings(settings);
     canvas.append(main, settings);
     root.append(canvas);
+    contentObserver.disconnect();
+    contentObserver.observe(main);
     $('hsSearch').value = transient().search;
     if (!report || busy) {
       for (const title of getContext().dataSourceMode === 'bi'
@@ -838,6 +860,7 @@ window.createHomeStudio = ({
     }
     const header = node('button', 'hs-filter-heading');
     header.type = 'button';
+    header.id = 'hsFilterToggle';
     header.setAttribute('aria-expanded', String(filtersOpen));
     header.append(
       icon('filter'),
@@ -848,6 +871,7 @@ window.createHomeStudio = ({
     header.onclick = () => {
       filtersOpen = !filtersOpen;
       render();
+      $('hsFilterToggle')?.focus({ preventScroll: true });
     };
     panel.append(header);
     if (report?.primary?.source === 'bi') appendHomeColumnSummary(panel, bi?.homeFields);
@@ -857,7 +881,6 @@ window.createHomeStudio = ({
     }
     const body = node('div', 'hs-filter-body');
     {
-      renderSourceControls(body);
       const s = scope(),
         date = node('div', 'hs-date-control');
       date.append(node('span', '', '时间范围'));
@@ -948,6 +971,12 @@ window.createHomeStudio = ({
       );
       body.append(actions);
     }
+    const sourceDetails = node('details', 'hs-source-disclosure');
+    sourceDetails.open = sourceDetailsOpen;
+    sourceDetails.ontoggle = () => { if (sourceDetails.isConnected) sourceDetailsOpen = sourceDetails.open; };
+    sourceDetails.append(node('summary', '', '数据来源与统计口径'));
+    renderSourceControls(sourceDetails);
+    body.append(sourceDetails);
     panel.append(body);
     root.append(panel);
   }
@@ -978,23 +1007,14 @@ window.createHomeStudio = ({
     return parts.length ? parts.join('　') : '未设置筛选';
   }
   function renderHomeHint(root) {
-    const hint = node('section', 'hs-home-hint');
+    const hint = node('details', 'hs-home-help');
     hint.setAttribute('aria-label', '首页操作提示');
-    const head = node('div', 'hs-home-hint-head');
-    head.append(
-      icon('chart'),
-      node('strong', '', '欢迎使用首页分析'),
-      button('知道了', () => {
-        markHintSeen();
-        hint.remove();
-      }, 'hs-hint-close'),
-    );
-    hint.append(head);
+    hint.append(node('summary', '', '怎么看图和明细？'));
     const items = node('ul', 'hs-home-hint-list');
     const tips = [
-      ['点数字卡看明细', '上方每一张指标卡都可以点击，直接下钻到对应的记录或检验明细。'],
-      ['筛选收在条件栏里', '点「筛选条件」展开日期、工序、异常类型等筛选；收起时标题上会显示当前生效条件。'],
-      ['放大图表与查看明细', '点「放大」看大图；点折线点、排行条或分布分类，在右侧查看对应记录，不改变首页筛选。'],
+      ['点数字卡看明细', '点指标数字查看对应明细。'],
+      ['筛选收在条件栏里', '点「筛选条件」选日期、工序或负责人。'],
+      ['放大图表与查看明细', '点图表右上角「放大」。点折线或排行条看记录，不改变筛选。'],
     ];
     for (const [title, body] of tips) {
       const li = node('li');
@@ -1213,10 +1233,11 @@ window.createHomeStudio = ({
     root.append(bar);
   }
   function chartHeight(panel, width = $('hsPanel-' + panel)?.clientWidth || 480, enlarged = false) {
-    if (enlarged) return Math.round(Math.min(570, Math.max(300, width * 0.48)));
+    const viewport = window.innerHeight || 900;
+    if (enlarged) return Math.round(Math.max(260, Math.min(620, viewport * .65, width * .52)));
     return panel === 'trend'
-      ? Math.round(Math.min(400, Math.max(265, width * 0.38)))
-      : Math.round(Math.min(320, Math.max(220, width * 0.54)));
+      ? Math.round(Math.max(220, Math.min(450, viewport * .39, width * .36)))
+      : Math.round(Math.max(205, Math.min(340, viewport * .32, width * .51)));
   }
   function enlargeChart(key, title) {
     if (!report || busy) return;
@@ -1230,17 +1251,20 @@ window.createHomeStudio = ({
     const body = node('div');
     d.replaceChildren(h, node('p', 'hs-dialog-note', '点击图中的数据点、条形或分类查看对应记录。'), body);
     d.showModal();
-    let renderedWidth = 0;
+    let renderedWidth = 0, renderedHeight = 0;
     const draw = () => {
       if (!d.open || report !== snapshot) return;
       const width = Math.max(280, body.clientWidth || 900);
-      if (Math.abs(width - renderedWidth) < 4) return;
+      if (Math.abs(width - renderedWidth) < 4 && renderedHeight === window.innerHeight) return;
       renderedWidth = width;
+      renderedHeight = window.innerHeight;
       const factory = snapshot.primary?.source === 'bi' ? buildBIPanelChart : buildManualPanelChart;
       body.replaceChildren(factory(snapshot, key, width, true));
     };
     const observe = new ResizeObserver(draw);
+    window.addEventListener('resize', draw);
     d.addEventListener('close', () => {
+      window.removeEventListener('resize', draw);
       observe.disconnect();
       if (!d.open) d.replaceChildren();
     }, { once: true });
@@ -1616,7 +1640,9 @@ window.createHomeStudio = ({
         tag.title = '较同长上期';
         line.append(tag);
       }
-      copy.append(line, node('small', 'hs-metric-note', note));
+      copy.append(line);
+      if (id === 'records' && deltaInfo) b.title = '较同长上期：' + deltaInfo.text;
+      else copy.append(node('small', 'hs-metric-note', note));
       b.append(badge, copy);
       $('hsMetrics').append(b);
     }
@@ -2109,9 +2135,9 @@ window.createHomeStudio = ({
     },
     clear() {
       cancelAnimationFrame(resizeFrame);
-      observedWidth = 0;
-      observedHeight = 0;
-      arrangingPanels = false;
+      contentObserver?.disconnect();
+      observedViewport = observedWidth = observedHeight = 0;
+      arrangingPanels = utilityOpen = sourceDetailsOpen = filtersOpen = false;
       generation++;
       ticket++;
       detailTicket++;

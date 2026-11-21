@@ -9,6 +9,17 @@
     sans-serif;
   min-width: 0;
 }
+.lab-fields .lab-field:has(> select[aria-invalid='true']) {
+  color: var(--danger);
+  font-weight: 600;
+}
+.lab-fields .lab-field select[aria-invalid='true'] {
+  color: var(--danger);
+  background-color: var(--danger-soft);
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+.lab-mapping-conflict { color: var(--danger); font-size: 13px; overflow-wrap: anywhere; }
 .lab-date-mapping-note {
   border-left: 3px solid var(--accent);
   padding: 8px 12px;
@@ -94,6 +105,28 @@
 .lab-feedback[hidden] {
   display: none;
 }
+/* Keep the single, live error and its real retry control in the scrolling BI pane. */
+.lab-feedback-problem {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  gap: 6px 16px;
+  padding: 9px 12px;
+  background: var(--danger-soft, #fff0f0);
+  color: var(--danger, #a52d34);
+  border: 1px solid var(--danger, #a52d34);
+  border-inline-start-width: 4px;
+  border-radius: 6px;
+}
+.lab-feedback-problem #labMessage:not(:empty) {
+  flex: 1 1 22em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+.lab-feedback-problem #labSaved { color: inherit; }
+#analysisStudioRoot:has(> .lab-feedback-problem:not([hidden])) > .lab-live-guide { position: static; }
+#analysisStudioRoot:has(> .lab-feedback-problem:not([hidden])) #labBody :is(input, select, button, textarea, summary) { scroll-margin-block-start: 7rem; }
 .lab-live-guide {
   position: sticky;
   top: 0;

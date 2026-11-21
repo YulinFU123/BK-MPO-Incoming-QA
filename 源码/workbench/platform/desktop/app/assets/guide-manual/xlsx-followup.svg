@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="296" viewBox="0 0 840 296" role="img"><title>未关闭异常：核对导出时的处理进度</title><rect width="840" height="296" rx="14" fill="#f5f8fa"/><g font-family="Microsoft YaHei UI, Microsoft YaHei, sans-serif">
+<text x="28" y="34" font-size="16" font-weight="600" fill="#206a6e">待办工作簿  /  外部文件内容示意</text>
+<text x="28" y="74" font-size="29" font-weight="650" fill="#103e4c">未关闭异常：核对导出时的处理进度</text>
+<rect x="28" y="100" width="211" height="42" fill="#dcebea"/>
+<text x="40" y="128" font-size="18" font-weight="600" fill="#203448">SN</text>
+<rect x="240" y="100" width="177" height="42" fill="#dcebea"/>
+<text x="252" y="128" font-size="18" font-weight="600" fill="#203448">处理状态</text>
+<rect x="418" y="100" width="176" height="42" fill="#dcebea"/>
+<text x="430" y="128" font-size="18" font-weight="600" fill="#203448">负责人</text>
+<rect x="595" y="100" width="216" height="42" fill="#dcebea"/>
+<text x="607" y="128" font-size="18" font-weight="600" fill="#203448">处理期限</text>
+<rect x="28" y="143" width="211" height="42" fill="#ffffff"/>
+<text x="40" y="171" font-size="18" font-weight="400" fill="#203448">DEMO00000</text>
+<rect x="240" y="143" width="177" height="42" fill="#ffffff"/>
+<text x="252" y="171" font-size="18" font-weight="400" fill="#203448">待处理</text>
+<rect x="418" y="143" width="176" height="42" fill="#ffffff"/>
+<text x="430" y="171" font-size="18" font-weight="400" fill="#203448">示例甲</text>
+<rect x="595" y="143" width="216" height="42" fill="#ffffff"/>
+<text x="607" y="171" font-size="18" font-weight="400" fill="#203448">2026-09-25</text>
+<rect x="28" y="186" width="211" height="42" fill="#eaf1f4"/>
+<text x="40" y="214" font-size="18" font-weight="400" fill="#203448">DEMO00002</text>
+<rect x="240" y="186" width="177" height="42" fill="#eaf1f4"/>
+<text x="252" y="214" font-size="18" font-weight="400" fill="#203448">处理中</text>
+<rect x="418" y="186" width="176" height="42" fill="#eaf1f4"/>
+<text x="430" y="214" font-size="18" font-weight="400" fill="#203448">示例乙</text>
+<rect x="595" y="186" width="216" height="42" fill="#eaf1f4"/>
+<text x="607" y="214" font-size="18" font-weight="400" fill="#203448">2026-09-25</text>
+<text x="28" y="272" font-size="16" font-weight="400" fill="#476071">导出的工作表是当时的待办清单；更改工作表不会更新工作台中的处理状态。</text>
+</g></svg>

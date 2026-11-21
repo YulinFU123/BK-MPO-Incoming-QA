@@ -213,23 +213,7 @@ window.createWorkspaceNavigation = ({ status, view, navigate, act, beforeSearch,
   function setView() {
     initHubs();
     renderNav();
-    const actions = model
-      .contextActions(view(), sourceMode())
-      .filter((id) =>
-        model.destinationAllowed(id.startsWith('route:') ? id : 'action:' + id, sourceMode()),
-      );
-    for (const [index, id] of ['toolbarImport', 'toolbarSecondary'].entries()) {
-      const button = $(id),
-        key = actions[index];
-      button.hidden = !key;
-      if (!key) continue;
-      const route = key.startsWith('route:') ? model.getRoute(key.slice(6)) : null,
-        action = route || model.getAction(key);
-      button.textContent = action.title;
-      button.title = action.description;
-      button.disabled = !enabled;
-      button.dataset.commonAction = key;
-    }
+
     $('homeWorkspace').textContent =
       status().mode === 'demo'
         ? '当前是示例工作区，修改在关闭示例后清空。'

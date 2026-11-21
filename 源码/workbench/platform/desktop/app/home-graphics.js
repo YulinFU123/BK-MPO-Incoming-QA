@@ -52,11 +52,11 @@ window.HomeGraphics = (() => {
     { comparison = false, onRange = () => {}, onQuantity = () => {}, width = 390, height = 205 } = {},
   ) {
     if (!rows.length) return empty('当前范围没有可绘制的周期。');
-    width = Math.max(width, rows.length * 42 + 70);
+    width = Math.max(width, rows.length * 48 + 96);
     const H = height,
-      L = 35,
-      R = 35,
-      T = 28,
+      L = 48,
+      R = 48,
+      T = 42,
       B = 32,
       W = width - L - R,
       Y = H - T - B;
@@ -90,6 +90,7 @@ window.HomeGraphics = (() => {
       );
     const step = W / rows.length,
       bar = Math.min(22, step * 0.48);
+    const labels = [], markers = [];
     let path = '',
       active = false;
     rows.forEach((r, i) => {
@@ -101,14 +102,15 @@ window.HomeGraphics = (() => {
         width: bar,
         height: r.recordCount ? Math.max(0.8, T + Y - y) : 0,
         rx: 2,
-        fill: '#2689ff',
+        fill: 'var(--combo-bar)',
       });
       hit(rect, `${r.start} 至 ${r.end}，异常${r.recordCount}条`, () => onRange(r));
-      svg.append(
-        rect,
+      svg.append(rect);
+      const countY = y - 7;
+      labels.push(
         s(
           'text',
-          { x, y: Math.max(T + 9, y - 5), 'text-anchor': 'middle', class: 'home-value' },
+          { x, y: countY, 'text-anchor': 'middle', class: 'home-value' },
           fmt(r.recordCount),
         ),
       );
@@ -119,7 +121,7 @@ window.HomeGraphics = (() => {
           y: py,
           width: Math.max(5, bar / 3),
           height: Math.max(0.8, T + Y - py),
-          fill: '#ffb945',
+          fill: 'var(--combo-prior)',
           rx: 1,
         });
         hit(prev, `同长上期对应周期${r.previousCount}条`, () => onRange(r, true));
@@ -135,18 +137,21 @@ window.HomeGraphics = (() => {
           cx: x,
           cy: yy,
           r: 3.5,
-          fill: '#08ad7f',
-          stroke: '#fff',
+          fill: 'var(--combo-line)',
+          stroke: 'var(--combo-paper)',
           'stroke-width': 1.5,
         });
         hit(circle, `${r.start} 至 ${r.end}，不良${r.defectiveUnits}件`, () => onQuantity(r));
-        svg.append(
-          circle,
+        markers.push(circle);
+        const above = yy - 9;
+        const lineY = Math.abs(above - countY) >= 18 ? above
+          : (yy + 18 <= H - B + 3 ? Math.max(yy + 17, countY + 18) : countY - 18);
+        labels.push(
           s(
             'text',
             {
               x,
-              y: Math.max(T + 9, yy - 9),
+              y: lineY,
               'text-anchor': 'middle',
               class: 'home-value home-green',
             },
@@ -156,17 +161,16 @@ window.HomeGraphics = (() => {
       } else active = false;
     });
     if (path)
-      svg.insertBefore(
-        s('path', { d: path, fill: 'none', stroke: '#08ad7f', 'stroke-width': 2 }),
-        svg.querySelector('rect'),
-      );
+      svg.append(s('path', { d: path, fill: 'none', stroke: 'var(--combo-line)', 'stroke-width': 2.5, 'pointer-events': 'none' }));
+    for (const node of markers) svg.append(node);
+    for (const node of labels) svg.append(node);
     const wrap = document.createElement('div');
     wrap.className = 'home-graphic-scroll';
     const legend = document.createElement('div');
     legend.className = 'home-chart-legend';
     for (const [name, color] of [
-      ['异常条数', '#2689ff'],
-      [comparison ? '同长上期' : '不良件数', comparison ? '#ffb945' : '#08ad7f'],
+      ['异常条数', 'var(--combo-bar)'],
+      [comparison ? '同长上期' : '不良件数', comparison ? 'var(--combo-prior)' : 'var(--combo-line)'],
     ]) {
       const label = document.createElement('span'),
         dot = document.createElement('i');

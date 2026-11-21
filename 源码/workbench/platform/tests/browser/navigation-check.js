@@ -298,7 +298,7 @@
         input.dispatchEvent(new Event('change', { bubbles: true }));
       }
       const sequence = child.getElementById('autoStrip').textContent;
-      doc().getElementById('toolbarImport').click();
+      child.getElementById('openBatch').click();
       await wait(() => child.getElementById('batchDialog').open, '原暂存窗口');
       captureFields(model.getRoute('legacy-entry'), child, '批量扫码暂存');
       child.getElementById('batchClose').click();

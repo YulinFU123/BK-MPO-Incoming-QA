@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="296" viewBox="0 0 840 296" role="img"><title>按文本核对导出的编号</title><rect width="840" height="296" rx="14" fill="#f5f8fa"/><g font-family="Microsoft YaHei UI, Microsoft YaHei, sans-serif">
+<text x="28" y="34" font-size="16" font-weight="600" fill="#206a6e">CSV 原文摘列  /  外部文件内容示意</text>
+<text x="28" y="74" font-size="29" font-weight="650" fill="#103e4c">按文本核对导出的编号</text>
+<rect x="28" y="100" width="187" height="42" fill="#dcebea"/>
+<text x="40" y="128" font-size="18" font-weight="600" fill="#203448">发现日期</text>
+<rect x="216" y="100" width="243" height="42" fill="#dcebea"/>
+<text x="228" y="128" font-size="18" font-weight="600" fill="#203448">SN</text>
+<rect x="460" y="100" width="177" height="42" fill="#dcebea"/>
+<text x="472" y="128" font-size="18" font-weight="600" fill="#203448">异常现象</text>
+<rect x="638" y="100" width="173" height="42" fill="#dcebea"/>
+<text x="650" y="128" font-size="18" font-weight="600" fill="#203448">底座丝印</text>
+<rect x="28" y="143" width="187" height="42" fill="#ffffff"/>
+<text x="40" y="171" font-size="18" font-weight="400" fill="#203448">2026-04-16</text>
+<rect x="216" y="143" width="243" height="42" fill="#ffffff"/>
+<text x="228" y="171" font-size="18" font-weight="400" fill="#203448">DEMO-CSV-0001</text>
+<rect x="460" y="143" width="177" height="42" fill="#ffffff"/>
+<text x="472" y="171" font-size="18" font-weight="400" fill="#203448">外观异常</text>
+<rect x="638" y="143" width="173" height="42" fill="#ffffff"/>
+<text x="650" y="171" font-size="18" font-weight="400" fill="#203448">'0012</text>
+<text x="28" y="272" font-size="16" font-weight="400" fill="#476071">原 CSV 用单引号前缀保护 0012；不同表格软件的显示方式可能不同。</text>
+</g></svg>
