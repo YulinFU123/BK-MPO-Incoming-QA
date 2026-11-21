@@ -296,6 +296,18 @@ test('legacy-auto workspace cards and right preview show actual BI counts, units
     ),
   );
 });
+test('workspace directory keeps the selection separate from its analysis range', async () => {
+  const h = harness({ explicit: true });
+  await h.manager.open();
+  assert.equal(h.all().find(n => n.id === 'wmVisibleCount').textContent, '2');
+  assert.equal(h.all().find(n => n['aria-current'] === 'true').textContent, '已有BI工作区');
+  const range = h.all().find(n => n['aria-label'] === '快捷日期范围');
+  assert.equal(range.value, '30');
+  range.value = '7'; await range.onchange();
+  assert(h.calls.some(({method,input}) => method === 'managedUpdate' && input.id === 'one' && input.analysis.range === '7'));
+  assert(!h.calls.some(({method}) => method === 'managedOpen' || method === 'managedDelete'));
+});
+
 test('explicit BI workspace has a real preview and date controls, rather than only navigation buttons', async () => {
   const h = harness({ explicit: true });
   await h.manager.open();

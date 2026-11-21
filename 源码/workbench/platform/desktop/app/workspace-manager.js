@@ -5,6 +5,8 @@ window.createWorkspaceManager = ({
   onOldFile,
   onDemo,
   beforeLeave,
+  canResume = () => false,
+  onResume = () => {},
   onGuide = () => {},
 }) => {
   const Q = window.WorkspaceQuery;
@@ -241,9 +243,10 @@ window.createWorkspaceManager = ({
       title = el('div');
     title.append(
       el('h1', '', '工作区管理'),
-      el('p', '', '创建和管理不同工序的异常记录工作区，每个工作区独立保存数据、分析与配置。'),
+      el('p', '', '选择左侧工作区查看详情，或直接打开继续处理。'),
     );
     const headerActions = el('div', 'wm-header-actions');
+    if (canResume()) headerActions.append(btn('← 返回刚才的页面', onResume));
     headerActions.append(
       btn('新手引导', onGuide),
       btn('＋ 新建工作区', () => createDialog(), 'primary'),
@@ -259,6 +262,11 @@ window.createWorkspaceManager = ({
     const split = el('div', 'wm-split'),
       left = el('section', 'wm-library');
     left.setAttribute('aria-label', '全部工作区');
+    const libraryHead = el('div', 'wm-library-head');
+    const visibleCount = el('span', 'wm-library-count');
+    visibleCount.id = 'wmVisibleCount';
+    libraryHead.append(el('h2', '', showDeleted ? '回收站' : '我的工作区'), visibleCount);
+    left.append(libraryHead);
     const tools = el('div', 'wm-tools');
     const find = el('input', 'wm-search');
     find.type = 'search';
@@ -308,7 +316,16 @@ window.createWorkspaceManager = ({
     cards.id = 'wmCards';
     left.append(cards);
     const foot = el('footer', 'wm-library-footer');
-    foot.append(
+    const utilities = el('div', 'wm-library-menu');
+    utilities.id = 'wmLibraryMenu';
+    utilities.setAttribute('popover', 'auto');
+    utilities.setAttribute('role', 'group');
+    utilities.setAttribute('aria-label', '工作区管理工具');
+    const trigger = el('button', 'wm-button wm-library-trigger', '管理工具 ▾');
+    trigger.type = 'button';
+    trigger.setAttribute('popovertarget', utilities.id);
+    utilities.onclick = e => { if (e.target.closest('button') && utilities.matches(':popover-open')) utilities.hidePopover(); };
+    utilities.append(
       btn('打开旧密码文件', () => {
         hide();
         onOldFile();
@@ -322,6 +339,8 @@ window.createWorkspaceManager = ({
         includeArchived = !includeArchived;
         await open();
       }),
+    );
+    foot.append(
       btn(showDeleted ? '返回工作区列表' : '回收站（' + deletedItems.length + '）', async () => {
         showDeleted = !showDeleted;
         search = '';
@@ -332,9 +351,9 @@ window.createWorkspaceManager = ({
         onDemo();
       }),
     );
-    foot.append(el('small', '', showDeleted
-      ? '回收站中的工作区保留原数据与配置，恢复后即可继续使用。'
-      : '工作区自动保存在本机用户目录；无需单独设置密码。'));
+    foot.append(trigger, utilities);
+    if (showDeleted) foot.append(el('small', '', '恢复后可继续使用原数据与配置。'));
+    if (includeArchived && !showDeleted) foot.append(el('small', '', '列表包含已归档工作区。'));
     left.append(foot);
     const detail = el('aside', 'wm-detail');
     detail.id = 'wmDetail';
@@ -435,12 +454,16 @@ window.createWorkspaceManager = ({
               ? b.createdAt - a.createdAt
               : b.lastUsed - a.lastUsed),
       );
+    const visibleCount = $('wmVisibleCount');
+    if (visibleCount) visibleCount.textContent = String(visible.length);
     for (const item of visible) {
       const card = el('article', 'wm-card ' + (item.id === selected?.id ? 'selected' : ''));
       card.dataset.color = item.color;
       card.dataset.workspaceId = item.id;
       const heading = el('div', 'wm-card-heading'),
         name = btn(item.name, () => choose(item), 'wm-card-name');
+      name.title = '查看工作区详情：' + item.name;
+      if (item.id === selected?.id) name.setAttribute('aria-current', 'true');
       name.prepend(mark(item));
       const star = btn(item.favorite ? '★' : '☆', async () => {
         await api('managedUpdate', { id: item.id, favorite: !item.favorite });
@@ -456,10 +479,7 @@ window.createWorkspaceManager = ({
         el(
           'p',
           'wm-card-meta',
-          '工序：' +
-            (item.process || '未指定') +
-            '　创建：' +
-            new Date(item.createdAt).toLocaleDateString('zh-CN'),
+          item.process ? '工序 · ' + item.process : '未指定工序',
         ),
       );
       if (item.deletedAt) {
@@ -472,7 +492,7 @@ window.createWorkspaceManager = ({
       card.append(
         el(
           'p',
-          'wm-note',
+          'wm-card-source',
           item.summary?.source === 'bi'
             ? '来源：BI自由分析' + (item.dataSourceMode === 'auto' ? '（旧工作区自动识别）' : '')
             : item.dataSourceMode === 'bi'
@@ -489,8 +509,6 @@ window.createWorkspaceManager = ({
         for (const [value, label] of [
           [s.quantity, '不良数量（' + s.unit + '）'],
           [s.rows, 'BI明细行数'],
-          [s.previousQuantity, '上期不良数量'],
-          [s.coverageDays, '有数据天数'],
         ]) {
           const box = el('div');
           box.append(el('strong', '', fmt(value)), el('small', '', label));
@@ -515,22 +533,22 @@ window.createWorkspaceManager = ({
         for (const [n, label, cls] of [
           [s.records, '人工记录', ''],
           [s.pending, '待处理', 'red'],
-          [s.overdue, '超期', ''],
-          [s.closedRate === null ? '—' : (s.closedRate * 100).toFixed(1) + '%', '关闭率', 'green'],
         ]) {
           const k = el('div', cls);
           k.append(el('strong', '', typeof n === 'string' ? n : fmt(n)), el('small', '', label));
           nums.append(k);
         }
-        card.append(nums, spark(s.trend || [], item.color));
+        if (s.records === 0 && s.pending === 0) card.append(el('p', 'wm-card-quiet', '当前范围无人工记录'));
+        else card.append(nums);
+        if (s.records > 0 || s.trend?.some(point => point.count > 0)) card.append(spark(s.trend || [], item.color));
         if (s.period)
           card.append(el('small', 'wm-card-period', s.period.start + ' 至 ' + s.period.end));
       }
-      card.append(el('p', 'wm-card-meta', '最近使用：' + date(item.lastUsed)));
+      // Keep dates available without repeating creation and usage timestamps on every card.
+      name.title += '\n最近使用：' + date(item.lastUsed);
       const actions = el('div', 'wm-card-actions');
       actions.append(
         btn(item.id === activeId ? '继续工作' : '打开工作区', () => enter(item), 'open'),
-        btn('详情', () => choose(item)),
         deleteButton(item, '删除'),
       );
       card.append(actions);
@@ -543,26 +561,7 @@ window.createWorkspaceManager = ({
       if (!visible.length && !search) mount.append(el('p', 'wm-empty', '回收站为空。误删的工作区可以在这里恢复。'));
       return;
     }
-    const create = el('article', 'wm-create-card');
-    const plus = btn('＋', () => createDialog(), 'wm-big-plus');
-    plus.setAttribute('aria-label', '新建工作区');
-    create.append(plus, el('h2', '', '新建工作区'), el('p', '', '按工序或异常场景建立独立工作区'));
-    create.append(
-      btn('空白工作区', () => createDialog()),
-      btn('使用模板创建', () => createDialog('template')),
-      btn('复制现有工作区配置', () => createDialog('copy')),
-    );
-    if (items.filter((x) => !x.archived).length < 5) {
-      const quick = el('div', 'wm-quick');
-      quick.append(el('small', '', '常用工序，选择数据来源后创建'));
-      for (const name of ['剪线', '装管', '来料', '测试', '包装'])
-        if (!items.some((x) => x.name === name + '异常'))
-          quick.append(
-            btn(name, () => createDialog('blank', { name: name + '异常', process: name })),
-          );
-      create.append(quick);
-    }
-    mount.append(create);
+    if (!visible.length && !search) mount.append(el('p', 'wm-empty', includeArchived ? '暂无工作区。' : '暂无可用工作区。可在右上角新建，或先查看示例数据。'));
   }
   function panel(title, content, cls = '') {
     const p = el('section', 'wm-chart ' + cls);
@@ -688,27 +687,14 @@ window.createWorkspaceManager = ({
     from.onchange = to.onchange = changeDates;
     dates.append(from, el('span', '', '至'), to);
     scope.append(dates);
-    for (const [v, label] of [
-      ['1', '今天'],
-      ['7', '近7天'],
-      ['30', '近30天'],
-      ['month', '本月'],
-      ['last-month', '上月'],
-      ['90', '近90天'],
-      ['all', '全部'],
-    ])
-      scope.append(
-        btn(
-          label,
-          async () => {
-            await patch({ analysis: { ...selected.analysis, range: v } });
-            const r = await api('managedReport', { id: selected.id });
-            applyReport(r);
-            renderDetail();
-          },
-          selected.analysis.range === v ? 'chosen' : '',
-        ),
-      );
+    const range = select([
+      ['1','今天'], ['7','近7天'], ['30','近30天'], ['month','本月'],
+      ['last-month','上月'], ['90','近90天'], ['all','全部'],
+      ...(selected.analysis.range === 'custom' ? [['custom','自定义日期']] : []),
+    ], selected.analysis.range || '30');
+    range.setAttribute('aria-label', '快捷日期范围');
+    range.onchange = () => work(() => patch({ analysis: { ...selected.analysis, range: range.value } }));
+    scope.prepend(range);
     const grain = select(
       [
         ['day', '按天'],
@@ -788,7 +774,13 @@ window.createWorkspaceManager = ({
         '此处为当前工作区的人工记录与检验数据；已导入的BI自由分析来源会单独预览，不相加。',
       ),
     );
-    body.append(el('p', 'wm-period', `${r.scope.start} 至 ${r.scope.end}；发现日期统计异常条数。`));
+    // The date fields above already state the scope for this preview.
+    if (r.recordCount === 0 && !(r.previousCount > 0) && !r.quality?.totals?.inspectedUnits && !r.quality?.totals?.defectiveUnits && !r.trend?.some(x => x.previousCount > 0 || x.defectiveUnits > 0)) {
+      const empty = el('section', 'wm-preview-empty');
+      empty.append(el('h3', '', '当前范围暂无可绘制的数据'), el('p', '', '可调整上方日期范围，或打开工作区录入数据。'));
+      body.append(empty);
+      return;
+    }
     const grid = el('div', 'wm-chart-grid');
     grid.append(
       panel(
@@ -1116,6 +1108,15 @@ window.createWorkspaceManager = ({
     n.required = true;
     p.maxLength = 32;
     form.append(nl, pl);
+    if (mode === 'blank') {
+      const presets = el('details', 'wm-presets');
+      presets.append(el('summary', '', '常用工序'));
+      for (const process of ['剪线', '装管', '来料', '测试', '包装']) presets.append(btn(process, () => {
+        if (!n.value.trim() || n.value === p.value + '异常') n.value = process + '异常';
+        p.value = process;
+      }));
+      form.append(presets);
+    }
     const dataMode = select(
       [
         ['', '请选择主要数据来源'],

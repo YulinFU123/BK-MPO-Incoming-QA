@@ -1,5 +1,5 @@
 'use strict';
-window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
+window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null, onTabChange = () => {} }) => {
   const M = window.AnalysisStudio,
     C = window.AnalysisCalendar,
     A = window.A4Report;
@@ -389,7 +389,10 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
     }
     if (retry) retry.hidden = saveState !== 'failed';
     const feedback = document.getElementById('labFeedback');
-    if (feedback) feedback.hidden = !message && !busy && saveState === 'saved';
+    if (feedback) {
+      feedback.hidden = !message && !busy && saveState === 'saved';
+      feedback.classList.toggle('lab-feedback-problem', error || saveState === 'failed');
+    }
     const saveFeedback = document.getElementById('labSaveFeedback');
     if (saveFeedback) saveFeedback.hidden = saveState === 'saved';
     const saved = document.getElementById('labSaved');
@@ -606,6 +609,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
     return run(async () => {
       if (config.tab === id) return;
       if (id !== 'sources') dailyProductionOwner = null;
+      onTabChange(config.tab, id);
       config.tab = id;
       if (id === 'report') {
         if (templateGuide) setGuideStep(null);
@@ -652,6 +656,7 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
     const feedback = el('div', undefined, 'lab-feedback');
     feedback.id = 'labFeedback';
     feedback.setAttribute('role', 'status');
+    feedback.setAttribute('aria-atomic', 'true');
     const msg = el('span');
     msg.id = 'labMessage';
     const cancel = btn('取消任务', async () => {
@@ -2817,6 +2822,8 @@ window.createAnalysisStudioUI = ({ api, unlocked, renderTools = null }) => {
   return Object.freeze({
     activate,
     startImportGuide,
+    currentTab: () => active && ready ? config.tab : null,
+    analysisPeriod: () => lastAnalysisPeriod,
     async openTab(tab, requested = null) {
       if (!['sources', 'analysis', 'report', ...M.periods].includes(tab))
         throw Error('未找到BI页面。');

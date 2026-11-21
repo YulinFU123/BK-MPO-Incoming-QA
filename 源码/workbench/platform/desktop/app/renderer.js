@@ -47,6 +47,20 @@
   };
   manager = window.createWorkspaceManager({
     api,
+    canResume: () => state.status.unlocked,
+    onResume: async () => {
+      const live = await api('status');
+      if (!live?.unlocked || live.managedId !== state.status.managedId ||
+          live.mode !== state.status.mode || (live.dataSourceMode !== 'auto' && live.dataSourceMode !== state.status.dataSourceMode)) {
+        await applyStatus(live);
+        return;
+      }
+      manager.hide();
+      document.body.classList.toggle('workbench-home', state.view === 'home');
+      state.lastLegacySignature = null;
+      scheduleLegacyLayout();
+      $('manageWorkspaces').focus({ preventScroll: true });
+    },
     onGuide: () => {
       void guideUI.open('workspace-manager');
     },
@@ -91,6 +105,22 @@
     }
   });
   const navigation = window.WorkbenchNavigation;
+  const trail = navigation.createBackTrail();
+  const tabNames = { sources: '数据源与导入', day: '日分析', week: '周分析', month: '月分析', report: '横向A4报告' };
+  function refreshBack() {
+    const button = $('pageBack'), previous = trail.peek();
+    button.hidden = !state.status.unlocked;
+    button.disabled = !previous;
+    button.title = previous ? '返回：' + (tabNames[previous.analysisTab] || names[previous.view]) + '（Alt + ←）' : '当前没有上一页';
+    button.setAttribute('aria-label', button.title);
+  }
+  function goBack() {
+    if (!state.status.unlocked || state.busy || document.querySelector('dialog[open]') ||
+        document.body.classList.contains('workspace-management')) return;
+    const previous = trail.back();
+    if (previous) showView(previous.view, { analysisTab: previous.analysisTab, fromBack: true });
+  }
+  $('pageBack').onclick = goBack;
   const names = Object.fromEntries(navigation.routes.map((route) => [route.id, route.title]));
   const legacySections = navigation.legacySections;
   const biSections = navigation.biSections;
@@ -116,6 +146,8 @@
       document.body.classList.contains('workspace-management') ? 'workspace-manager' : state.view,
     onError: (error) => toast(error.message, true),
     allowed: (id) => {
+      const mode = state.status.dataSourceMode || 'auto';
+      if (id.startsWith('action:')) return navigation.destinationAllowed(id, mode);
       const route =
         id.startsWith('bi-') && !navigation.getRoute(id)
           ? 'bi-center'
@@ -124,15 +156,16 @@
             : id;
       return (
         !navigation.getRoute(route) ||
-        navigation.allows(route, state.status.dataSourceMode || 'auto')
+        navigation.allows(route, mode)
       );
     },
   });
   const guideButton = element('button', 'button quiet', '新手引导');
   guideButton.type = 'button';
   guideButton.id = 'openFeatureGuide';
-  guideButton.onclick = () =>
-    state.view === 'analysis-studio' ? analysisUI.startImportGuide() : guideUI.open();
+  // The global button always opens the illustrated reader. BI's separate live
+  // walkthrough remains available under 数据源与导入 → 导入实操引导.
+  guideButton.onclick = () => guideUI.open();
   document.querySelector('.toolbar-actions').prepend(guideButton);
   const dimensionNames = {
     process: '工序',
@@ -211,6 +244,12 @@
     api,
     unlocked: () => state.status.unlocked,
     renderTools: navigationUI.renderBiTools,
+    onTabChange: (before, after) => {
+      if (state.view !== 'analysis-studio' || !state.status.unlocked) return;
+      trail.syncTab(before);
+      trail.visit(state.view, after);
+      refreshBack();
+    },
   });
   let biRefreshTimer;
   window.workbench?.onBIChanged?.(() => {
@@ -495,6 +534,8 @@
     memory.detach();
     state.status = { ...state.status, unlocked: false, mode: 'locked', workspaceName: '' };
     state.navigationEpoch++;
+    trail.clear();
+    refreshBack();
     navigationUI.setEnabled(false);
     state.catalog = emptyCatalog();
     state.datasetId = '';
@@ -524,9 +565,7 @@
     $('modeBadge').hidden = true;
     $('workspaceLabel').textContent = '尚未打开工作区';
     $('workspaceLabel').parentElement.classList.remove('unlocked');
-    $('toolbarImport').disabled = true;
-    $('toolbarImport').hidden = true;
-    $('toolbarSecondary').hidden = true;
+
     $('lockButton').disabled = true;
     $('viewTitle').textContent = '工作区';
     document.querySelectorAll('[data-view]').forEach((button) => {
@@ -591,6 +630,8 @@
     }
     manager.hide();
     state.status = status;
+    trail.clear();
+    refreshBack();
     document.body.classList.add('workbench-shell');
     navigationUI.setEnabled(false);
     state.selection = null;
@@ -599,8 +640,7 @@
     $('unlockForm').hidden = true;
     $('lockView').hidden = true;
     $('workspaceView').hidden = false;
-    $('toolbarImport').disabled = true;
-    $('toolbarSecondary').disabled = true;
+
     $('lockButton').disabled = true;
     document.querySelectorAll('[data-view]').forEach((button) => {
       button.disabled = true;
@@ -637,7 +677,7 @@
     }
     navigationUI.setEnabled(true);
     $('lockButton').disabled = false;
-    $('lockButton').textContent = status.managedId ? '返回工作区' : '锁定';
+    $('lockButton').textContent = status.mode === 'demo' ? '退出示例' : '锁定工作区';
     const savedRoute = memory.current(memoryAddresses.session)?.data.lastRoute;
     if (!deferNavigation)
       showView(savedRoute && navigation.getRoute(savedRoute) ? savedRoute : 'home');
@@ -668,7 +708,7 @@
     $('passwordInput').focus();
   }
 
-  function showView(view, { analysisTab = null, analysisQuery = null } = {}) {
+  function showView(view, { analysisTab = null, analysisQuery = null, fromBack = false } = {}) {
     if (!state.status.unlocked) return;
     if (!navigation.getRoute(view)) {
       toast('未找到该功能入口，请使用查找功能。', true);
@@ -679,6 +719,11 @@
       state.status.dataSourceMode || 'auto',
       analysisTab,
     ));
+    if (!fromBack) {
+      trail.syncTab(analysisUI.currentTab());
+      trail.visit(view, analysisTab === 'analysis' ? analysisUI.analysisPeriod() : analysisTab);
+    }
+    refreshBack();
     guideUI.close();
     const legacy = Object.hasOwn(legacySections, view),
       bi = Object.hasOwn(biSections, view),
@@ -795,7 +840,7 @@
       legacy = Object.hasOwn(legacySections, state.view);
     if (
       !state.status.unlocked ||
-      (!legacy && !bi) ||
+      (!legacy && !bi) || document.body.classList.contains('workspace-management') ||
       $('importDialog').open ||
       navigationUI.isOpen() ||
       guideUI.isOpen() ||
@@ -1801,12 +1846,7 @@
         await api('lock');
         resetWorkspace();
       });
-    for (const id of ['toolbarImport', 'toolbarSecondary'])
-      $(id).onclick = () => {
-        const command = $(id).dataset.commonAction;
-        if (command?.startsWith('route:')) showView(command.slice(6));
-        else if (command) run(() => executeCommon(command));
-      };
+
     document
       .querySelectorAll('[data-start-import]')
       .forEach((button) => (button.onclick = openImport));
@@ -2030,6 +2070,14 @@
         showView('overview');
       });
     document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey &&
+          !event.defaultPrevented && !event.repeat && !event.isComposing && trail.peek() &&
+          !event.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])') &&
+          !document.querySelector('dialog[open]') && !document.body.classList.contains('workspace-management')) {
+        event.preventDefault();
+        goBack();
+        return;
+      }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         navigationUI.openSearch();

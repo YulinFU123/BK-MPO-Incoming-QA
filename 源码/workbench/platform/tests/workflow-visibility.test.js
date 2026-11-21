@@ -151,7 +151,7 @@ test('source choice controls the entire directory/search/action graph while pres
 
 test('actual homepage sidebar and global buttons switch together without exposing the opposite workflow', async () => {
   const d = dom();
-  for (const id of ['primaryNavigation', 'toolbarImport']) d.add(id);
+  d.add('primaryNavigation');
   let mode = 'bi';
   const actions = [],
     rows = new Map();
@@ -202,6 +202,7 @@ test('actual homepage sidebar and global buttons switch together without exposin
   assert.match(nav(), /夹具标签/);
   assert(!/新建记录|扫码|待办/.test(tools()));
   assert.match(tools(), /BI数据与导入.*日周月分析.*横向A4报告/);
+  assert.equal(d.document.getElementById('hsGlobalTools').parent.id, 'homePage');
   const importButton = d
     .all()
     .find((n) => n.tagName === 'button' && n.textContent === 'BI数据与导入');
@@ -211,6 +212,12 @@ test('actual homepage sidebar and global buttons switch together without exposin
   ui.setRoute('home');
   assert(!/BI自由分析|BI工作台/.test(nav()));
   assert.match(nav(), /快捷录入.*记录查询.*待办跟进/);
+  const utilities = d.all().find((n) => n.tagName === 'details' && n.children[0]?.textContent === '工具与设置');
+  assert.ok(utilities, '首页应有低频工具入口');
+  assert.equal(utilities.open, false, '工具分组不占用默认侧栏');
+  assert.match(utilities.textContent, /夹具标签/);
+  assert.match(utilities.textContent, /设置与恢复/);
+  assert.doesNotMatch(utilities.textContent, /快捷录入|记录查询|待办跟进/);
   assert.match(tools(), /新建记录.*扫码.*待办跟进/);
   assert(!/BI数据与导入/.test(tools()));
 });
@@ -227,8 +234,6 @@ test('actual function search and directory hubs filter routes again after a work
     'dataRules',
     'settingsMain',
     'settingsAside',
-    'toolbarImport',
-    'toolbarSecondary',
     'homeWorkspace',
     'functionQuery',
     'functionResults',

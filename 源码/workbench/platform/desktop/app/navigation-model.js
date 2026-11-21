@@ -520,21 +520,30 @@
       .map(({ item }) => item)
       .slice(0, 50);
   }
-  function contextActions(view, mode = 'all') {
-    if (!allows(view, mode)) return [];
-    if (view === 'home' && ['records', 'bi'].includes(mode)) return [];
-    if (view === 'legacy-entry') return ['batch-scan', 'route:legacy-settings'];
-    if (view === 'legacy-records') return ['import-record-xlsx', 'export-records'];
-    if (view === 'legacy-followup') return ['export-followup'];
-    if (view === 'legacy-analysis') return ['export-analysis'];
-    if (view === 'overview') return ['import-quantity', 'route:data'];
-    if (view === 'data') return ['import-quantity', 'route:overview'];
-    if (view === 'import') return ['import-quantity'];
-    if (view === 'quality-check') return ['route:data', 'route:legacy-records'];
-    if (view === 'home') return ['route:legacy-entry'];
-    return [];
+
+  // Only page identifiers live here, never records, source paths or queries.
+  function createBackTrail() {
+    let current = null;
+    const previous = [];
+    const entry = (view, tab) => ({ view, analysisTab: view === 'analysis-studio' ? tab || null : null });
+    return {
+      visit(view, tab) {
+        const next = entry(view, tab);
+        if (!current && view !== 'home') previous.push(entry('home'));
+        if (current && (current.view !== view || (current.analysisTab && next.analysisTab && current.analysisTab !== next.analysisTab))) {
+          previous.push(current);
+          if (previous.length > 50) previous.shift();
+        }
+        current = next;
+      },
+      syncTab(tab) { if (current?.view === 'analysis-studio' && tab) current = entry(current.view, tab); },
+      peek() { return previous.at(-1) || null; },
+      back() { if (!previous.length) return null; return current = previous.pop(); },
+      clear() { current = null; previous.length = 0; },
+    };
   }
   return Object.freeze({
+    createBackTrail,
     routes: Object.freeze(routes),
     actions: Object.freeze(actions),
     primary: Object.freeze(primary),
@@ -545,7 +554,6 @@
     primaryFor,
     peers,
     search,
-    contextActions,
     allows,
     destinationAllowed,
     primaryForMode,

@@ -295,6 +295,16 @@
     }
     return out;
   }
+  function mappingConflicts(mapping) {
+    const columns = new Map();
+    for (const role of roles) {
+      const id = mapping[role];
+      if (!id) continue;
+      if (!columns.has(id)) columns.set(id, []);
+      columns.get(id).push(role);
+    }
+    return [...columns].filter(([, assigned]) => assigned.length > 1);
+  }
   function source(v) {
     if (
       !keys(v, [
@@ -355,9 +365,12 @@
     )
       fail();
     const allowed = new Set(v.columns.map((c) => c.id));
-    const mapped = Object.values(v.mapping).filter(Boolean);
-    if (new Set(mapped).size !== mapped.length)
-      throw Error('同一列不能同时映射为不同业务字段；责任员工与报检人必须分开。');
+    const conflicts = mappingConflicts(v.mapping);
+    if (conflicts.length) {
+      const detail = conflicts.map(([id, assigned]) =>
+        '原表列「' + (v.columns.find(c => c.id === id)?.label || id) + '」同时选给了' + assigned.map(r => '「' + labels[r] + '」').join('、'));
+      throw Error(detail.join('；') + '。同一列只能对应一个业务字段，请修改重复选择。');
+    }
     if (
       new Set(v.columns.map((c) => c.id)).size !== v.columns.length ||
       Object.values(v.mapping).some((x) => x && !allowed.has(x)) ||
@@ -628,6 +641,7 @@
   }
   return Object.freeze({
     reconcileMapping,
+    mappingConflicts,
     defaults,
     validate,
     source,

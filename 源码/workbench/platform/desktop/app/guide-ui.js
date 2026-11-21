@@ -1,10 +1,12 @@
 'use strict';
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory;
-  else root.createGuideUI = factory(root.WorkbenchGuides, root.createModuleStateClient);
+  if (typeof module === 'object' && module.exports) module.exports = (model, client) =>
+    factory(model, client, require('./guide-pictures'), require('./guide-crops'));
+  else root.createGuideUI = factory(root.WorkbenchGuides, root.createModuleStateClient,
+    root.WorkbenchGuidePictures, root.WorkbenchGuideCrops || {});
 })(
   globalThis,
-  (model, createClient) =>
+  (model, createClient, pictures, crops) =>
     function createGuideUI({
       api,
       beforeOpen,
@@ -39,7 +41,8 @@
         playback = null,
         handledClose = false,
         pending = {},
-        generation = 0;
+        generation = 0,
+        pictureViews = 0;
       const completedThisSession = new Set();
       const dialog = make('dialog', undefined, 'feature-guide');
       dialog.id = 'featureGuideDialog';
@@ -79,6 +82,76 @@
       const demoAction = make('span', '', 'guide-demo-action');
       demonstration.setAttribute('aria-label', '示例操作画面');
       demonstration.append(demoScreen, demoExample, demoAction);
+      const viewer = make('dialog', undefined, 'guide-viewer');
+      viewer.setAttribute('aria-labelledby', 'guideViewerTitle');
+      const viewerTitle = make('h3');
+      viewerTitle.id = 'guideViewerTitle';
+      const closeViewer = button('返回引导', () => viewer.close());
+      const viewerHead = make('header', undefined, 'guide-header');
+      viewerHead.append(viewerTitle, closeViewer);
+      const figure = make('figure', undefined, 'guide-picture');
+      const caption = make('span', undefined, 'guide-picture-label');
+      const enlarge = button('放大截图', () => {
+        stopPlayback();
+        pictureViews++; // A late progress read must not change what the reader is inspecting.
+        viewer.showModal();
+        closeViewer.focus();
+        // A target at the far right of a wide screenshot should not open offscreen.
+        if (full.image.decode) void full.image.decode().then(() => {
+          if (!viewer.open) return;
+          const r = full.marker.getBoundingClientRect(), box = scroll.getBoundingClientRect();
+          scroll.scrollLeft += (r.left + r.right - box.left - box.right) / 2;
+          scroll.scrollTop += (r.top + r.bottom - box.top - box.bottom) / 2;
+        }).catch(() => {});
+      }, 'button secondary guide-enlarge');
+      const photo = () => {
+        const frame = make('div', undefined, 'guide-frame'), image = make('img'), marker = make('span');
+        marker.setAttribute('aria-hidden', 'true');
+        frame.append(image, marker);
+        return { frame, image, marker };
+      };
+      const thumb = photo(), full = photo();
+      const photoBar = make('figcaption', undefined, 'guide-picture-bar');
+      photoBar.append(caption, enlarge);
+      figure.append(thumb.frame, photoBar);
+      const scroll = make('div', undefined, 'guide-image-scroll');
+      scroll.tabIndex = 0;
+      scroll.setAttribute('role', 'region');
+      scroll.setAttribute('aria-label', '原尺寸操作图，可使用方向键滚动');
+      scroll.append(full.frame);
+      viewer.append(viewerHead, scroll);
+      viewer.addEventListener('close', () => { if (dialog.open) enlarge.focus(); });
+      // Chromium can send cancel to both stacked dialogs if the top one closes
+      // synchronously in cancel. Consume the Escape keystroke at the viewer.
+      viewer.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || event.isComposing) return;
+        event.preventDefault();
+        event.stopPropagation();
+        viewer.close();
+      });
+      viewer.addEventListener('cancel', event => { event.preventDefault(); queueMicrotask(() => { if (viewer.open) viewer.close(); }); });
+      function renderPicture() {
+        const pic = pictures?.get(current, step);
+        figure.hidden = !pic;
+        if (!pic) return;
+        const crop = crops[current + ':' + step];
+        const kind = pic.kind === 'capture' ? '示例实拍' : '操作示意（非截图）';
+        const heading = '图中标记：' + pic.label;
+        const manualExample = pic.kind === 'capture' && ['home','analysis-hub','data-center'].includes(current);
+        const description = kind + (manualExample ? '（手动录入工作区）' : '') + ' · ' + heading;
+        caption.textContent = description;
+        viewerTitle.textContent = description;
+        enlarge.textContent = pic.kind === 'capture' ? '放大截图' : '放大示意图';
+        for (const view of [thumb, full]) {
+          const asset = view === thumb && crop ? crop : pic;
+          const { image, marker } = view;
+          image.alt = description;
+          marker.className = 'guide-mark';
+          for (const [i, prop] of ['left','top','width','height'].entries()) marker.style[prop] = asset.rect[i] + '%';
+          if (view.file !== asset.file) { view.file = asset.file; image.src = asset.file; }
+        }
+      }
+      thumb.image.onerror = () => { figure.hidden = true; thumb.file = null; };
       const steps = make('ol', undefined, 'guide-steps');
       const actions = make('div', undefined, 'guide-actions');
       const previous = button('上一步', () => move(-1));
@@ -103,7 +176,7 @@
       });
       const skip = button('跳过本功能', () => close('skipped'), 'button quiet');
       actions.append(previous, next, play, replay, skip);
-      content.append(title, count, progress, stepTitle, body, demonstration, steps, actions);
+      content.append(title, count, progress, stepTitle, body, figure, demonstration, actions, steps);
       split.append(library, content);
       const status = make('p', '', 'guide-note');
       status.setAttribute('role', 'status');
@@ -166,7 +239,7 @@
         reset,
       );
       dialog.append(header, note, split, status, recovery);
-      doc.body.append(dialog);
+      doc.body.append(dialog, viewer);
       const client = createClient({
         api,
         onStatus: (value) => {
@@ -220,6 +293,7 @@
         progress.value = step + 1;
         stepTitle.textContent = guide.steps[step].title;
         body.textContent = guide.steps[step].body;
+        renderPicture();
         const demo = guide.steps[step].demo;
         demonstration.hidden = !demo;
         play.hidden = !demo;
@@ -372,6 +446,7 @@
       }
       function close(state = 'paused') {
         if (!dialog.open) return;
+        if (viewer.open) viewer.close();
         stopPlayback();
         remember(state);
         handledClose = true;
@@ -416,9 +491,9 @@
           dialog.showModal();
           closeButton.focus();
           opening = false;
-          const ticket = generation;
+          const ticket = generation, viewsAtOpen = pictureViews;
           if (!loaded) await load();
-          if (dialog.open && generation === ticket) {
+          if (dialog.open && generation === ticket && pictureViews === viewsAtOpen) {
             const saved = data.progress[current];
             step = saved?.status === 'paused' ? saved.step : 0;
             render();
